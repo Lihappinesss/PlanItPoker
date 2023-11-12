@@ -1,4 +1,3 @@
-// styled-jsx.d.ts
 // eslint-disable-next-line react/no-typos
 import 'react';
 
