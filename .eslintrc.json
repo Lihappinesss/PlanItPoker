@@ -9,6 +9,7 @@
         "@nx/enforce-module-boundaries": [
           "error",
           {
+            "allowCircularSelfDependency": true,
             "enforceBuildableLibDependency": true,
             "allow": [],
             "depConstraints": [
@@ -18,7 +19,8 @@
               }
             ]
           }
-        ]
+        ],
+        "import/no-absolute-path": "off"
       }
     },
     {

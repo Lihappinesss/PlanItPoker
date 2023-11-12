@@ -1,0 +1,43 @@
+@import '../../styles.scss';
+
+.profile {
+  padding: 30px;
+  margin: 100px auto 0;
+  max-width: 550px;
+  border: 1px solid $greyColor;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.member {
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 30px;
+}
+
+.userInfo {
+  margin-top: 40px;
+}
+
+.avatarWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: $greyColor;
+  margin-bottom: 10px;
+}
+
+.avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+}
+
+.changeRole {
+  margin-bottom: 10px;
+}

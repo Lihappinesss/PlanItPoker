@@ -1,0 +1,24 @@
+@import '../../styles.scss';
+
+.signin {
+  display: flex;
+  flex-direction: column;
+}
+
+.enter {
+  align-self: center;
+  font-weight: 800;
+  font-size: 24px;
+  line-height: 29px;
+  margin-bottom: 40px;
+}
+
+.remember {
+  margin-left: 30px;
+  font-size: 14px;
+  line-height: 17px;
+  color: $primary;
+  input {
+    margin-right: 5px;
+  }
+}

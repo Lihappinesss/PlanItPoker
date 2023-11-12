@@ -1,0 +1,49 @@
+@import '../../styles.scss';
+
+.homePage {
+  height: 100vh;
+  position: relative;
+  background: $layout;
+}
+
+.overlay {
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(158, 56, 220, 0.30);
+  z-index: 1;
+  cursor: pointer;
+}
+
+.roomContainer {
+  margin: 100px auto 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: $layout;
+  max-width: 700px;
+  width: 100%;
+  padding: 40px 20px;
+  box-sizing: border-box;
+  border-radius: 32px;
+}
+
+.room {
+  margin-bottom: 20px;
+}
+
+.rooms {
+  margin-top: 20px;
+}
+
+.title {
+  font-size: 24px;
+  line-height: 30px;
+}

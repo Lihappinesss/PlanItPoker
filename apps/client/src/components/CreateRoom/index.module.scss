@@ -1,0 +1,36 @@
+@import '../../styles.scss';
+
+.create {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  max-width: 780px;
+  box-sizing: border-box;
+  background: $layout;
+  color: #000;
+  border-radius: 30px;
+  padding: 50px 130px 100px;
+}
+
+.title {
+  margin-bottom: 40px;
+  font-size: 24px;
+  line-height: 29px;
+  color: #000;
+  font-weight: 800;
+}
+
+.remember {
+  input {
+    margin-right: 5px;
+  }
+}
+
+.close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  width: 12px;
+  height: 12px;
+}

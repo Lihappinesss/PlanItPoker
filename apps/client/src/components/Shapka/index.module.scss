@@ -1,0 +1,38 @@
+@import '../../styles.scss';
+
+.shapka {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 70px;
+  padding: 20px 100px;
+  box-sizing: border-box;
+  background: $violetColor;
+  color: $layout;
+}
+
+.link {
+  display: flex;
+  text-decoration: none;
+  color: $layout;
+  align-items: center;
+}
+
+.name {
+  margin-right: 10px;
+}
+
+.avatar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 45px;
+  height: 45px;
+  background: $yellowColor;
+  border-radius: 50%;
+}
+
+.img {
+  width: 23px;
+  height: 23px;
+}

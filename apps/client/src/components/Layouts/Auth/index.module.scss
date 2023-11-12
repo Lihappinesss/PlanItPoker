@@ -1,0 +1,25 @@
+@import '../../../styles.scss';
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: linear-gradient(45deg, #EECFBA, #9E38DC);
+  min-height: 100vh;
+  padding-top: 150px;
+  box-sizing: border-box;
+}
+
+.loginWrap {
+  width: 550px;
+  border-radius: 30px;
+  padding: 50px 90px 100px;
+  background: $layout;
+  box-sizing: border-box;
+}
+
+.title {
+  text-align: center;
+  color: $layout;
+  margin-bottom: 10px;
+}
