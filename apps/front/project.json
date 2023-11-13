@@ -1,7 +1,7 @@
 {
-  "name": "client",
+  "name": "front",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/client/src",
+  "sourceRoot": "apps/front/src",
   "projectType": "application",
   "targets": {
     "build": {
@@ -10,15 +10,15 @@
       "defaultConfiguration": "production",
       "options": {
         "compiler": "babel",
-        "outputPath": "dist/apps/client",
-        "index": "apps/client/src/index.html",
+        "outputPath": "dist/apps/front",
+        "index": "apps/front/src/index.html",
         "baseHref": "/",
-        "main": "apps/client/src/main.tsx",
-        "tsConfig": "apps/client/tsconfig.app.json",
-        "styles": ["apps/client/src/styles.scss"],
+        "main": "apps/front/src/main.tsx",
+        "tsConfig": "apps/front/tsconfig.app.json",
+        "styles": ["apps/front/src/styles.scss"],
         "scripts": [],
         "isolatedConfig": true,
-        "webpackConfig": "apps/client/webpack.config.js"
+        "webpackConfig": "apps/front/webpack.config.js"
       },
       "configurations": {
         "development": {
@@ -28,6 +28,12 @@
           "vendorChunk": true
         },
         "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/front/src/environments/environment.ts",
+              "with": "apps/front/src/environments/environment.prod.ts"
+            }
+          ],
           "optimization": true,
           "outputHashing": "all",
           "sourceMap": false,
@@ -41,15 +47,15 @@
       "executor": "@nx/webpack:dev-server",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "client:build",
+        "buildTarget": "front:build",
         "hmr": true
       },
       "configurations": {
         "development": {
-          "buildTarget": "client:build:development"
+          "buildTarget": "front:build:development"
         },
         "production": {
-          "buildTarget": "client:build:production",
+          "buildTarget": "front:build:production",
           "hmr": false
         }
       }
@@ -58,7 +64,7 @@
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/client/**/*.{ts,tsx,js,jsx}"]
+        "lintFilePatterns": ["apps/front/**/*.{ts,tsx,js,jsx}"]
       }
     }
   },

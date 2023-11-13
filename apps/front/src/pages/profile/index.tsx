@@ -13,7 +13,7 @@ import styles from './index.module.scss';
 const Profile = () => {
   const [email, updateEmail] = useState('');
   const handleSave = useCallback(() => {
-    console.log(1)
+    console.log(email)
   }, []);
 
   return (
