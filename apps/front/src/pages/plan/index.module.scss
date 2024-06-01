@@ -1,67 +1,15 @@
 @import '../../styles.scss';
 
+.plan {
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
 .main {
   padding: 0 20px;
-}
-
-.poker {
-  display: flex;
-  margin-top: 60px;
-}
-
-.votes {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.vote {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 144px;
-  height: 236px;
-  border-radius: 10px;
-  background: $blueColor;
-  color: $layout;
-  font-size: 64px;
-  font-weight: 900;
-  margin: 0 20px 20px 0;
-}
-
-.votesWrapper {
-  margin: 0 40px;
-}
-
-.select {
-  margin-bottom: 20px;
-  color: $primary;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-ul {
-  list-style: none;
-}
-
-li {
-  color: $primary;
-  font-size: 14px;
-  font-weight: 400;
-}
-
-.participants {
-  margin-bottom: 50px;
-}
-
-.team {
-  border-radius: 30px;
-  padding: 30px;
-  border: 1px solid $greyColor;
-}
-
-.teamTitle {
-  margin-bottom: 10px;
-  color: $primary;
-  font-size: 18px;
-  font-weight: 600;
+  display: grid;
+  grid-template-columns: 30% 50% 20%;
+  flex: 1;
 }

@@ -13,12 +13,7 @@
   margin-bottom: 40px;
 }
 
-.remember {
-  margin-left: 30px;
-  font-size: 14px;
-  line-height: 17px;
-  color: $primary;
-  input {
-    margin-right: 5px;
-  }
+.link {
+  text-decoration: none;
+  color: $layout;
 }

@@ -1,33 +1,127 @@
-import plus from '@src/icons/plus.png'
+import { useState, useRef, useEffect, useCallback } from 'react';
+import cx from 'classnames';
+
+import Button from '@components/Button';
+import Task from '@components/Task';
+
+import { ITaskList } from './types';
 
 import styles from './index.module.scss';
 
-interface ITaskList {
-  handleUpdateAdd: () => void,
-}
 
 function TaskList(props: ITaskList) {
   const {
-    handleUpdateAdd,
+    tasks,
+    setUnratedTasks,
+    handleMoveTask,
+    handleCreateTask,
+    showUnratedTasks,
+    handleRemoveTasks,
   } = props;
 
+  const [openIndex, setOpenIndex] =useState<number | null>(null);
+  const [showAddTask, setShowAddTask] = useState(false);
+  const dropdownRef = useRef<HTMLLIElement>(null);
+  const [links, setLinks] = useState('');
+  const [enteredLinks, setEnteredLinks] = useState<string[]>([]);
+
+  const handleToggle = (index: number) => {
+    setOpenIndex((prevIndex) => (prevIndex === index ? null : index));
+  };
+
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setOpenIndex(null);
+      }
+    };
+  
+    if (openIndex !== null) {
+      document.addEventListener('click', handleOutsideClick);
+    } else {
+      document.removeEventListener('click', handleOutsideClick);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleOutsideClick); 
+    };
+  }, [openIndex]);
+
+  const handleSendTasks = useCallback((list: string[]) => {
+    handleCreateTask(list);
+    setShowAddTask(false);
+    setLinks('');
+  }, [handleCreateTask]);
+
+  useEffect(() => {
+    const inputLinks = links.split(/[\s,]+/).filter(link => link.trim() !== '');
+    setEnteredLinks(inputLinks);
+  }, [links]);
+
   return (
-    <div className={styles.taskList}>
+    <aside className={cx(styles.sidebar,
+      showUnratedTasks && styles._showUnratedTasks,
+      !showUnratedTasks && styles._showFinished,
+      showAddTask && showUnratedTasks && styles._showAddTask,
+      !showAddTask && showUnratedTasks && styles._hideAdd,
+      )}
+      >
       <div className={styles.header}>
-        <div className={styles.activeTask}>Задачи</div>
-        <div className={styles.finishedTask}>Завершенные</div>
-        <button className={styles.add} onClick={() => handleUpdateAdd()}>
-          <img src={plus} className={styles.plus} />
+        <button className={styles.activeTasks} onClick={() => setUnratedTasks(true)}>
+          Активные Задачи
+        </button>
+        <button className={styles.finishedTasks} onClick={() => setUnratedTasks(false)}>
+          Завершенные Задачи
         </button>
       </div>
-      <div>
-        {['a1', 'a2'].map((task, i) => (
-          <div className={styles.task} key={i}>
-            <div>{task}</div>
+
+      <div className={styles.content}>
+        <div className={styles.contentColumn}>
+          <Task
+            tasks={tasks}
+            openIndex={openIndex}
+            handleToggle={handleToggle}
+            handleMoveTask={handleMoveTask}
+            ref={dropdownRef}
+          />
+          <div className={styles.addTask}>
+            <div className={styles.addTaskControls}>
+              <button className={cx(styles.btn, styles.addBtn)} onClick={() => setShowAddTask(true)}>
+                Добавить задачу
+              </button>
+              <button className={cx(styles.btn, styles.addBtn)} onClick={() => handleRemoveTasks()}>
+                Удалить все задачи
+              </button>
+            </div>
+            
+            <div className={styles.createTaskWrapper}>
+              <textarea
+                onChange={(e) => setLinks(e.target.value)}
+                value={links}
+                className={styles.textarea}
+                placeholder='Добавьте задачу'
+              />
+              <div className={styles.createTaskBtns}>
+                <Button
+                  type={0}
+                  size='xs'
+                  handleClick={() => handleSendTasks(enteredLinks)}
+                >
+                  Сохранить
+                </Button>
+                <Button
+                  type={1}
+                  size='xs'
+                  handleClick={() => setShowAddTask(false)}
+                >
+                  Отменить
+                </Button>
+              </div>
+            </div>
           </div>
-        ))}
+        </div>
       </div>
-    </div>
+    </aside>
   );
 }
 

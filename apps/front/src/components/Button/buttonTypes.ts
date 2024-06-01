@@ -1,6 +1,7 @@
-export interface buttonTypes {
-  handleClick: () => void,
+export interface IButton {
+  handleClick?: () => void,
   children: React.ReactNode,
   type: 0 | 1,
-  size: 'l',
+  size: 'l' | 's' | 'xs',
+  submit?: boolean,
 }

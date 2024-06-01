@@ -1,12 +1,73 @@
-// .signup {
-//   display: flex;
-//   flex-direction: column;
-// }
+@import '../../styles.scss';
 
-// .enter {
-//   font-weight: 800;
-//   font-size: 24px;
-//   line-height: 29px;
-//   margin-bottom: 40px;
-//   align-self: center;
-// }
+.signup {
+  display: flex;
+  flex-direction: column;
+}
+
+.enter {
+  font-weight: 800;
+  font-size: 24px;
+  line-height: 29px;
+  margin-bottom: 40px;
+  align-self: center;
+}
+
+.link {
+  text-decoration: none;
+  text-align: center;
+  color: $layout;
+}
+
+.changeRole {
+  position: relative;
+  margin-bottom: 20px;
+  svg {
+    position: absolute;
+    right: 12px;
+    top: calc(50% - 3px);
+    width: 10px;
+    height: 6px;
+    stroke-width: 2px;
+    stroke: #9098A9;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    pointer-events: none;
+  }
+}
+
+.select {
+  appearance: none;
+  padding: 10px 20px;
+  border: 1px solid $greyColor;
+  width: 100%;
+  border-radius: 15px;
+  color: $placeholder;
+  font-size: 16px;
+  line-height: 19px;
+  cursor: pointer;
+}
+
+.label {
+  margin-bottom: 10px;
+  display: block;
+}
+
+.sprites {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+.error {
+  color: $redColor;
+  margin-top: 10px;
+}
+
+.common {
+  color: $redColor;
+  margin-bottom: 10px;
+}

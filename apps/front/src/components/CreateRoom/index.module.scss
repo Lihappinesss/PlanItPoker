@@ -1,9 +1,6 @@
 @import '../../styles.scss';
 
 .create {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   position: relative;
   max-width: 780px;
   box-sizing: border-box;
@@ -17,14 +14,9 @@
   margin-bottom: 40px;
   font-size: 24px;
   line-height: 29px;
-  color: #000;
+  color: $primary;
   font-weight: 800;
-}
-
-.remember {
-  input {
-    margin-right: 5px;
-  }
+  text-align: center;
 }
 
 .close {

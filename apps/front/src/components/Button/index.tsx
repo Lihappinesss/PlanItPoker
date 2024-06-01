@@ -1,16 +1,17 @@
-import { buttonTypes } from './buttonTypes';
+import { IButton } from './buttonTypes';
 import types from './types';
 import sizes from './sizes';
 
 import styles from './index.module.scss';
 
 
-const Button = (props: buttonTypes) => {
+const Button = (props: IButton) => {
   const {
     handleClick,
     type,
     size,
-    children
+    submit,
+    children,
   } = props;
 
   const {
@@ -23,7 +24,7 @@ const Button = (props: buttonTypes) => {
   const {
     borderRadius,
     padding,
-    minHeight,
+    maxHeight,
     minWidth,
     fontWeight,
     fontSize,
@@ -33,9 +34,10 @@ const Button = (props: buttonTypes) => {
   return (
     <button
       className={styles.button}
-      onClick={() => handleClick()}
+      {...handleClick && {onClick: () => handleClick()}}
+      {...submit && {type: 'submit'}}
     >
-      <style jsx>{`
+      <style jsx={true} scoped>{`
         .${styles.button} {
           color: ${color};
           background: ${backgrounColor};
@@ -43,7 +45,7 @@ const Button = (props: buttonTypes) => {
           border-radius: ${borderRadius}px;
           padding: ${padding};
           min-width: ${minWidth};
-          min-height: ${minHeight};
+          max-height: ${maxHeight};
           font-weight: ${fontWeight};
           font-size: ${fontSize};
           line-height: ${lineHeight};
@@ -56,7 +58,7 @@ const Button = (props: buttonTypes) => {
       `}</style>
       {children}
     </button>
-  )
-}
+  );
+};
 
 export default Button;

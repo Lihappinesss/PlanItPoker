@@ -7,7 +7,7 @@ export default {
       backgrounColor: '#FDA92B',
       borderColor: '#FDA92B',
       color: '#fff',
-    }
+    },
   },
   1: {
     backgrounColor: '#fff',
@@ -17,6 +17,6 @@ export default {
       backgrounColor: '#FDA92B',
       borderColor: '#FDA92B',
       color: '#fff',
-    }
-  }
-}
+    },
+  },
+};

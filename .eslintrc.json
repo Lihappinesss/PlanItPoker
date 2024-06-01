@@ -20,7 +20,8 @@
             ]
           }
         ],
-        "import/no-absolute-path": "off"
+        "import/no-absolute-path": "off",
+        "semi": "error"
       }
     },
     {

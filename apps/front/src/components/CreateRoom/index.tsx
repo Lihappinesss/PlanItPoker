@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 import Button from '@src/components/Button';
 import Indent from '@src/components/Indent';
@@ -10,30 +10,31 @@ import styles from './index.module.scss';
 
 interface CreateRoomTypes {
   handleClose: () => void,
+  handleCreateRoom: (title: string) => void,
 }
 
-const CreateRoom = ({ handleClose }:CreateRoomTypes) => {
-  const handleChange = useCallback(() => {
-    console.log(1);
+
+const CreateRoom = ({ handleClose, handleCreateRoom }: CreateRoomTypes) => {
+  const [title, setTitle] = useState('');
+
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(e.target.value);
   }, []);
 
   return (
     <div className={styles.create}>
       <div className={styles.title}>Создайте комнату</div>
       <Input
-        label='Название комнаты'
         handleChange={handleChange}
+        name='roomName'
+        placeholder='Название комнаты'
+        type='text'
       />
-      <Indent top={15} />
-      <label className={styles.remember}>
-        <input type="checkbox" />
-        Войти как наблюдающий
-      </label>
       <Indent top={30} />
       <Button
         type={0}
         size='l'
-        handleClick={() => handleClose()}
+        handleClick={() => handleCreateRoom(title)}
       >
         Создать комнату
       </Button>
@@ -41,9 +42,10 @@ const CreateRoom = ({ handleClose }:CreateRoomTypes) => {
         src={close}
         className={styles.close}
         onClick={handleClose}
+        alt='close'
       />
     </div>
   );
-}
+};
 
 export default CreateRoom;

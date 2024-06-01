@@ -1,52 +1,124 @@
 @import '../../styles.scss';
 
-.taskList {
-  border-radius: 30px;
-  padding: 30px;
+.sidebar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 422px;
+  background-color: $layout;
   border: 1px solid $greyColor;
-  max-width: 430px;
+  border-radius: 30px;
+  margin: 20px 20px 20px 0;
+  padding: 20px;
+  min-width: 330px;
 }
 
 .header {
   display: flex;
-  justify-content: space-around;
-  margin-bottom: 30px;
+  justify-content: space-between;
   align-items: center;
 }
 
-.task {
-  border-radius: 30px;
-  padding: 30px;
-  border: 1px solid $greyColor;
-  margin-bottom: 15px;
+.content {
+  inset: 0;
+  position: absolute;
+  top: 70px;
 }
 
-.activeTask {
+.contentColumn {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  max-height: 100%;
+}
+
+.addTask {
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.btn,
+.activeTasks,
+.finishedTasks {
+  border: none;
+  background: none;
+  cursor: pointer;
   font-size: 18px;
-  font-weight: 700;
-  margin-right: 10px;
+  font-weight: 400;
 }
 
-.finishedTask {
-  color: #D9D9D9;
-  font-size: 18px;
-  font-weight: 700;
-  margin-right: 10px;
+.activeTasks,
+.finishedTasks {
+  color: $placeholder;
 }
 
-.add {
+.activeTasks {
+  ._showUnratedTasks & {
+    color: $primary;
+  }
+}
+
+.finishedTasks {
+  ._showFinished & {
+    color: $primary;
+  }
+}
+
+.addBtn {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  background: $yellowColor;
-  border: none;
-  cursor: pointer;
+  padding: 15px;
+  border-radius: 8px;
+  width: 100%;
+  font-size: 15px;
+  font-weight: 600;
+  &:hover {
+    background-color: $lightGrey;
+    transition: all .09s linear;
+  }
+  
 }
 
-.plus {
-  width: 17px;
-  height: 20px;
+.textarea {
+  background-color: $lightGrey;
+  border: 0;
+  border-radius: 8px;
+  padding: 1.6em;
+  box-sizing: border-box;
+  height: 6rem;
+  resize: none;
+  width: 100%;
+  margin-bottom: 15px;
+  &:focus-visible {
+    outline: 0;
+  }
+}
+
+.createTaskBtns {
+  display: flex;
+  justify-content: space-between;
+}
+
+.createTaskBtns > :first-child {
+  margin-right: 20px;
+}
+
+.addTaskControls {
+  display: none;
+  ._showAddTask & {
+    display: none;
+  }
+  ._hideAdd & {
+    display: block;
+  }
+}
+
+.createTaskWrapper {
+  display: none;
+  ._showAddTask & {
+    display: flex;
+    flex-direction: column;
+    background-color: $layout;
+  }
 }

@@ -1,11 +1,9 @@
 @import '../../styles.scss';
 
-// &:focus {
-//   outline: none !important;
-// }
-
 .label {
   display: block;
+  font-size: 16px;
+  line-height: 19px;
 }
 
 .input {
@@ -13,7 +11,7 @@
   height: 100%;
   width: 100%;
   box-sizing: border-box;
-  padding: 10px 30px;
+  padding: 10px 20px;
   font-size: 16px;
   line-height: 19px;
   color: $placeholder;
@@ -22,8 +20,10 @@
   border: 1px solid $greyColor;
   border-radius: 15px;
   transition: 0.3s border-color;
+  margin-top: 10px;
 
   &:focus {
     border: 1px solid $purpleColor;
+    outline: none;
   }
 }

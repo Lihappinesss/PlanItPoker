@@ -1,0 +1,57 @@
+@import '../../styles.scss';
+
+.mainPage {
+  height: 100vh;
+  position: relative;
+  background: $layout;
+}
+
+.wrapper {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 100px;
+  padding: 0 20px;
+}
+
+.overlay {
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-self: center;
+  width: 100%;
+  height: 100%;
+  inset: 0;
+  background: rgba(158, 56, 220, 0.30);
+  z-index: 1;
+  cursor: pointer;
+}
+
+.roomContainer {
+  display: flex;
+  flex-direction: column;
+  background: $layout;
+  max-width: 700px;
+  width: 100%;
+  padding: 40px 20px;
+  box-sizing: border-box;
+  border-radius: 32px;
+  border: 1px solid $greyColor;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  margin-left: 20px;
+}
+
+.room {
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 18px;
+  line-height: 21px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.button,
+.createRoom {
+  margin: 0 auto;
+}

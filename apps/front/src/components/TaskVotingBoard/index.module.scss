@@ -1,0 +1,48 @@
+@import '../../styles.scss';
+
+.taskVotingBoard {
+  margin: 150px 40px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.link {
+  display: block;
+  margin-bottom: 30px;
+  color: $violetColor;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.votes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.vote {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 200px;
+  border-radius: 10px;
+  background: $blueColor;
+  color: $layout;
+  font-size: 64px;
+  font-weight: 900;
+  margin: 0 20px 20px 0;
+  border: none;
+  cursor: pointer;
+  &:hover{
+    opacity: 0.8;
+  }
+}
+
+.select {
+  margin-bottom: 20px;
+  color: $primary;
+  font-size: 18px;
+  font-weight: 600;
+}

@@ -13,6 +13,6 @@ const Auth = ({children}: IAuth) => {
       </div>
     </div>
   );
-}
+};
 
 export default Auth;

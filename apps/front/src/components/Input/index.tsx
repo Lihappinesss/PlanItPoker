@@ -1,20 +1,35 @@
-import React from 'react';
+import cx from 'classnames';
 
 import { IFormValues } from './inputType'; 
 
 import styles from './index.module.scss';
 
 
-const Input = ({ label, handleChange }: IFormValues) => {
+const Input = (props: IFormValues) => {
+  const {
+    label,
+    handleChange,
+    name,
+    type,
+    className,
+    placeholder,
+    handleBlur,
+  } = props;
+
   return (
-    <label className={styles.label}>
+    <label htmlFor={name} className={styles.label}>
+      {label}
       <input
-        className={styles.input}
-        placeholder={label}
-        onChange={(e) => handleChange(e.target.value)}
+        id={name}
+        name={name}
+        className={cx(styles.input, className)}
+        onChange={(e) => handleChange(e)}
+        type={type}
+        placeholder={placeholder}
+        {...handleBlur && {onBlur: (e) => handleBlur(e)}}
       />
     </label>
-  )
-}
+  );
+};
 
 export default Input;
