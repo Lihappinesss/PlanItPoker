@@ -1,7 +1,15 @@
 import { Sequelize } from 'sequelize';
+import dotenv from 'dotenv';
+import path from 'path';
 
-const { POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, POSTGRES_PORT } =
-  process.env;
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+
+const {
+  POSTGRES_USER,
+  POSTGRES_PASSWORD,
+  POSTGRES_DB,
+  POSTGRES_PORT,
+} = process.env;
 
 export const sequelize = new Sequelize({
   dialect: 'postgres',
