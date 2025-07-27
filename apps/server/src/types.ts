@@ -13,7 +13,9 @@ export interface ExtendedWebSocket extends WebSocket {
   };
   vote: number;
   login: string;
-  roomId?: number;
+  roomId?: string;
   role?: string;
+  hasVoted: boolean;
+  currentTask: string;
+  roomTasks: Map<string, Set<string>>;
 }
-
