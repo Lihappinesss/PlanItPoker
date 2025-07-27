@@ -14,7 +14,7 @@ export const createTask = async (req: Request, res: Response) => {
 
     const newTasks = await Promise.all(
       links.map(async (link: string) => {
-        return await Task.create({ link, status: 'init', roomId, storyPoint: 0 });
+        return await Task.create({ link, status: 'pending', roomId, storyPoint: 0 });
       })
     );
 
