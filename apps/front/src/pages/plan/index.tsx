@@ -29,7 +29,7 @@ const Plan = () => {
   const { data: tasks, refetch: refetchTasks } = useGetAllTasksQuery({ roomId });
   const [updateTask] = useUpdateTaskMutation();
   const { data: userData } = useGetUserInfoQuery();
-  
+
   const [showUnratedTasks, setUnratedTasks] = useState(true);
   const [filteredTasks, updateFilteredTasks] = useState<ITask[] | undefined>(tasks);
   const [users, updateUsers] = useState<IUser[]>([]);
@@ -44,16 +44,9 @@ const Plan = () => {
     } else if (user.role === 'observers') {
       acc.observers.push(user);
     }
+
     return acc;
   }, { votingUsers: [] as IUser[], observers: [] as IUser[] });
-
-  useEffect(() => {
-    if (showUnratedTasks) {
-      updateFilteredTasks(tasks?.filter(task => task.storyPoint === 0));
-    } else {
-      updateFilteredTasks(tasks?.filter(task => task.storyPoint > 0));
-    }
-  }, [showUnratedTasks, tasks]);
 
   useEffect(() => {
     const newSocket = new WebSocket('ws://localhost:3000/plan/');
@@ -65,72 +58,98 @@ const Plan = () => {
   }, []);
 
   useEffect(() => {
+    if (showUnratedTasks) {
+      updateFilteredTasks(tasks?.filter(task => task.storyPoint === 0));
+    } else {
+      updateFilteredTasks(tasks?.filter(task => task.storyPoint > 0));
+    }
+  }, [showUnratedTasks, tasks]);
+
+  useEffect(() => {
     if (!socket) return;
 
     socket.onopen = () => {
       socket.send(JSON.stringify({
-        command: 'getConnectedClients',
-        payload: { login: userData?.user?.username, roomId, role: userData?.user?.role},
+        command: 'joinrRoom',
+        payload: {
+          login: userData?.user?.username,
+          roomId,
+          role: userData?.user?.role
+        },
       }));
     };
-  
+
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-  
-      if (data.command === 'connectedClients') {
+
+      if (data.command === 'updateConnectedClients') {
         const connectedClientsList: IUser[] = data.clients;
         updateUsers(connectedClientsList);
-      } else if (data.command === 'allVotes') {
-        const votes = data.votes;
-        const sum = votes.reduce((accumulator: number, user: IUser) => {
-          return accumulator + user.vote;
-        }, 0);
-        const storyPoint = sum / votes.length;
-
-        if (filteredTasks && filteredTasks[0].id) {
-          const updatedTask = {
-            roomId,
-            storyPoint,
-            link: filteredTasks && filteredTasks[0].link
-          };
-          updateTask({
-            taskId: filteredTasks && filteredTasks[0].id,
-            updatedTask,
-          });
-        }
-
+      } else if (data.command === 'updateVotes') {
+        const { votes, storyPoint } = data;
         updateUsersVotes(votes);
         updateCurrentSt(storyPoint);
-      } else  {
+        refetchTasks();
+      } else if (data.command === 'tasksAdded') {
+        refetchTasks();
+      } else if (data.command === 'proceedToNextTask') {
+        refetchTasks();
+        updateUsersVotes([]);
+        updateCurrentSt(null);
+      } else {
         console.log('Received message from server:', data);
       }
     };
-  
+
     socket.onclose = () => {
       console.log('close');
     };
-  
+
     socket.onerror = (error) => {
       console.error('WebSocket encountered an error:', error);
     };
-  }, [roomId, userData, socket, filteredTasks, updateTask, refetchTasks]);
+  }, [roomId, userData, socket, filteredTasks, updateTask, refetchTasks, createTask, tasks]);
 
   const handleCreateTask = useCallback((links: string[]) => {
-    createTask({ roomId, links }).then(() => {
-      refetchTasks();
-    });
-  }, [createTask, roomId, refetchTasks]);
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({
+        command: 'addTasksRequest',
+        payload: { tasks: links, login: userData?.user?.username, }
+      }));
+    } else {
+      console.error('WebSocket connection not open.');
+    }
+  }, [socket, userData]);
+
 
   const handleVote = (vote: number) => {
     if (socket && socket.readyState === WebSocket.OPEN) {
       socket.send(JSON.stringify({
         command: 'vote',
-        payload: { login: userData?.user?.username, roomId, vote }
+        payload: {
+          login: userData?.user?.username,
+          roomId,
+          vote,
+          taskId: currentTask?.id
+        }
       }));
     } else {
       console.error('WebSocket connection not open.');
     }
   };
+
+  const handleNextTask = useCallback(() => {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.send(
+        JSON.stringify({
+          command: 'proceedToNextTask',
+          payload: {
+            roomId,
+          },
+        })
+      );
+    }
+  }, [socket, roomId]);
 
   /**
     * Возможность переставить задачу
@@ -146,7 +165,7 @@ const Plan = () => {
         }
         return acc;
       }, { foundTask: null as ITask | null, updatedFilteredTasks: [] as ITask[] });
-    
+
       if (foundTask) {
         if (command === 'top') {
           updateFilteredTasks([foundTask, ...updatedFilteredTasks]);
@@ -167,12 +186,6 @@ const Plan = () => {
     });
   }, [deleteTasks, roomId, refetchTasks]);
 
-  const handleNextTask = useCallback(() => {
-    refetchTasks();
-    updateUsersVotes([]);
-    updateCurrentSt(null);
-  }, [refetchTasks]);
-
   return (
     <div className={styles.plan}>
       <Shapka />
@@ -188,7 +201,7 @@ const Plan = () => {
 
         <TaskVotingBoard currentTask={currentTask} handleVote={handleVote} />
 
-        <PlayerPoints 
+        <PlayerPoints
           usersVotes={usersVotes}
           currentSt={currentSt}
           observers={observers}
