@@ -14,7 +14,7 @@
         "index": "apps/front/src/index.html",
         "baseHref": "/",
         "main": "apps/front/src/main.tsx",
-        "tsConfig": "apps/front/tsconfig.app.json",
+        "tsConfig": "apps/front/tsconfig.json",
         "styles": ["apps/front/src/styles.scss"],
         "scripts": [],
         "isolatedConfig": true,
