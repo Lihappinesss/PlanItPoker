@@ -1,4 +1,4 @@
-import { forwardRef, useRef } from 'react';
+import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import cx from 'classnames';
 import {
@@ -21,7 +21,7 @@ import styles from './index.module.scss';
 const regex = /(?<=browse\/).*/;
 
 
-const Task = forwardRef<HTMLLIElement, ITaskProps>((props) => {
+const Task = ((props: ITaskProps) => {
   const {
     tasks,
     openIndex,
@@ -80,7 +80,13 @@ const Task = forwardRef<HTMLLIElement, ITaskProps>((props) => {
                       </Link>
 
                       <div className={styles.taskManage}>
-                        <div className={styles.delete} onClick={() => handleRemoveTask(id)}>
+                        <div
+                          className={styles.delete}
+                          onClick={() => handleRemoveTask(id)}
+                          role='button'
+                          tabIndex={0}
+                          onKeyDown={(e) => e.key === 'Enter' && handleRemoveTask(id)}
+                        >
                           <img
                             width={20}
                             height={20}
@@ -94,8 +100,12 @@ const Task = forwardRef<HTMLLIElement, ITaskProps>((props) => {
                             right='20px'
                             topPosition='75px'
                             trigger={
-                              <button className={cx(styles.btn, styles.setSpBtn)}>
-                                {storyPoint ? storyPoint : '-'}
+                              <button
+                                className={cx(styles.btn, styles.setSpBtn)}
+                                aria-label='Назначить Story Point'
+                                title='Назначить Story Point'
+                              >
+                                {storyPoint ?? '-'}
                               </button>
                             }
                           >
