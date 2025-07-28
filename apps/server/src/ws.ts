@@ -219,6 +219,41 @@ function startWs(app: Express) {
         });
       }
 
+      else if (request.command === 'removeTasks') {
+        const { roomId, tasksForRemove } = request.payload;
+
+        if (!Array.isArray(tasksForRemove)) {
+          console.error('Invalid payload for removeTasks');
+          return;
+        }
+
+        const taskIds = tasksForRemove.map((task: { id: number }) => task.id);
+
+        try {
+          await Task.destroy({
+            where: {
+              id: taskIds,
+              roomId: roomId,
+            },
+          });
+
+          const updateMessage = JSON.stringify({
+            command: 'tasksRemoved',
+            payload: {
+              removedIds: taskIds,
+            },
+          });
+
+          wss.clients.forEach((client: ExtendedWebSocket) => {
+            if (client.readyState === WebSocket.OPEN && client.roomId === roomId) {
+              client.send(updateMessage);
+            }
+          });
+        } catch (error) {
+          console.error('Error while removing tasks:', error);
+        }
+      }
+
       else {
         wss.clients.forEach((client) => {
           if (client !== ws && client.readyState === WebSocket.OPEN) {

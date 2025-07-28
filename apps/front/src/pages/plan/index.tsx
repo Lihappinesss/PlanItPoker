@@ -11,7 +11,6 @@ import {
   useGetAllTasksQuery,
   useUpdateTaskMutation,
   useDeleteTaskMutation,
-  useDeleteTasksMutation,
 } from '@src/store/api/task';
 import { useGetUserInfoQuery } from '@src/store/api/auth';
 
@@ -24,7 +23,6 @@ const Plan = () => {
   const { id } = useParams();
   const roomId = Number(id);
   const [createTask] = useCreateTaskMutation();
-  const [deleteTasks] = useDeleteTasksMutation();
   const [deleteTask] = useDeleteTaskMutation();
   const { data: tasks, refetch: refetchTasks } = useGetAllTasksQuery({ roomId });
   const [updateTask] = useUpdateTaskMutation();
@@ -103,6 +101,8 @@ const Plan = () => {
           roomId,
         };
         updateUsersVotes([...usersVotes, userVote]);
+      } else if (data.command === 'tasksRemoved') {
+        refetchTasks();
       } else {
         console.log('Received message from server:', data);
       }
@@ -150,9 +150,7 @@ const Plan = () => {
       socket.send(
         JSON.stringify({
           command: 'proceedToNextTask',
-          payload: {
-            roomId,
-          },
+          payload: { roomId },
         })
       );
     }
@@ -188,10 +186,15 @@ const Plan = () => {
   }, [filteredTasks, deleteTask, refetchTasks]);
 
   const handleRemoveTasks = useCallback(() => {
-    deleteTasks({ id: roomId}).then(() => {
-      refetchTasks();
-    });
-  }, [deleteTasks, roomId, refetchTasks]);
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({
+        command: 'removeTasks',
+        payload: { roomId, tasksForRemove: filteredTasks }
+      }));
+    } else {
+      console.error('WebSocket connection not open.');
+    }
+  }, [filteredTasks, roomId, socket]);
 
   return (
     <div className={styles.plan}>

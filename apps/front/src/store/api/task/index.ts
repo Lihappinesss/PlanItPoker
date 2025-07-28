@@ -43,9 +43,9 @@ export const taskApi = createApi({
       query: ({ roomId }) => `/api/tasks/${roomId}`,
     }),
 
-    deleteTasks: builder.mutation<void, Id>({
-      query: ({ id }) => ({
-        url: `/api/delete/tasks/${id}`,
+    deleteTasks: builder.mutation<void, IGetTask>({
+      query: ({ roomId }) => ({
+        url: `/api/delete/tasks/${roomId}`,
         method: 'DELETE',
         credentials: 'include',
       }),

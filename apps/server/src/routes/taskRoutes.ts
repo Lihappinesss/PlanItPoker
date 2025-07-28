@@ -13,7 +13,7 @@ const enum TASK_ROUTES {
   GET_TASKS = '/api/tasks/:roomId',
   DELETE_TASK = '/api/delete/task/:id',
   UPDATE_TASK = '/api/update/task/:id',
-  DELETE_TASKS = '/api/delete/tasks/:id',
+  DELETE_TASKS = '/api/delete/tasks/:roomId',
 }
 
 const taskRoutes = (app: Express) => {

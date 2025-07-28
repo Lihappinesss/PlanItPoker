@@ -35,7 +35,7 @@ function TaskList(props: ITaskList) {
         setOpenIndex(null);
       }
     };
-  
+
     if (openIndex !== null) {
       document.addEventListener('click', handleOutsideClick);
     } else {
@@ -43,7 +43,7 @@ function TaskList(props: ITaskList) {
     }
 
     return () => {
-      document.removeEventListener('click', handleOutsideClick); 
+      document.removeEventListener('click', handleOutsideClick);
     };
   }, [openIndex]);
 
@@ -59,11 +59,12 @@ function TaskList(props: ITaskList) {
   }, [links]);
 
   return (
-    <aside className={cx(styles.sidebar,
-      showUnratedTasks && styles._showUnratedTasks,
-      !showUnratedTasks && styles._showFinished,
-      showAddTask && showUnratedTasks && styles._showAddTask,
-      !showAddTask && showUnratedTasks && styles._hideAdd,
+    <aside className={cx(
+        styles.sidebar,
+        showUnratedTasks && styles._showUnratedTasks,
+        !showUnratedTasks && styles._showFinished,
+        showAddTask && showUnratedTasks && styles._showAddTask,
+        !showAddTask && showUnratedTasks && styles._hideAdd,
       )}
       >
       <div className={styles.header}>
@@ -89,11 +90,11 @@ function TaskList(props: ITaskList) {
               <button className={cx(styles.btn, styles.addBtn)} onClick={() => setShowAddTask(true)}>
                 Добавить задачу
               </button>
-              <button className={cx(styles.btn, styles.addBtn)} onClick={() => handleRemoveTasks()}>
-                Удалить все задачи
-              </button>
             </div>
-            
+            <button className={cx(styles.btn, styles.addBtn)} onClick={() => handleRemoveTasks()}>
+              Удалить все задачи
+            </button>
+
             <div className={styles.createTaskWrapper}>
               <textarea
                 onChange={(e) => setLinks(e.target.value)}
