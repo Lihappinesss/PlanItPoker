@@ -1,18 +1,19 @@
-
+import { ITask } from "@components/TaskList/types";
 
 export interface IIssue {
-  createdAt: string,
-  id: number,
-  link: string,
-  roomId: number,
-  status: string,
-  storyPoint: number,
-  updatedAt: string
+  createdAt: string;
+  id: number;
+  link: string;
+  roomId: number;
+  status: string;
+  storyPoint: number;
+  updatedAt: string;
 }
 
-export interface ITask {
-  tasks: IIssue[] | undefined,
-  openIndex: number | null,
-  handleToggle: (i: number) => void,
-  handleMoveTask: (operation: string, id: number) => void,
+export interface ITaskProps {
+  tasks: IIssue[] | [];
+  openIndex: number | null;
+  handleRemoveTask: (id: number) => void;
+  updateFilteredTasks: (tasks: [] | ITask[]) => void;
+  handleUpdateStoryPoint: (id: number, vote: number) => void;
 }

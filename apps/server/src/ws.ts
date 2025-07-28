@@ -254,6 +254,76 @@ function startWs(app: Express) {
         }
       }
 
+      else if (request.command === 'removeTask') {
+        const { roomId, taskForRemove } = request.payload;
+
+
+        if (!taskForRemove || !roomId) {
+          console.error('Invalid payload for removeTasks');
+          return;
+        }
+
+        try {
+          await Task.destroy({
+            where: {
+              id: taskForRemove,
+              roomId: roomId,
+            },
+          });
+
+          const updateMessage = JSON.stringify({
+            command: 'taskRemoved',
+            payload: {
+              removedIds: taskForRemove,
+            },
+          });
+
+          wss.clients.forEach((client: ExtendedWebSocket) => {
+            if (client.readyState === WebSocket.OPEN && client.roomId === roomId) {
+              client.send(updateMessage);
+            }
+          });
+        } catch (error) {
+          console.error('Error while removing tasks:', error);
+        }
+      }
+
+      else if (request.command === 'updateStoryPoint') {
+        const { roomId, taskId, vote } = request.payload;
+
+        if (!roomId || !taskId || typeof vote !== 'number') {
+          console.error('Invalid payload for updateStoryPoint');
+          return;
+        }
+
+        try {
+          await Task.update(
+            { storyPoint: vote },
+            { where: { id: taskId, roomId } }
+          );
+
+          const updateMessage = JSON.stringify({
+            command: 'storyPointUpdated',
+            payload: {
+              taskId,
+              roomId,
+              storyPoint: vote
+            }
+          });
+
+          wss.clients.forEach((client: ExtendedWebSocket) => {
+            if (
+              client.readyState === WebSocket.OPEN &&
+              client.roomId === roomId
+            ) {
+              client.send(updateMessage);
+            }
+          });
+        } catch (error) {
+          console.error('Failed to update storyPoint:', error);
+        }
+      }
+
       else {
         wss.clients.forEach((client) => {
           if (client !== ws && client.readyState === WebSocket.OPEN) {

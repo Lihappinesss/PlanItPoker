@@ -1,121 +1,123 @@
-import { forwardRef } from 'react';
+import { forwardRef, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import cx from 'classnames';
-
 import {
-  useUpdateTaskMutation,
-} from '@src/store/api/task';
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from 'react-beautiful-dnd';
 
 import Dropdown from '@components/Dropdown';
 
-import more from '@src/icons/more.svg';
-
 import { VOTES } from '@src/constants';
 
-import { ITask, IIssue } from './types';
+import deleteIcon from '@src/icons/delete.svg';
+
+import { ITaskProps } from './types';
 
 import styles from './index.module.scss';
 
 const regex = /(?<=browse\/).*/;
 
 
-const Task = forwardRef<HTMLLIElement, ITask>((props, ref) => {
+const Task = forwardRef<HTMLLIElement, ITaskProps>((props) => {
   const {
     tasks,
     openIndex,
-    handleToggle,
-    handleMoveTask,
+    handleRemoveTask,
+    updateFilteredTasks,
+    handleUpdateStoryPoint,
   } = props;
 
-  const [updateTask] = useUpdateTaskMutation();
+  const ref = useRef<HTMLLIElement | null>(null);
 
-  const updateSt = (task: IIssue, vote: number) => {
-    updateTask({
-      taskId: task.id,
-      updatedTask: {
-        roomId: task.roomId,
-        storyPoint: vote,
-        link: task.link,
-      }
-    });
+  const handleDragEnd = (result: DropResult) => {
+
+    if (!result.destination) return;
+
+    const reordered = Array.from(tasks);
+    const [moved] = reordered.splice(result.source.index, 1);
+    reordered.splice(result.destination.index, 0, moved);
+
+    updateFilteredTasks(reordered);
   };
 
   return (
-    <ul className={styles.tasks}>
-      {tasks && tasks.length > 0 && 
-        tasks.map((task, i: number) => {
-          const result = task.link.match(regex);
-          const {
-            id,
-            storyPoint,
-            link
-          } = task;
+    <DragDropContext onDragEnd={handleDragEnd}>
+      <Droppable droppableId='taskList'>
+        {(provided) => (
+          <ul
+            className={styles.tasks}
+            {...provided.droppableProps}
+            ref={provided.innerRef}
+          >
+            {tasks?.map((task, i) => {
+              const result = task.link.match(regex);
+              const { id, link, storyPoint } = task;
 
-          return (
-            <li className={cx(
-              styles.task,
-              !i && !task.storyPoint && styles._active)}
-              key={i}
-              {...i === openIndex && {ref: ref} }
-            > 
-              <div className={styles.moveTask}>
-                <Dropdown
-                  contentPosition='right'
-                  topPosition='60px'
-                  right='20px'
-                  trigger={
-                    <button className={cx(styles.moreBtn, styles.btn)} onClick={() => handleToggle(i)}>
-                      <img src={more} alt='more' />
-                    </button>
-                  }
-                >
-                  <ul className={styles.taskMoveWrapper}>
-                    <li className={styles.moveItem} onClick={() => handleMoveTask('top', id)}>
-                      Переместить вверх
-                    </li>
-                    <li className={styles.moveItem} onClick={() => handleMoveTask('bottom', id)}>
-                      Переместить вниз
-                    </li>
-                    <li className={styles.moveItem} onClick={() => handleMoveTask('remove', id)}>
-                      Удалить
-                    </li>
-                  </ul>
-                </Dropdown>
-              </div>
+              return (
+                <Draggable key={id} draggableId={id.toString()} index={i}>
+                  {(provided) => (
+                    <li
+                      className={cx(
+                        styles.task,
+                        !i && !task.storyPoint && styles._active
+                      )}
+                      ref={i === openIndex ? (node) => {
+                        ref.current = node;
+                        provided.innerRef(node);
+                      } : provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                    >
+                      <Link
+                        to={link}
+                        className={styles.link}
+                        target='_blank'
+                      >
+                        {result ? result[0] : link}
+                      </Link>
 
-              <div>
-                <Link
-                  to={link}
-                  className={styles.link}
-                  target='_blank'
-                >
-                  {result ? result[0] : link}
-                </Link>
-              </div>
-              
-              <div className={styles.sp}>
-                <Dropdown
-                  contentPosition='center'
-                  topPosition='0'
-                  trigger={
-                    <button className={cx(styles.btn, styles.setSpBtn)}>
-                      {storyPoint ? storyPoint : '-'}
-                    </button>
-                  }
-                >
-                  <ul className={styles.stList}>
-                    {VOTES.map((vote, index) => (
-                      <li key={index}>
-                        <button className={cx(styles.stBtn, styles.btn)} onClick={() => updateSt(task, vote)}>{vote}</button>
-                      </li>
-                    ))}
-                  </ul>
-                </Dropdown>
-              </div>
-            </li>
-          );
-      })}
-    </ul>
+                      <div className={styles.taskManage}>
+                        <div className={styles.delete} onClick={() => handleRemoveTask(id)}>
+                          <img
+                            width={20}
+                            height={20}
+                            src={deleteIcon}
+                            alt='delete task'
+                          />
+                        </div>
+
+                          <Dropdown
+                            contentPosition='right'
+                            right='20px'
+                            topPosition='75px'
+                            trigger={
+                              <button className={cx(styles.btn, styles.setSpBtn)}>
+                                {storyPoint ? storyPoint : '-'}
+                              </button>
+                            }
+                          >
+                            <ul className={styles.stList}>
+                              {VOTES.map((vote, index) => (
+                                <li key={index}>
+                                  <button className={cx(styles.stBtn, styles.btn)} onClick={() => handleUpdateStoryPoint(id, vote)}>{vote}</button>
+                                </li>
+                              ))}
+                            </ul>
+                          </Dropdown>
+                        </div>
+                    </li>
+                  )}
+                </Draggable>
+              );
+            })}
+            {provided.placeholder}
+          </ul>
+        )}
+      </Droppable>
+    </DragDropContext>
   );
 });
 

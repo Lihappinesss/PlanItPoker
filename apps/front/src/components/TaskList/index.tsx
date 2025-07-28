@@ -13,10 +13,12 @@ function TaskList(props: ITaskList) {
   const {
     tasks,
     setUnratedTasks,
-    handleMoveTask,
     handleCreateTask,
     showUnratedTasks,
     handleRemoveTasks,
+    handleRemoveTask,
+    updateFilteredTasks,
+    handleUpdateStoryPoint,
   } = props;
 
   const [openIndex, setOpenIndex] =useState<number | null>(null);
@@ -24,10 +26,6 @@ function TaskList(props: ITaskList) {
   const dropdownRef = useRef<HTMLLIElement>(null);
   const [links, setLinks] = useState('');
   const [enteredLinks, setEnteredLinks] = useState<string[]>([]);
-
-  const handleToggle = (index: number) => {
-    setOpenIndex((prevIndex) => (prevIndex === index ? null : index));
-  };
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
@@ -69,10 +67,10 @@ function TaskList(props: ITaskList) {
       >
       <div className={styles.header}>
         <button className={styles.activeTasks} onClick={() => setUnratedTasks(true)}>
-          Активные Задачи
+          Активные
         </button>
         <button className={styles.finishedTasks} onClick={() => setUnratedTasks(false)}>
-          Завершенные Задачи
+          Завершенные
         </button>
       </div>
 
@@ -80,10 +78,10 @@ function TaskList(props: ITaskList) {
         <div className={styles.contentColumn}>
           <Task
             tasks={tasks}
+            updateFilteredTasks={updateFilteredTasks}
             openIndex={openIndex}
-            handleToggle={handleToggle}
-            handleMoveTask={handleMoveTask}
-            ref={dropdownRef}
+            handleRemoveTask={handleRemoveTask}
+            handleUpdateStoryPoint={handleUpdateStoryPoint}
           />
           <div className={styles.addTask}>
             <div className={styles.addTaskControls}>

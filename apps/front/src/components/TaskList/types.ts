@@ -9,10 +9,12 @@ export interface ITask {
 }
 
 export interface ITaskList {
-  tasks?: ITask[] | undefined;
+  tasks: ITask[];
   setUnratedTasks: (type: boolean) => void;
   showUnratedTasks: boolean;
-  handleMoveTask: (command: string, id: number) => void;
   handleCreateTask: (link: string[]) => void;
   handleRemoveTasks: () => void;
+  handleRemoveTask: (id: number) => void;
+  updateFilteredTasks: (tasks: [] | ITask[]) => void;
+  handleUpdateStoryPoint: (id: number, vote: number) => void;
 }
