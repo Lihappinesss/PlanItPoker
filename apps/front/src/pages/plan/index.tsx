@@ -89,13 +89,20 @@ const Plan = () => {
         const { votes, storyPoint } = data;
         updateUsersVotes(votes);
         updateCurrentSt(storyPoint);
-        refetchTasks();
       } else if (data.command === 'tasksAdded') {
         refetchTasks();
       } else if (data.command === 'proceedToNextTask') {
-        refetchTasks();
         updateUsersVotes([]);
         updateCurrentSt(null);
+        refetchTasks();
+      } else if (data.command === 'ownVote') {
+        const { vote, login, roomId } = data;
+        const userVote = {
+          login,
+          vote,
+          roomId,
+        };
+        updateUsersVotes([...usersVotes, userVote]);
       } else {
         console.log('Received message from server:', data);
       }
@@ -108,7 +115,7 @@ const Plan = () => {
     socket.onerror = (error) => {
       console.error('WebSocket encountered an error:', error);
     };
-  }, [roomId, userData, socket, filteredTasks, updateTask, refetchTasks, createTask, tasks]);
+  }, [roomId, userData, socket, filteredTasks, updateTask, refetchTasks, createTask, tasks, usersVotes]);
 
   const handleCreateTask = useCallback((links: string[]) => {
     if (socket && socket.readyState === WebSocket.OPEN) {

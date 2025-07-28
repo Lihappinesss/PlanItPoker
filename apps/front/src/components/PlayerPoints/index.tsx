@@ -24,7 +24,7 @@ function PlayerPoints(props: IPlayerPoints) {
             return (
               <li key={i}>
                 <span className={styles.login}>{participant.login}</span>
-                {currentSt && <span className={styles.userVote}>{user.vote}</span>}
+                <span className={styles.userVote}>{user?.vote}</span>
               </li>
             );
           })}
@@ -40,7 +40,7 @@ function PlayerPoints(props: IPlayerPoints) {
           </ul>
         </div>
       )}
-      
+
       <div className={styles.group}>
         <div className={styles.title}>Результат</div>
         {currentSt && <div className={styles.result}>{currentSt}</div>}

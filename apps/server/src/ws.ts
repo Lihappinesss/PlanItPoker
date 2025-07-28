@@ -73,6 +73,7 @@ function startWs(app: Express) {
 
       else if (request.command === 'vote') {
         const vote = Number(request.payload.vote);
+
         if (isNaN(vote)) return;
 
         const userSockets = connectedClients.get(ws.login);
@@ -81,6 +82,7 @@ function startWs(app: Express) {
         const hasVoted = Array.from(userSockets).some(
           (client) => client.roomId === ws.roomId && client.vote !== undefined
         );
+
         if (hasVoted) return;
 
         userSockets.forEach((client) => {
@@ -89,6 +91,15 @@ function startWs(app: Express) {
             client.hasVoted = true;
           }
         });
+
+        ws.send(
+          JSON.stringify({
+            command: 'ownVote',
+            login: ws.login,
+            vote,
+            roomId: ws.roomId,
+          })
+        );
 
         const clientsInRoom = Array.from(connectedClients.values())
           .flatMap((set) => Array.from(set))
@@ -117,7 +128,6 @@ function startWs(app: Express) {
           await Task.update(
             {
               storyPoint: roundedStoryPoint,
-              status: 'finished',
             },
             {
               where: { id: request.payload.taskId, roomId: request.payload.roomId },
@@ -177,6 +187,15 @@ function startWs(app: Express) {
       else if (request.command === 'proceedToNextTask') {
         if (!roomId) return;
 
+        const clientsInRoom = Array.from(connectedClients.values())
+          .flatMap(set => Array.from(set))
+          .filter(client => client.roomId === ws.roomId);
+
+        clientsInRoom.forEach(client => {
+          client.vote = undefined;
+          client.hasVoted = false;
+        });
+
         const tasks = await Task.findAll({
           where: { roomId: Number(roomId), status: 'pending' },
           order: [['id', 'ASC']],
@@ -210,28 +229,42 @@ function startWs(app: Express) {
     });
 
     ws.on('close', () => {
-      if (connectedClients.has(ws.login!)) {
-        const clientSet = connectedClients.get(ws.login!)!;
-        clientSet.delete(ws);
-        if (clientSet.size === 0) connectedClients.delete(ws.login!);
+      try {
+        if (!ws.login) return;
 
-        const clientsInRoom = Array.from(connectedClients.values())
-          .flatMap(clientSet => Array.from(clientSet))
-          .filter((client) => client.roomId === roomId)
-          .reduce((uniqueClients, client) => {
-            if (!uniqueClients.some(uClient => uClient.login === client.login)) {
-              uniqueClients.push(client);
+        const roomId = ws.roomId;
+        if (!roomId) return;
+
+        if (connectedClients.has(ws.login)) {
+          const clientSet = connectedClients.get(ws.login)!;
+          clientSet.delete(ws);
+          if (clientSet.size === 0) connectedClients.delete(ws.login);
+        }
+
+        const uniqueClientsMap = new Map<string, ExtendedWebSocket>();
+        for (const clientSet of connectedClients.values()) {
+          for (const client of clientSet) {
+            if (client.roomId === roomId && !uniqueClientsMap.has(client.login)) {
+              uniqueClientsMap.set(client.login, client);
             }
-            return uniqueClients;
-          }, [] as ExtendedWebSocket[])
-          .map((client) => ({ login: client.login, roomId: client.roomId, role: client.role }));
+          }
+        }
 
-        const updateMessage = JSON.stringify({ command: 'connectedClients', clients: clientsInRoom });
+        const clientsInRoom = Array.from(uniqueClientsMap.values()).map(client => ({
+          login: client.login,
+          roomId: client.roomId,
+          role: client.role,
+        }));
+
+        const updateMessage = JSON.stringify({ command: 'updateConnectedClients', clients: clientsInRoom });
+
         wss.clients.forEach((client: ExtendedWebSocket) => {
           if (client.readyState === WebSocket.OPEN && client.roomId === roomId) {
             client.send(updateMessage);
           }
         });
+      } catch (error) {
+        console.error('Error handling ws close:', error);
       }
     });
   });
