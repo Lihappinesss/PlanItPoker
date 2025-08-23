@@ -105,7 +105,7 @@ const Task = ((props: ITaskProps) => {
                                 aria-label='Назначить Story Point'
                                 title='Назначить Story Point'
                               >
-                                {storyPoint ?? '-'}
+                                {storyPoint ? storyPoint : '-'}
                               </button>
                             }
                           >

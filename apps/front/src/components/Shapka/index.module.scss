@@ -11,28 +11,29 @@
   color: $layout;
 }
 
-.link {
-  display: flex;
-  text-decoration: none;
+.logo {
   color: $layout;
-  align-items: center;
 }
 
-.name {
-  margin-right: 10px;
+.link {
+  text-decoration: none;
 }
 
-.avatar {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 45px;
-  height: 45px;
-  background: $yellowColor;
-  border-radius: 50%;
-}
+@media (max-width: 670px) {
+  .shapka {
+    padding: 10px 20px;
+    height: auto;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
 
-.img {
-  width: 23px;
-  height: 23px;
+  .logo {
+    font-size: 20px;
+    margin-right: 10px;
+  }
+
+  .name {
+    font-size: 14px;
+    margin-right: 0;
+  }
 }

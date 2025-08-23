@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import cx from 'classnames';
 
 import Button from '@components/Button';
@@ -25,7 +25,10 @@ function TaskList(props: ITaskList) {
   const [showAddTask, setShowAddTask] = useState(false);
   const dropdownRef = useRef<HTMLLIElement>(null);
   const [links, setLinks] = useState('');
-  const [enteredLinks, setEnteredLinks] = useState<string[]>([]);
+
+  const enteredLinks = useMemo(() =>
+    links.split(/[\s,]+/).filter(link => link.trim() !== ''),
+  [links]);
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
@@ -34,16 +37,9 @@ function TaskList(props: ITaskList) {
       }
     };
 
-    if (openIndex !== null) {
-      document.addEventListener('click', handleOutsideClick);
-    } else {
-      document.removeEventListener('click', handleOutsideClick);
-    }
-
-    return () => {
-      document.removeEventListener('click', handleOutsideClick);
-    };
-  }, [openIndex]);
+    document.addEventListener('click', handleOutsideClick);
+    return () => document.removeEventListener('click', handleOutsideClick);
+  }, []);
 
   const handleSendTasks = useCallback((list: string[]) => {
     handleCreateTask(list);
@@ -51,25 +47,23 @@ function TaskList(props: ITaskList) {
     setLinks('');
   }, [handleCreateTask]);
 
-  useEffect(() => {
-    const inputLinks = links.split(/[\s,]+/).filter(link => link.trim() !== '');
-    setEnteredLinks(inputLinks);
-  }, [links]);
-
   return (
     <aside className={cx(
         styles.sidebar,
-        showUnratedTasks && styles._showUnratedTasks,
-        !showUnratedTasks && styles._showFinished,
         showAddTask && showUnratedTasks && styles._showAddTask,
-        !showAddTask && showUnratedTasks && styles._hideAdd,
       )}
       >
       <div className={styles.header}>
-        <button className={styles.activeTasks} onClick={() => setUnratedTasks(true)}>
+        <button
+          className={cx(styles.tabButton, showUnratedTasks && styles._active)}
+          onClick={() => setUnratedTasks(true)}
+        >
           Активные
         </button>
-        <button className={styles.finishedTasks} onClick={() => setUnratedTasks(false)}>
+        <button
+          className={cx(styles.tabButton, !showUnratedTasks && styles._active)}
+          onClick={() => setUnratedTasks(false)}
+        >
           Завершенные
         </button>
       </div>
@@ -83,15 +77,19 @@ function TaskList(props: ITaskList) {
             handleRemoveTask={handleRemoveTask}
             handleUpdateStoryPoint={handleUpdateStoryPoint}
           />
-          <div className={styles.addTask}>
-            <div className={styles.addTaskControls}>
-              <button className={cx(styles.btn, styles.addBtn)} onClick={() => setShowAddTask(true)}>
-                Добавить задачу
-              </button>
-            </div>
-            <button className={cx(styles.btn, styles.addBtn)} onClick={() => handleRemoveTasks()}>
-              Удалить все задачи
-            </button>
+          <div className={styles.issue}>
+            {!showAddTask &&
+              <div>
+                {showUnratedTasks && (
+                  <button className={cx(styles.btn, styles.addTask)} onClick={() => setShowAddTask(true)}>
+                    Добавить задачу
+                  </button>
+                )}
+                <button className={styles.btn} onClick={() => handleRemoveTasks()}>
+                  Удалить все задачи
+                </button>
+              </div>
+            }
 
             <div className={styles.createTaskWrapper}>
               <textarea

@@ -18,7 +18,7 @@ function TaskVotingBoard(props: ITaskVotingBoard) {
   return (
     <div className={styles.taskVotingBoard}>
       {currentTask?.link && (
-        <Link to={currentTask?.link} className={styles.link}>
+        <Link to={currentTask?.link} className={styles.link} target='blank'>
           {currentTask.link.match(regex) || currentTask.link}
         </Link>
       )}

@@ -197,27 +197,34 @@ const Plan = () => {
   return (
     <div className={styles.plan}>
       <Shapka />
+
       <main className={styles.main}>
-        <TaskList
-          tasks={filteredTasks}
-          updateFilteredTasks={updateFilteredTasks}
-          setUnratedTasks={setUnratedTasks}
-          showUnratedTasks={showUnratedTasks}
-          handleCreateTask={handleCreateTask}
-          handleRemoveTasks={handleRemoveTasks}
-          handleRemoveTask={handleRemoveTask}
-          handleUpdateStoryPoint={handleUpdateStoryPoint}
-        />
+        <div className={styles.left}>
+          <TaskList
+            tasks={filteredTasks}
+            updateFilteredTasks={updateFilteredTasks}
+            setUnratedTasks={setUnratedTasks}
+            showUnratedTasks={showUnratedTasks}
+            handleCreateTask={handleCreateTask}
+            handleRemoveTasks={handleRemoveTasks}
+            handleRemoveTask={handleRemoveTask}
+            handleUpdateStoryPoint={handleUpdateStoryPoint}
+          />
+        </div>
 
-        <TaskVotingBoard currentTask={currentTask} handleVote={handleVote} />
+        <div className={styles.center}>
+          <TaskVotingBoard currentTask={currentTask} handleVote={handleVote} />
+        </div>
 
-        <PlayerPoints
-          usersVotes={usersVotes}
-          currentSt={currentSt}
-          observers={observers}
-          votingUsers={votingUsers}
-          handleNextTask={handleNextTask}
-        />
+        <div className={styles.right}>
+          <PlayerPoints
+            usersVotes={usersVotes}
+            currentSt={currentSt}
+            observers={observers}
+            votingUsers={votingUsers}
+            handleNextTask={handleNextTask}
+          />
+        </div>
       </main>
     </div>
   );
