@@ -1,29 +1,5 @@
 export default {
-  'xs': {
-    borderRadius: 15,
-    padding: '10px',
-    minWidth: '150px',
-    fontWeight: 500,
-    fontSize: '18px',
-    lineHeight: '28px',
-    maxHeight: '44px',
-  },
-  's': {
-    borderRadius: 15,
-    padding: '10px',
-    minWidth: '180px',
-    fontWeight: 500,
-    fontSize: '18px',
-    lineHeight: '28px',
-    maxHeight: '44px',
-  },
-  'l': {
-    borderRadius: 15,
-    padding: '20px',
-    minWidth: '370px',
-    fontWeight: 500,
-    fontSize: '18px',
-    lineHeight: '28px',
-    maxHeight: '50px',
-  }
+  xs: { padding: '6px 12px', fontSize: '14px', lineHeight: '20px', borderRadius: 12, maxWidth: '250px' },
+  s: { padding: '8px 16px', fontSize: '16px', lineHeight: '22px', borderRadius: 12, maxWidth: '300px' },
+  l: { padding: '10px 20px', fontSize: '16px', lineHeight: '24px', borderRadius: 15, maxWidth: '370px' },
 };

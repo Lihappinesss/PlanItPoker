@@ -1,22 +1,14 @@
 export default {
   0: {
-    backgrounColor: '#FDC22B',
-    borderColor: '#FDC22B',
+    backgrounColor: '#9E38DC',
     color: '#fff',
-    hover: {
-      backgrounColor: '#FDA92B',
-      borderColor: '#FDA92B',
-      color: '#fff',
-    },
+    borderColor: '#9E38DC',
+    hover: { backgrounColor: '#7a27a8', color: '#fff', borderColor: '#7a27a8' },
   },
   1: {
     backgrounColor: '#fff',
-    borderColor: '#C3C3D6',
-    color: '#383838',
-    hover: {
-      backgrounColor: '#FDA92B',
-      borderColor: '#FDA92B',
-      color: '#fff',
-    },
+    color: '#9E38DC',
+    borderColor: '#9E38DC',
+    hover: { backgrounColor: '#f2e5f9', color: '#7a27a8', borderColor: '#7a27a8' },
   },
 };
