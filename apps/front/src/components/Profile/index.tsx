@@ -12,21 +12,13 @@ import { setIsAuth } from '@src/store/authSlice';
 
 import Input from '@src/components/Input';
 import Button from '@src/components/Button';
-import Indent from '@src/components/Indent';
 
 import styles from './index.module.scss';
-
-interface IFormData {
-  username: string;
-  role: string;
-  password: string;
-  prevPassword: string;
-}
 
 
 const Profile = () => {
   const { data: userData } = useGetUserInfoQuery();
-  const [formData, setFormData] = useState<IFormData>({
+  const [formData, setFormData] = useState({
     username: '',
     role: '',
     password: '',
@@ -48,12 +40,8 @@ const Profile = () => {
 
   const handleSave = useCallback(async (e: MouseEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     if (userData?.user.id) {
-      await updateUserData({
-        id: userData?.user.id,
-        ...formData,
-      });
+      await updateUserData({ id: userData.user.id, ...formData });
       await logout();
       dispatch(setIsAuth(false));
       navigate('/login');
@@ -69,13 +57,12 @@ const Profile = () => {
   const handleBlur = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (userData?.user.username) {
       const response = await checkPassword({
-        username: userData?.user.username,
+        username: userData.user.username,
         password: e.target.value,
       });
 
       if ('data' in response) {
-        const { isSame } = response.data;
-        setError(isSame ? '' : 'Пароли не совпадают');
+        setError(response.data.isSame ? '' : 'Пароли не совпадают');
       } else if ('error' in response) {
         setError('Произошла ошибка при проверке пароля');
       }
@@ -84,69 +71,56 @@ const Profile = () => {
 
   return (
     <form className={styles.profile} onSubmit={handleSave}>
-      <div>
-        <Input 
-          label='Изменить логин'
-          handleChange={(e) => handleChange(e)}
-          placeholder={userData?.user.username || 'логин'}
-          name='username'
-          type='text'
-        />
-        <Indent top={20} />
-        
-        <label htmlFor='select-role' className={styles.label}>Изменить роль</label>
-        <div className={styles.changeRole}>
-          <select
-            onChange={(e) => handleChange(e)}
-            name='Изменить роль'
-            id='select-role'
-            className={styles.select}
-          >
-            <option value='watching'>Наблюдающий</option>
-            <option value='voting'>Голосующий</option>
-          </select>
-          <svg>
-            <use xlinkHref='#select-arrow-down'></use>
-          </svg>
-        </div>
-        <svg className={styles.sprites}>
-          <symbol id='select-arrow-down' viewBox='0 0 10 6'>
-            <polyline points='1 1 5 5 9 1'></polyline>
-          </symbol>
+      <Input
+        label='Изменить логин'
+        handleChange={handleChange}
+        placeholder={userData?.user.username || 'логин'}
+        name='username'
+        type='text'
+      />
+      <label htmlFor='select-role' className={styles.label}>Изменить роль</label>
+      <div className={styles.selectWrapper}>
+        <select
+          onChange={handleChange}
+          name='role'
+          id='select-role'
+          className={styles.select}
+        >
+          <option value='watching'>Наблюдающий</option>
+          <option value='voting'>Голосующий</option>
+        </select>
+        <svg className={styles.arrow}>
+          <use xlinkHref='#select-arrow-down'></use>
         </svg>
+      </div>
 
-        {error && <div className={styles.error}>{error}</div>}
-        <Input
-          label='Изменить пароль'
-          handleChange={(e) => handleChange(e)}
-          name='prevPassword'
-          type='password'
-          handleBlur={handleBlur}
-          placeholder='Старый пароль'
-        />
-        <Indent top={20} />
-        <Input
-          handleChange={(e) => handleChange(e)}
-          name='password'
-          type='password'
-          placeholder='Новый пароль'
-        />
-        <Indent top={20} />
-        <Button
-          type={0}
-          size='l'
-          submit
-        >
-          Сохранить
-        </Button>
-        <Indent top={20} />
-        <Button
-          type={1}
-          size='l'
-          handleClick={handleLogout}
-        >
-          Выйти
-        </Button>
+      <svg className={styles.sprites}>
+        <symbol id='select-arrow-down' viewBox='0 0 10 6'>
+          <polyline points='1 1 5 5 9 1'></polyline>
+        </symbol>
+      </svg>
+
+      {error && <div className={styles.error}>{error}</div>}
+
+      <Input
+        label='Изменить пароль'
+        handleChange={handleChange}
+        name='prevPassword'
+        type='password'
+        handleBlur={handleBlur}
+        placeholder='Старый пароль'
+      />
+
+      <Input
+        handleChange={handleChange}
+        name='password'
+        type='password'
+        placeholder='Новый пароль'
+      />
+
+      <div className={styles.buttonGroup}>
+        <Button type={0} size='l' submit>Сохранить</Button>
+        <Button type={1} size='l' handleClick={handleLogout}>Выйти</Button>
       </div>
     </form>
   );

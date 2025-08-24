@@ -1,49 +1,88 @@
 @import '../../styles.scss';
 
 .roomCard {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: center;
+  gap: 20px;
   padding: 20px;
   border: 1px solid $greyColor;
-  border-radius: 30px;
+  border-radius: 20px;
+  background: $layout;
+  margin-bottom: 20px;
+
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  }
 }
 
-.key,
-.value,
-.titleRoom,
-.link {
-  font-size: 16px;
-  line-height: 20px;
+.container {
+  display: flex;
+  flex-direction: column;
 }
 
 .key {
-  margin-bottom: 20px;
+  font-size: 14px;
   color: $placeholder;
+  margin-bottom: 4px;
+}
+
+.value,
+.titleRoom {
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .titleRoom {
-  font-weight: 600;
-  color: $yellowColor;
+  color: $violetColor;
 }
 
-.close {
-  width: 12px;
-  height: 12px;
+.right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .button {
+  display: flex;
   border: none;
   background: none;
   cursor: pointer;
 }
 
-.right{
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+.close {
+  width: 14px;
+  height: 14px;
 }
 
-.link{
+.link {
   text-decoration: none;
   color: $primary;
+  font-weight: 500;
+}
+
+@media (max-width: 900px) {
+  .cardsWrapper {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+
+  .roomCard {
+    padding: 15px;
+  }
+
+  .key,
+  .value,
+  .titleRoom,
+  .link {
+    font-size: 14px;
+  }
+
+  .close {
+    width: 10px;
+    height: 10px;
+  }
 }

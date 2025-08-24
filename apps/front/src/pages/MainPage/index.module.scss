@@ -8,7 +8,8 @@
 
 .wrapper {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
+  gap: 0 40px;
   margin-top: 100px;
   padding: 0 20px;
 }
@@ -37,11 +38,12 @@
   border-radius: 32px;
   border: 1px solid $greyColor;
   box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-  margin-left: 20px;
 }
 
 .room {
-  margin-bottom: 20px;
+  display: grid;
+  gap: 20px;
+  align-items: stretch;
 }
 
 .title {
@@ -51,7 +53,61 @@
   margin-bottom: 20px;
 }
 
+.button {
+  width: 60%;
+}
+
 .button,
 .createRoom {
   margin: 0 auto;
+}
+
+@media (max-width: 1320px) {
+  .roomContainer {
+    max-width: 492px;
+  }
+}
+
+@media (max-width: 990px) {
+  .wrapper {
+    flex-direction: column-reverse;
+    gap: 20px 0;
+    align-items: center;
+    margin-top: 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .roomContainer {
+    border-radius: 20px;
+    padding: 20px 15px;
+  }
+
+  .title {
+    font-size: 16px;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .wrapper {
+    padding: 0 10px;
+    margin-top: 20px;
+  }
+
+  .roomContainer {
+    padding: 15px 10px;
+    border-radius: 16px;
+  }
+
+  .title {
+    font-size: 14px;
+    line-height: 18px;
+  }
+
+  .button,
+  .createRoom {
+    width: 100%;
+  }
 }

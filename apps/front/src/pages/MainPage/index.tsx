@@ -22,7 +22,7 @@ const MainPage = () => {
   const [createRoom] = useCreateRoomMutation();
   const { data: rooms, refetch: refetchRooms } = useGetRoomsQuery();
   const [deleteRoom] = useDeleteRoomMutation();
- 
+
   const handleCreateRoom = useCallback((title: string) => {
     if (title) {
       createRoom({title}).then(() => {
@@ -46,7 +46,7 @@ const MainPage = () => {
       });
     }
   }, [deleteRoom, refetchRooms]);
-  
+
   return (
     <div className={cx(styles.mainPage)}>
       <Shapka />
