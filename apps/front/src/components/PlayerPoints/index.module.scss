@@ -3,6 +3,7 @@
 .rightSidebar {
   display: flex;
   flex-direction: column;
+  flex-wrap: wrap;
 }
 
 .group {
@@ -38,23 +39,29 @@
 }
 
 @media (max-width: 1320px) {
-  .rightSidebar {
-    flex-direction: row;
-    justify-content: center;
-  }
-
   .group {
     border: none;
     padding: 0;
   }
 
-  .group + .group {
-    margin-left: 50px;
-  }
 }
 
 @media (max-width: 670px) {
+  .rightSidebar {
+    flex-direction: row;
+    justify-content: center;
+  }
+
   .title {
     font-size: 16px;
+  }
+
+  .group + .group {
+    margin-left: 50px;
+  }
+
+  .button {
+    display: flex;
+    justify-content: center;
   }
 }

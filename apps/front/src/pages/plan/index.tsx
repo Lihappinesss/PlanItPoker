@@ -1,5 +1,6 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
+import cx from 'classnames';
 
 import Shapka from '@src/components/Shapka';
 import TaskList from '@src/components/TaskList';
@@ -13,6 +14,8 @@ import {
 } from '@src/store/api/task';
 import { useGetUserInfoQuery } from '@src/store/api/auth';
 
+import more from '@src/icons/more.svg';
+
 import { IUser, ITask, IUserVote } from './types';
 
 import styles from './index.module.scss';
@@ -25,6 +28,7 @@ const Plan = () => {
   const { data: tasks, refetch: refetchTasks } = useGetAllTasksQuery({ roomId });
   const [updateTask] = useUpdateTaskMutation();
   const { data: userData } = useGetUserInfoQuery();
+  const [isTaskListOpen, setIsTaskListOpen] = useState(false);
 
   const [showUnratedTasks, setUnratedTasks] = useState(true);
   const [filteredTasks, updateFilteredTasks] = useState<ITask[] | []>(tasks || []);
@@ -33,6 +37,7 @@ const Plan = () => {
   const [usersVotes, updateUsersVotes] = useState<IUserVote[]>([]);
   const [currentSt, updateCurrentSt] = useState<number | null>(null);
   const currentTask = tasks?.find(task => !task.storyPoint);
+  const taskListRef = useRef<HTMLDivElement | null>(null);
 
   const { votingUsers, observers } = users.reduce((acc, user) => {
     if (user.role === 'voting') {
@@ -194,12 +199,31 @@ const Plan = () => {
     }
   }, [roomId, socket]);
 
+  useEffect(() => {
+    if (!isTaskListOpen) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        taskListRef.current &&
+        !taskListRef.current.contains(e.target as Node)
+      ) {
+        setIsTaskListOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isTaskListOpen]);
+
   return (
     <div className={styles.plan}>
       <Shapka />
 
       <main className={styles.main}>
-        <div className={styles.left}>
+        <div className={cx(styles.left, { [styles.open]: isTaskListOpen })} ref={taskListRef}>
           <TaskList
             tasks={filteredTasks}
             updateFilteredTasks={updateFilteredTasks}
@@ -226,6 +250,20 @@ const Plan = () => {
           />
         </div>
       </main>
+
+      {isTaskListOpen && (
+        <div
+          className={styles.overlay}
+          onClick={() => setIsTaskListOpen(false)}
+        />
+      )}
+
+      <button
+        className={cx(styles.showTasks, isTaskListOpen && styles._isTaskListOpen)}
+        onClick={() => setIsTaskListOpen(true)}
+      >
+        <img src={more} alt='show list tasks' />
+      </button>
     </div>
   );
 };
