@@ -1,6 +1,6 @@
 import cx from 'classnames';
 
-import { IFormValues } from './inputType'; 
+import { IFormValues } from './inputType';
 
 import styles from './index.module.scss';
 
@@ -18,15 +18,15 @@ const Input = (props: IFormValues) => {
 
   return (
     <label htmlFor={name} className={styles.label}>
-      {label}
+      {label && <span className={styles.labelText}>{label}</span>}
       <input
         id={name}
         name={name}
-        className={cx(styles.input, className)}
-        onChange={(e) => handleChange(e)}
         type={type}
         placeholder={placeholder}
-        {...handleBlur && {onBlur: (e) => handleBlur(e)}}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        className={cx(styles.input, className)}
       />
     </label>
   );

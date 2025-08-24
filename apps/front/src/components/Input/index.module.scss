@@ -2,28 +2,53 @@
 
 .label {
   display: block;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.labelText {
+  display: block;
   font-size: 16px;
-  line-height: 19px;
+  font-weight: 500;
+  margin-bottom: 6px;
 }
 
 .input {
   display: block;
-  height: 100%;
   width: 100%;
-  box-sizing: border-box;
-  padding: 10px 20px;
+  padding: 10px 15px;
   font-size: 16px;
-  line-height: 19px;
+  line-height: 22px;
   color: $placeholder;
   background-color: $layout;
-  background-clip: padding-box;
   border: 1px solid $greyColor;
-  border-radius: 15px;
-  transition: 0.3s border-color;
-  margin-top: 10px;
+  border-radius: 12px;
+  box-sizing: border-box;
+  transition: border 0.3s, box-shadow 0.3s;
 
   &:focus {
     border: 1px solid $purpleColor;
     outline: none;
+    box-shadow: 0 0 0 2px rgba(158, 56, 220, 0.2);
+  }
+
+  &::placeholder {
+    color: $placeholder;
+  }
+}
+
+@media (max-width: 768px) {
+  .input {
+    padding: 8px 12px;
+    font-size: 15px;
+    line-height: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .input {
+    padding: 6px 10px;
+    font-size: 14px;
+    line-height: 18px;
   }
 }
