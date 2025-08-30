@@ -1,6 +1,9 @@
 # PlanitPoker
 Interactive Planning Poker application for team task estimation. Supports participant roles, real-time synchronization via WebSocket, and stores data in PostgreSQL.
 
+https://github.com/user-attachments/assets/82346a65-237f-4e23-a9e8-fbbcae6a628e
+
+
 🚀 Features
 
 Create rooms for voting
