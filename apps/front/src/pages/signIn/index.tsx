@@ -1,4 +1,4 @@
-import { useState, MouseEvent, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 
@@ -26,52 +26,63 @@ const SignIn = () => {
     email: '',
     password: '',
   });
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const dispatch = useDispatch();
-  const [ login ] = useLoginMutation();
+  const [login] = useLoginMutation();
   const navigate = useNavigate();
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  }, [formData]);
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+      setErrorMessage(null);
+    },
+    [formData]
+  );
 
-  const handleLogin = useCallback(async (e: MouseEvent<HTMLFormElement>) => {
-    try {
+  const handleLogin = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-
-      await login(formData);
-      dispatch(setIsAuth(true));
-      navigate('/');
-    } catch (error) {
-      console.error('Login error:', error);
-    }
-  }, [login, formData, dispatch, navigate]);
+      try {
+        const result = await login(formData).unwrap();
+        if (result) {
+          dispatch(setIsAuth(true));
+          navigate('/');
+        }
+      } catch (error) {
+        setErrorMessage('Неверный логин или пароль');
+        console.error('Login error:', error);
+      }
+    },
+    [login, formData, dispatch, navigate]
+  );
 
   return (
     <Auth>
       <form className={styles.signin} onSubmit={handleLogin}>
         <div className={styles.enter}>Вход</div>
         <Input
-          label='Логин'
+          label="Логин"
           name="username"
           handleChange={handleChange}
-          type='text'
+          type="text"
         />
         <Input
-          label='Пароль'
-          name='password'
+          label="Пароль"
+          name="password"
           handleChange={handleChange}
-          type='password'
+          type="password"
         />
-        <Button
-          type={0}
-          size='l'
-          submit
-        >
+
+        {errorMessage && <div className={styles.error}>{errorMessage}</div>}
+
+        <Button type={0} size="l" submit>
           Войти
         </Button>
         <Indent top={20} />
-        <Button type={0} size='l'>
-          <Link to='/register' className={styles.link}>Зарегистрироваться</Link>
+        <Button type={0} size="l">
+          <Link to="/register" className={styles.link}>
+            Зарегистрироваться
+          </Link>
         </Button>
       </form>
     </Auth>

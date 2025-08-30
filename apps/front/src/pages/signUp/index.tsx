@@ -1,4 +1,4 @@
-import React, { useState, MouseEvent, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -17,7 +17,7 @@ interface FormData {
   username: string;
   email: string;
   password: string;
-  role: string;
+  role: 'voting' | 'watching';
 }
 
 const emailPattern = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
@@ -29,7 +29,7 @@ const SignUp = () => {
     username: '',
     email: '',
     password: '',
-    role: '',
+    role: 'voting',
   });
   const [register] = useRegisterMutation();
   const dispatch = useDispatch();
@@ -38,6 +38,7 @@ const SignUp = () => {
     email: '',
     username: '',
     password: '',
+    role: ''
   });
   const navigate = useNavigate();
 
@@ -46,6 +47,7 @@ const SignUp = () => {
       ...prev,
       [e.target.name]: e.target.value,
     }));
+    setError(prev => ({ ...prev, [e.target.name]: '' }));
   }, []);
 
   const validateEmail = useCallback((email: string) => {
@@ -56,25 +58,23 @@ const SignUp = () => {
     return passwordPattern.test(password);
   }, []);
 
-  const handleBlur = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     let errorMessage = '';
 
     if (name === 'email') {
       errorMessage = validateEmail(value) ? '' : 'Пожалуйста, введите корректный email.';
     } else if (name === 'password') {
-      errorMessage = validatePassword(value) ? '' : 'Пароль должен содержать 8 символов, хотя бы одну строчную букву, одну заглавную букву и одну цифру';
+      errorMessage = validatePassword(value) ? '' : 'Пароль должен содержать...';
     } else if (name === 'username') {
-      errorMessage = value.length >= 6 ? '' : 'Логин должен содержать 6 букв';
+      errorMessage = value.length >= 6 ? '' : 'Логин должен содержать минимум 6 символов';
     }
 
-    setError(prev => ({
-      ...prev,
-      [name]: errorMessage,
-    }));
+    setError(prev => ({ ...prev, [name]: errorMessage }));
   }, [validateEmail, validatePassword]);
 
-  const handleRegister = async (e: MouseEvent<HTMLFormElement>) => {
+
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
       e.preventDefault();
 
@@ -86,18 +86,21 @@ const SignUp = () => {
         return;
       }
 
-      if (Object.values(error).some(err => err !== '')) {
+      const hasErrors = Object.values(error).some(err => err !== '');
+      if (hasErrors) {
+        console.log('Ошибки валидации:', error);
         return;
       }
 
-      await register(formData);
+      await register(formData).unwrap();
       dispatch(setIsAuth(true));
       navigate('/');
-    } catch (error) {
+    } catch (err) {
       setError(prev => ({
         ...prev,
         common: 'Произошла ошибка при регистрации.',
       }));
+      console.error('Register error:', err);
     }
   };
 
