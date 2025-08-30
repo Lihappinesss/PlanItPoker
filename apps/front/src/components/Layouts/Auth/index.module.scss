@@ -23,3 +23,21 @@
   color: $layout;
   margin-bottom: 10px;
 }
+
+@media (max-width: 670px) {
+  .wrapper {
+    padding-top: 80px;
+    min-width: 320px;
+  }
+
+  .loginWrap {
+    width: 100%;
+    max-width: 90%;
+    padding: 30px 20px 40px;
+    border-radius: 20px;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+}

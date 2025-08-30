@@ -56,14 +56,12 @@ const SignIn = () => {
           handleChange={handleChange}
           type='text'
         />
-        <Indent top={20} />
-        <Input 
+        <Input
           label='Пароль'
           name='password'
           handleChange={handleChange}
           type='password'
         />
-        <Indent top={20} />
         <Button
           type={0}
           size='l'

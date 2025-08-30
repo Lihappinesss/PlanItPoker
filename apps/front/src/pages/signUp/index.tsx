@@ -114,7 +114,6 @@ const SignUp = () => {
           type='email'
         />
         {error.email && <div className={styles.error}>{error.email}</div>}
-        <Indent top={20} />
         <Input
           label='Пароль'
           handleChange={(e) => handleChange(e)}
@@ -123,7 +122,6 @@ const SignUp = () => {
           type='password'
         />
         {error.password && <div className={styles.error}>{error.password}</div>}
-        <Indent top={20} />
         <Input
           label='Логин'
           handleChange={(e) => handleChange(e)}
@@ -132,7 +130,6 @@ const SignUp = () => {
           type='text'
         />
         {error.username && <div className={styles.error}>{error.username}</div>}
-        <Indent top={20} />
         <label htmlFor='select-role' className={styles.label}>Роль</label>
         <div className={styles.changeRole}>
           <select
@@ -154,7 +151,6 @@ const SignUp = () => {
             <polyline points='1 1 5 5 9 1'></polyline>
           </symbol>
         </svg>
-        <Indent top={20} />
         <Button
           type={0}
           size='l'
