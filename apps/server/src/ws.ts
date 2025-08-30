@@ -101,13 +101,33 @@ function startWs(app: Express) {
           })
         );
 
+        const voteStatusMessage = JSON.stringify({
+          command: 'voteStatus',
+          login: ws.login,
+          roomId: ws.roomId,
+          vote,
+        });
+        wss.clients.forEach((client: ExtendedWebSocket) => {
+          if (
+            client.readyState === WebSocket.OPEN &&
+            client.roomId === ws.roomId &&
+            client !== ws
+          ) {
+            client.send(voteStatusMessage);
+          }
+        });
+
         const clientsInRoom = Array.from(connectedClients.values())
           .flatMap((set) => Array.from(set))
           .filter((client) => client.roomId === ws.roomId);
 
         const uniqueLogins = Array.from(new Set(clientsInRoom.map((c) => c.login)));
 
-        const allVoted = uniqueLogins.every((login) =>
+        const votingLogins = Array.from(
+          new Set(clientsInRoom.filter(c => c.role === 'voting').map(c => c.login))
+        );
+
+        const allVoted = votingLogins.every((login) =>
           clientsInRoom.some((c) => c.login === login && c.vote !== undefined)
         );
 

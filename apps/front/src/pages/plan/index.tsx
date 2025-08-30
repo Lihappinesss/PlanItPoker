@@ -40,9 +40,10 @@ const Plan = () => {
   const taskListRef = useRef<HTMLDivElement | null>(null);
 
   const { votingUsers, observers } = users.reduce((acc, user) => {
+
     if (user.role === 'voting') {
       acc.votingUsers.push(user);
-    } else if (user.role === 'observers') {
+    } else if (user.role === 'watching') {
       acc.observers.push(user);
     }
 
@@ -110,7 +111,17 @@ const Plan = () => {
         refetchTasks();
       } else if (data.command === 'storyPointUpdated') {
         refetchTasks();
-      } else {
+      } else if (data.command === 'voteStatus') {
+        updateUsersVotes((prev) => {
+          const exists = prev.find(u => u.login === data.login);
+          if (exists) return prev;
+          return [
+            ...prev,
+            { login: data.login, vote: data.vote, roomId: data.roomId }
+          ];
+        });
+
+      }  else {
         console.log('Received message from server:', data);
       }
     };
