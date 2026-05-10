@@ -1,4 +1,4 @@
-import React, { useState, useCallback, MouseEvent } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 
@@ -8,87 +8,132 @@ import {
   useLogoutMutation,
   useCheckPasswordMutation,
 } from '@src/store/api/auth';
-import { setIsAuth } from '@src/store/authSlice';
+import { clearUser } from '@src/store/authSlice';
 
 import Input from '@src/components/Input';
 import Button from '@src/components/Button';
 
 import styles from './index.module.scss';
 
-
 const Profile = () => {
   const { data: userData } = useGetUserInfoQuery();
+
   const [formData, setFormData] = useState({
     username: '',
     role: '',
     password: '',
     prevPassword: '',
   });
+
   const [error, setError] = useState('');
+
   const [updateUserData] = useChangeDataMutation();
   const [logout] = useLogoutMutation();
   const [checkPassword] = useCheckPasswordMutation();
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  }, []);
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      const { name, value } = e.target;
 
-  const handleSave = useCallback(async (e: MouseEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (userData?.user.id) {
-      await updateUserData({ id: userData.user.id, ...formData });
-      await logout();
-      dispatch(setIsAuth(false));
-      navigate('/login');
-    }
-  }, [formData, userData, updateUserData, navigate, logout, dispatch]);
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+
+      setError('');
+    },
+    []
+  );
+
+  const handleSave = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+
+      if (!userData?.user?.id) {
+        setError('Пользователь не загружен');
+        return;
+      }
+
+      try {
+        await updateUserData({
+          id: userData.user.id,
+          username: formData.username,
+          role: formData.role,
+          password: formData.password,
+        }).unwrap();
+
+        await logout().unwrap();
+
+        dispatch(clearUser());
+        navigate('/login');
+      } catch (error) {
+        setError('Произошла ошибка при сохранении данных');
+      }
+    },
+    [formData, userData, updateUserData, logout, dispatch, navigate]
+  );
 
   const handleLogout = useCallback(async () => {
-    await logout();
-    dispatch(setIsAuth(false));
-    navigate('/login');
-  }, [logout, navigate, dispatch]);
+    try {
+      await logout().unwrap();
 
-  const handleBlur = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (userData?.user.username) {
-      const response = await checkPassword({
-        username: userData.user.username,
-        password: e.target.value,
-      });
+      dispatch(clearUser());
+      navigate('/login');
+    } catch (error) {
+      setError('Произошла ошибка при выходе');
+    }
+  }, [logout, dispatch, navigate]);
 
-      if ('data' in response) {
-        setError(response.data.isSame ? '' : 'Пароли не совпадают');
-      } else if ('error' in response) {
+  const handleBlur = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (!userData?.user?.username) {
+        setError('Пользователь не загружен');
+        return;
+      }
+
+      try {
+        const response = await checkPassword({
+          username: userData.user.username,
+          password: e.target.value,
+        }).unwrap();
+
+        setError(response.isSame ? '' : 'Пароли не совпадают');
+      } catch (error) {
         setError('Произошла ошибка при проверке пароля');
       }
-    }
-  }, [checkPassword, userData]);
+    },
+    [checkPassword, userData]
+  );
 
   return (
     <form className={styles.profile} onSubmit={handleSave}>
       <Input
         label='Изменить логин'
         handleChange={handleChange}
-        placeholder={userData?.user.username || 'логин'}
+        placeholder={userData?.user?.username || 'логин'}
         name='username'
         type='text'
       />
-      <label htmlFor='select-role' className={styles.label}>Изменить роль</label>
+
+      <label htmlFor='select-role' className={styles.label}>
+        Изменить роль
+      </label>
+
       <div className={styles.selectWrapper}>
         <select
           onChange={handleChange}
           name='role'
           id='select-role'
           className={styles.select}
+          defaultValue={userData?.user?.role || 'watching'}
         >
           <option value='watching'>Наблюдающий</option>
           <option value='voting'>Голосующий</option>
         </select>
+
         <svg className={styles.arrow}>
           <use xlinkHref='#select-arrow-down'></use>
         </svg>
@@ -119,8 +164,13 @@ const Profile = () => {
       />
 
       <div className={styles.buttonGroup}>
-        <Button type={0} size='l' submit>Сохранить</Button>
-        <Button type={1} size='l' handleClick={handleLogout}>Выйти</Button>
+        <Button type={0} size='l' submit>
+          Сохранить
+        </Button>
+
+        <Button type={1} size='l' handleClick={handleLogout}>
+          Выйти
+        </Button>
       </div>
     </form>
   );

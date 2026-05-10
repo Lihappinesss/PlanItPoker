@@ -11,7 +11,6 @@ export interface ILoginData {
 }
 
 export interface IUserInfo {
-  isAuth: boolean;
   user: {
     id: number;
     username: string;
@@ -24,6 +23,7 @@ export interface IChangeUserData {
   username: string;
   password: string;
   id: number;
+  role: string;
 }
 
 export interface IPasswordInfo {

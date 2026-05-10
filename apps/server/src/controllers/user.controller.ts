@@ -4,36 +4,38 @@ import { SessionData } from 'express-session';
 
 import User from '../models/user';
 
+interface SessionUser {
+  id: number;
+  username: string;
+  email: string;
+  role: string;
+}
+
 interface AuthRequest extends Request {
-  session?: {
-    user?: {
-      isAuth?: boolean;
-      username: string;
-      password: string;
-      role: string;
-    };
+  session: SessionData & {
+    user?: SessionUser;
   };
 }
 
-interface ChangeRequest extends Request {
-  session?: {
-    user?: {
-      username: string;
-      password: string;
-      role: string;
-    };
-  };
-}
+const getSafeUser = (user: {
+  id: number;
+  username: string;
+  email: string;
+  role: string;
+}) => ({
+  id: user.id,
+  username: user.username,
+  email: user.email,
+  role: user.role,
+});
 
-// Todo добавить возврат ошибок
-// проверить код на безопасность
-interface ExtendedRequest extends Request {
-  session: SessionData & { user?: { userId: string; username: string; email: string; isAuth: boolean } };
-}
-
-export const register = async (req: ExtendedRequest, res: Response): Promise<void>  => {
+export const register = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
     const { username, email, password, role } = req.body;
+
     const hashedPassword = bcrypt.hashSync(password, 10);
 
     const newUser = await User.create({
@@ -43,41 +45,50 @@ export const register = async (req: ExtendedRequest, res: Response): Promise<voi
       role,
     });
 
-    req.session.user = {
-      userId: newUser.id,
-      username: newUser.username,
-      email: newUser.email,
-      role: newUser.role,
-      isAuth: true,
-    };
+    const safeUser = getSafeUser(newUser);
+
+    req.session.user = safeUser;
 
     await req.session.save();
 
-    res.status(200).json({ message: 'Registration and authentication successful' });
+    res.status(200).json({
+      message: 'Registration and authentication successful',
+      user: safeUser,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
   }
 };
 
-export const login = async (req: ExtendedRequest, res: Response, next: NextFunction): Promise<void> => {
+export const login = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const { username, password } = req.body;
+
     const user = await User.findOne({ where: { username } });
 
     if (user && bcrypt.compareSync(password, user.password)) {
-      req.session.user = {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        isAuth: true,
-        role: user.role,
-      };
+      const safeUser = getSafeUser(user);
+
+      req.session.user = safeUser;
+
       await req.session.save();
-      res.status(200).json({ message: 'Authentication successful', user });
-    } else {
-      res.status(401).json({ message: 'Invalid credentials' });
+
+      res.status(200).json({
+        message: 'Authentication successful',
+        user: safeUser,
+      });
+
+      return;
     }
+
+    res.status(401).json({
+      message: 'Invalid credentials',
+    });
   } catch (error) {
     console.log(error);
     res.status(500).send('Internal Server Error');
@@ -85,76 +96,118 @@ export const login = async (req: ExtendedRequest, res: Response, next: NextFunct
   }
 };
 
-export const checkAuth = async (req: AuthRequest, res: Response): Promise<void> => {
+export const checkAuth = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
-    const isAuthenticated = req.session?.user?.isAuth;
-    const user = req.session?.user;
+    const user = req.session.user;
 
-    if (isAuthenticated) {
-      res.status(200).json({ isAuth: true, user });
-    } else {
-      res.status(401).json({ isAuth: false });
+    if (user) {
+      res.status(200).json({
+        user,
+      });
+
+      return;
     }
+
+    res.status(401).json({
+      user: null,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
   }
 };
 
-export const changeData  = async (req: ChangeRequest, res: Response) => {
+export const changeData = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
     const userId = req.params.id;
     const { username, password, role } = req.body;
+
     const user = await User.findByPk(userId);
 
     if (!user) {
-      res.status(404).json({ message: 'Пользователь не найден' });
+      res.status(404).json({
+        message: 'Пользователь не найден',
+      });
+
+      return;
     }
 
     if (username) {
       user.username = username;
     }
+
     if (password) {
-      user.password = password;
+      user.password = bcrypt.hashSync(password, 10);
     }
+
     if (role) {
       user.role = role;
     }
 
     await user.save();
 
-    return res.status(200).json({ message: 'Данные пользователя успешно обновлены', user });
+    const safeUser = getSafeUser(user);
+
+    req.session.user = safeUser;
+
+    await req.session.save();
+
+    res.status(200).json({
+      message: 'Данные пользователя успешно обновлены',
+      user: safeUser,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).send('Internal Server Error');
   }
 };
 
-export const logout = async (req, res: Response) => {
+export const logout = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
     if (req.session.user) {
       delete req.session.user;
       await req.session.save();
-
-      return res.status(200).json({ message: 'Сессия удалена'});
     }
+
+    res.status(200).json({
+      message: 'Сессия удалена',
+    });
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
   }
 };
 
-export const checkPassword = async (req, res) => {
+export const checkPassword = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
     const { username, password } = req.body;
+
     const user = await User.findOne({ where: { username } });
 
     if (user && bcrypt.compareSync(password, user.password)) {
-      res.status(200).json({ isSame: true });
-    } else {
-      res.status(200).json({ isSame: false });
+      res.status(200).json({
+        isSame: true,
+      });
+
+      return;
     }
-  } catch(error) {
+
+    res.status(200).json({
+      isSame: false,
+    });
+  } catch (error) {
     res.status(500).send('Internal Server Error');
   }
 };

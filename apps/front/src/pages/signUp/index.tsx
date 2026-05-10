@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import { useRegisterMutation } from "@src/store/api/auth";
-import { setIsAuth } from '@src/store/authSlice';
+import { setUser } from '@src/store/authSlice';
 
 import Input from '@src/components/Input';
 import Button from '@src/components/Button';
@@ -93,7 +93,7 @@ const SignUp = () => {
       }
 
       await register(formData).unwrap();
-      dispatch(setIsAuth(true));
+      dispatch(setUser({ username: formData.username, role: formData.role, id: 0 }));
       navigate('/');
     } catch (err) {
       setError(prev => ({

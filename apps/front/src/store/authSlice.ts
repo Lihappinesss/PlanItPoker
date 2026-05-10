@@ -1,33 +1,48 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { authApi } from './api/auth';
 
+export interface IUser {
+  id: number;
+  username: string;
+  email?: string;
+  role: string;
+}
+
 export interface AuthState {
-  user: {
-    isAuth: boolean;
-  };
+  user: IUser | null;
 }
 
 const initialState: AuthState = {
-  user: {
-    isAuth: false,
-  },
+  user: null,
 };
 
 export const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setIsAuth(state, action: PayloadAction<boolean>) {
-      state.user.isAuth = action.payload;
+    setUser(state, action: PayloadAction<IUser | null>) {
+      state.user = action.payload;
+    },
+    clearUser(state) {
+      state.user = null;
     },
   },
   extraReducers: (builder) => {
-    builder.addMatcher(authApi.endpoints.login.matchFulfilled, (state) => {
-      state.user.isAuth = true;
-    });
+    builder
+      .addMatcher(authApi.endpoints.login.matchFulfilled, (state, { payload }) => {
+        state.user = payload.user;
+      })
+      .addMatcher(authApi.endpoints.getUserInfo.matchFulfilled, (state, { payload }) => {
+        state.user = payload.user;
+      });
   },
 });
 
-export const { setIsAuth } = authSlice.actions;
-export const selectIsAuth = (state: { auth: AuthState }) => state.auth?.user?.isAuth;
+export const { setUser, clearUser } = authSlice.actions;
+
+export const selectUser = (state: { auth: AuthState }) => state.auth.user;
+
+export const selectIsAuth = (state: { auth: AuthState }) =>
+  Boolean(state.auth.user);
+
 export const authReducer = authSlice.reducer;

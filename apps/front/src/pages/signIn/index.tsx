@@ -9,7 +9,7 @@ import Auth from '@src/components/Layouts/Auth';
 import { useNavigate } from 'react-router-dom';
 
 import { useLoginMutation } from '@src/store/api/auth';
-import { setIsAuth } from '@src/store/authSlice';
+import { setUser } from '@src/store/authSlice';
 
 import styles from './index.module.scss';
 
@@ -45,7 +45,7 @@ const SignIn = () => {
       try {
         const result = await login(formData).unwrap();
         if (result) {
-          dispatch(setIsAuth(true));
+          dispatch(setUser(result.user));
           navigate('/');
         }
       } catch (error) {
