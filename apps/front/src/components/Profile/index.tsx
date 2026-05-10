@@ -86,7 +86,6 @@ const handleBlur = useCallback(
 
     try {
       const response = await checkPassword({
-        username: userData.user.username,
         password: e.target.value,
       }).unwrap();
 

@@ -29,3 +29,7 @@ export interface IChangeUserData {
 export interface IPasswordInfo {
   isSame: boolean;
 }
+
+export interface ICheckPasswordReq {
+  password: string;
+}

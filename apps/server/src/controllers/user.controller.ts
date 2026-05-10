@@ -179,22 +179,34 @@ export const logout = async (req: RequestWithSessionUser, res: Response): Promis
   }
 };
 
-export const checkPassword = async (req: Request, res: Response): Promise<void> => {
+export const checkPassword = async (req: RequestWithSessionUser, res: Response): Promise<void> => {
   try {
-    const { username, password } = req.body;
+    const userId = req.session.user?.id;
 
-    const user = await User.findOne({ where: { username } });
-
-    if (user && bcrypt.compareSync(password, user.password)) {
-      res.status(200).json({
-        isSame: true,
+    if (!userId) {
+      res.status(401).json({
+        message: 'Unauthorized',
       });
 
       return;
     }
 
+    const { password } = req.body;
+
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+      res.status(404).json({
+        message: 'Пользователь не найден',
+      });
+
+      return;
+    }
+
+    const isSame = bcrypt.compareSync(password, user.password);
+
     res.status(200).json({
-      isSame: false,
+      isSame,
     });
   } catch (error) {
     res.status(500).send('Internal Server Error');

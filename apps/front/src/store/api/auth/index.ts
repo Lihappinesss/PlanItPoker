@@ -6,6 +6,7 @@ import {
   ILoginData,
   IChangeUserData,
   IPasswordInfo,
+  ICheckPasswordReq,
 } from './types';
 
 export const authApi = createApi({
@@ -56,7 +57,7 @@ export const authApi = createApi({
       }),
     }),
 
-    checkPassword: builder.mutation<IPasswordInfo, ILoginData>({
+    checkPassword: builder.mutation<IPasswordInfo, ICheckPasswordReq>({
       query: (user) => ({
         url: '/api/checkPassword',
         method: 'POST',
