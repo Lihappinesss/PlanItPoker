@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import {
@@ -8,12 +8,12 @@ import {
   useCheckPasswordMutation,
 } from '@src/store/api/auth';
 
+import type { UserRole } from '@src/store/api/auth/types';
+
 import Input from '@src/components/Input';
 import Button from '@src/components/Button';
 
 import styles from './index.module.scss';
-
-import { UserRole } from '@src/store/api/auth/types';
 
 interface FormData {
   username: string;
@@ -31,6 +31,7 @@ const Profile = () => {
     password: '',
     prevPassword: '',
   });
+
   const [error, setError] = useState('');
 
   const [updateUserData] = useChangeDataMutation();
@@ -38,6 +39,15 @@ const Profile = () => {
   const [checkPassword] = useCheckPasswordMutation();
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (userData?.user) {
+      setFormData((prev) => ({
+        ...prev,
+        role: userData.user.role,
+      }));
+    }
+  }, [userData]);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -81,11 +91,6 @@ const Profile = () => {
   }, [logout, navigate]);
 
   const handleBlur = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!userData?.user?.username) {
-      setError('Пользователь не загружен');
-      return;
-    }
-
     try {
       const response = await checkPassword({
         password: e.target.value,
@@ -95,7 +100,7 @@ const Profile = () => {
     } catch (error) {
       setError('Произошла ошибка при проверке пароля');
     }
-  }, [checkPassword, userData]);
+  }, [checkPassword]);
 
   return (
     <form className={styles.profile} onSubmit={handleSave}>
@@ -117,7 +122,7 @@ const Profile = () => {
           name='role'
           id='select-role'
           className={styles.select}
-          defaultValue={userData?.user?.role || 'watching'}
+          value={formData.role}
         >
           <option value='watching'>Наблюдающий</option>
           <option value='voting'>Голосующий</option>
