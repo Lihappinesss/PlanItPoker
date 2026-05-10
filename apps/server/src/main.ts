@@ -29,6 +29,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
+if (!SESSION_SECRET) {
+  throw new Error('SESSION_SECRET is not defined');
+}
 app.use(
   session({
     secret: SESSION_SECRET,

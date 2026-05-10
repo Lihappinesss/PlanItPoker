@@ -3,6 +3,8 @@ import bcrypt from 'bcrypt';
 
 import User from '../models/user';
 
+const SESSION_COOKIE_NAME = 'connect.sid';
+
 interface SafeUser {
   id: number;
   username: string;
@@ -175,20 +177,27 @@ export const changeData = async (
   }
 };
 
-export const logout = async (req: RequestWithSessionUser, res: Response): Promise<void> => {
-  try {
-    if (req.session.user) {
-      delete req.session.user;
-      await req.session.save();
+export const logout = (req: Request, res: Response): void => {
+  req.session.destroy((error) => {
+    if (error) {
+      console.error(error);
+
+      res.status(500).json({
+        message: 'Logout error',
+      });
+
+      return;
     }
+
+    res.clearCookie(SESSION_COOKIE_NAME, {
+      secure: false,
+      path: '/',
+    });
 
     res.status(200).json({
       message: 'Сессия удалена',
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal Server Error');
-  }
+  });
 };
 
 export const checkPassword = async (req: RequestWithSessionUser, res: Response): Promise<void> => {
