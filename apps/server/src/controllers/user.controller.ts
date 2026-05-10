@@ -1,38 +1,36 @@
 import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
-import { SessionData } from 'express-session';
 
 import User from '../models/user';
 
-interface SessionUser {
+interface SafeUser {
   id: number;
   username: string;
   email: string;
   role: string;
 }
 
-interface AuthRequest extends Request {
-  session: SessionData & {
-    user?: SessionUser;
+type RequestWithSessionUser = Request & {
+  session: Request['session'] & {
+    user?: {
+      id: number;
+    };
   };
-}
+};
 
 const getSafeUser = (user: {
   id: number;
   username: string;
   email: string;
   role: string;
-}): SessionUser => ({
+}): SafeUser => ({
   id: user.id,
   username: user.username,
   email: user.email,
   role: user.role,
 });
 
-export const register = async (
-  req: AuthRequest,
-  res: Response
-): Promise<void> => {
+export const register = async (req: RequestWithSessionUser, res: Response): Promise<void> => {
   try {
     const { username, email, password, role } = req.body;
 
@@ -45,15 +43,15 @@ export const register = async (
       role,
     });
 
-    const safeUser = getSafeUser(newUser);
-
-    req.session.user = safeUser;
+    req.session.user = {
+      id: newUser.id,
+    };
 
     await req.session.save();
 
     res.status(200).json({
       message: 'Registration and authentication successful',
-      user: safeUser,
+      user: getSafeUser(newUser),
     });
   } catch (error) {
     console.error(error);
@@ -61,26 +59,22 @@ export const register = async (
   }
 };
 
-export const login = async (
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const login = async (req: RequestWithSessionUser, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { username, password } = req.body;
 
     const user = await User.findOne({ where: { username } });
 
     if (user && bcrypt.compareSync(password, user.password)) {
-      const safeUser = getSafeUser(user);
-
-      req.session.user = safeUser;
+      req.session.user = {
+        id: user.id,
+      };
 
       await req.session.save();
 
       res.status(200).json({
         message: 'Authentication successful',
-        user: safeUser,
+        user: getSafeUser(user),
       });
 
       return;
@@ -96,23 +90,33 @@ export const login = async (
   }
 };
 
-export const checkAuth = async (
-  req: AuthRequest,
-  res: Response
-): Promise<void> => {
+export const checkAuth = async (req: RequestWithSessionUser, res: Response): Promise<void> => {
   try {
-    const user = req.session.user;
+    const userId = req.session.user?.id;
 
-    if (user) {
-      res.status(200).json({
-        user,
+    if (!userId) {
+      res.status(401).json({
+        user: null,
       });
 
       return;
     }
 
-    res.status(401).json({
-      user: null,
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+      delete req.session.user;
+      await req.session.save();
+
+      res.status(401).json({
+        user: null,
+      });
+
+      return;
+    }
+
+    res.status(200).json({
+      user: getSafeUser(user),
     });
   } catch (error) {
     console.error(error);
@@ -120,10 +124,7 @@ export const checkAuth = async (
   }
 };
 
-export const changeData = async (
-  req: AuthRequest,
-  res: Response
-): Promise<void> => {
+export const changeData = async (req: RequestWithSessionUser, res: Response): Promise<void> => {
   try {
     const userId = req.params.id;
     const { username, password, role } = req.body;
@@ -152,15 +153,9 @@ export const changeData = async (
 
     await user.save();
 
-    const safeUser = getSafeUser(user);
-
-    req.session.user = safeUser;
-
-    await req.session.save();
-
     res.status(200).json({
       message: 'Данные пользователя успешно обновлены',
-      user: safeUser,
+      user: getSafeUser(user),
     });
   } catch (error) {
     console.log(error);
@@ -168,10 +163,7 @@ export const changeData = async (
   }
 };
 
-export const logout = async (
-  req: AuthRequest,
-  res: Response
-): Promise<void> => {
+export const logout = async (req: RequestWithSessionUser, res: Response): Promise<void> => {
   try {
     if (req.session.user) {
       delete req.session.user;
@@ -187,10 +179,7 @@ export const logout = async (
   }
 };
 
-export const checkPassword = async (
-  req: AuthRequest,
-  res: Response
-): Promise<void> => {
+export const checkPassword = async (req: Request, res: Response): Promise<void> => {
   try {
     const { username, password } = req.body;
 

@@ -19,6 +19,8 @@
     "@nx/node": "17.1.2",
     "@nx/webpack": "^17.1.2",
     "@nx/workspace": "17.1.1",
+    "@types/bcrypt": "^6.0.0",
+    "@types/express-session": "^1.19.0",
     "@typescript-eslint/eslint-plugin": "^7.11.0",
     "@typescript-eslint/parser": "^7.11.0",
     "eslint": "^8.53.0",
