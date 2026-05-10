@@ -13,16 +13,24 @@ import Button from '@src/components/Button';
 
 import styles from './index.module.scss';
 
+import { UserRole } from '@src/store/api/auth/types';
+
+interface FormData {
+  username: string;
+  role: UserRole;
+  password: string;
+  prevPassword: string;
+}
+
 const Profile = () => {
   const { data: userData } = useGetUserInfoQuery();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     username: '',
-    role: '',
+    role: 'watching',
     password: '',
     prevPassword: '',
   });
-
   const [error, setError] = useState('');
 
   const [updateUserData] = useChangeDataMutation();
@@ -36,7 +44,7 @@ const Profile = () => {
 
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === 'role' ? (value as UserRole) : value,
     }));
 
     setError('');

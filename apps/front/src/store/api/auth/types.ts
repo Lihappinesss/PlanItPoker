@@ -1,8 +1,21 @@
+export type UserRole = 'voting' | 'watching';
+
+export interface IUser {
+  id: number;
+  username: string;
+  email: string;
+  role: UserRole;
+}
+
+export interface IUserInfo {
+  user: IUser;
+}
+
 export interface IRegisterReq {
   username: string;
   email: string;
   password: string;
-  role: string;
+  role: UserRole;
 }
 
 export interface ILoginData {
@@ -10,19 +23,10 @@ export interface ILoginData {
   password: string;
 }
 
-export interface IUserInfo {
-  user: {
-    id: number;
-    username: string;
-    email: string;
-    role: string,
-  }
-}
-
 export interface IChangeUserData {
   username: string;
   password: string;
-  role: string;
+  role: UserRole;
 }
 
 export interface IPasswordInfo {
