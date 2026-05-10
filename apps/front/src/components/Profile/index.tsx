@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 
 import {
   useGetUserInfoQuery,
@@ -8,7 +7,6 @@ import {
   useLogoutMutation,
   useCheckPasswordMutation,
 } from '@src/store/api/auth';
-import { clearUser } from '@src/store/authSlice';
 
 import Input from '@src/components/Input';
 import Button from '@src/components/Button';
@@ -32,81 +30,73 @@ const Profile = () => {
   const [checkPassword] = useCheckPasswordMutation();
 
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      const { name, value } = e.target;
+  (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
 
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
 
-      setError('');
-    },
-    []
-  );
+    setError('');
+  },
+  []
+);
 
-  const handleSave = useCallback(
-    async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
+const handleSave = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
 
-      if (!userData?.user?.id) {
-        setError('Пользователь не загружен');
-        return;
-      }
+  if (!userData?.user?.id) {
+    setError('Пользователь не загружен');
+    return;
+  }
 
-      try {
-        await updateUserData({
-          id: userData.user.id,
-          username: formData.username,
-          role: formData.role,
-          password: formData.password,
-        }).unwrap();
+  try {
+    await updateUserData({
+      id: userData.user.id,
+      username: formData.username,
+      role: formData.role,
+      password: formData.password,
+    }).unwrap();
 
-        await logout().unwrap();
+    await logout().unwrap();
+    navigate('/login');
+  } catch (error) {
+    setError('Произошла ошибка при сохранении данных');
+  }
+  }, [formData, userData, updateUserData, logout, navigate]);
 
-        dispatch(clearUser());
-        navigate('/login');
-      } catch (error) {
-        setError('Произошла ошибка при сохранении данных');
-      }
-    },
-    [formData, userData, updateUserData, logout, dispatch, navigate]
-  );
+const handleLogout = useCallback(async () => {
+  try {
+    await logout().unwrap();
+    navigate('/login');
+  } catch (error) {
+    setError('Произошла ошибка при выходе');
+  }
+}, [logout, navigate]);
 
-  const handleLogout = useCallback(async () => {
-    try {
-      await logout().unwrap();
-
-      dispatch(clearUser());
-      navigate('/login');
-    } catch (error) {
-      setError('Произошла ошибка при выходе');
+const handleBlur = useCallback(
+  async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!userData?.user?.username) {
+      setError('Пользователь не загружен');
+      return;
     }
-  }, [logout, dispatch, navigate]);
 
-  const handleBlur = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (!userData?.user?.username) {
-        setError('Пользователь не загружен');
-        return;
-      }
+    try {
+      const response = await checkPassword({
+        username: userData.user.username,
+        password: e.target.value,
+      }).unwrap();
 
-      try {
-        const response = await checkPassword({
-          username: userData.user.username,
-          password: e.target.value,
-        }).unwrap();
-
-        setError(response.isSame ? '' : 'Пароли не совпадают');
-      } catch (error) {
-        setError('Произошла ошибка при проверке пароля');
-      }
-    },
-    [checkPassword, userData]
-  );
+      setError(response.isSame ? '' : 'Пароли не совпадают');
+    } catch (error) {
+      setError('Произошла ошибка при проверке пароля');
+    }
+  },
+  [checkPassword, userData]
+);
 
   return (
     <form className={styles.profile} onSubmit={handleSave}>

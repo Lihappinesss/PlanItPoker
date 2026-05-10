@@ -39,7 +39,7 @@ export const authApi = createApi({
       }),
     }),
 
-    changeData: builder.mutation<void, IChangeUserData>({
+    changeData: builder.mutation<IUserInfo, IChangeUserData>({
       query: (newData) => ({
         url: `/api/user/update/${newData.id}`,
         method: 'PUT',

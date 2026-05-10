@@ -22,7 +22,7 @@ const getSafeUser = (user: {
   username: string;
   email: string;
   role: string;
-}) => ({
+}): SessionUser => ({
   id: user.id,
   username: user.username,
   email: user.email,

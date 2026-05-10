@@ -29,11 +29,32 @@ export const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addMatcher(authApi.endpoints.login.matchFulfilled, (state, { payload }) => {
-        state.user = payload.user;
-      })
-      .addMatcher(authApi.endpoints.getUserInfo.matchFulfilled, (state, { payload }) => {
-        state.user = payload.user;
+      .addMatcher(
+        authApi.endpoints.login.matchFulfilled,
+        (state, { payload }) => {
+          state.user = payload.user;
+        }
+      )
+      .addMatcher(
+        authApi.endpoints.register.matchFulfilled,
+        (state, { payload }) => {
+          state.user = payload.user;
+        }
+      )
+      .addMatcher(
+        authApi.endpoints.getUserInfo.matchFulfilled,
+        (state, { payload }) => {
+          state.user = payload.user;
+        }
+      )
+      .addMatcher(
+        authApi.endpoints.changeData.matchFulfilled,
+        (state, { payload }) => {
+          state.user = payload.user;
+        }
+      )
+      .addMatcher(authApi.endpoints.logout.matchFulfilled, (state) => {
+        state.user = null;
       });
   },
 });
