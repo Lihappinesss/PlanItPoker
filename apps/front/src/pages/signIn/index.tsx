@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 
 import Input from '@src/components/Input';
 import Button from '@src/components/Button';
@@ -9,7 +8,6 @@ import Auth from '@src/components/Layouts/Auth';
 import { useNavigate } from 'react-router-dom';
 
 import { useLoginMutation } from '@src/store/api/auth';
-import { setUser } from '@src/store/authSlice';
 
 import styles from './index.module.scss';
 
@@ -23,64 +21,73 @@ interface FormData {
 const SignIn = () => {
   const [formData, setFormData] = useState<FormData>({
     username: '',
-    email: '',
     password: '',
   });
+
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const dispatch = useDispatch();
+
   const [login] = useLoginMutation();
   const navigate = useNavigate();
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setFormData({ ...formData, [e.target.name]: e.target.value });
+      const { name, value } = e.target;
+
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+
       setErrorMessage(null);
     },
-    [formData]
+    []
   );
 
   const handleLogin = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
+
       try {
-        const result = await login(formData).unwrap();
-        if (result) {
-          dispatch(setUser(result.user));
-          navigate('/');
-        }
+        await login(formData).unwrap();
+
+        navigate('/');
       } catch (error) {
         setErrorMessage('Неверный логин или пароль');
         console.error('Login error:', error);
       }
     },
-    [login, formData, dispatch, navigate]
+    [login, formData, navigate]
   );
 
   return (
     <Auth>
       <form className={styles.signin} onSubmit={handleLogin}>
         <div className={styles.enter}>Вход</div>
+
         <Input
-          label="Логин"
-          name="username"
+          label='Логин'
+          name='username'
           handleChange={handleChange}
-          type="text"
+          type='text'
         />
+
         <Input
-          label="Пароль"
-          name="password"
+          label='Пароль'
+          name='password'
           handleChange={handleChange}
-          type="password"
+          type='password'
         />
 
         {errorMessage && <div className={styles.error}>{errorMessage}</div>}
 
-        <Button type={0} size="l" submit>
+        <Button type={0} size='l' submit>
           Войти
         </Button>
+
         <Indent top={20} />
-        <Button type={0} size="l">
-          <Link to="/register" className={styles.link}>
+
+        <Button type={0} size='l'>
+          <Link to='/register' className={styles.link}>
             Зарегистрироваться
           </Link>
         </Button>
