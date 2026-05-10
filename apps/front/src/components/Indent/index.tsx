@@ -21,7 +21,7 @@ const Indent = (props: indenTypes) => {
     >
       {children}
     </div>
-  )
-}
+  );
+};
 
 export default Indent;

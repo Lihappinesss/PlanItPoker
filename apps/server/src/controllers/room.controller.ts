@@ -3,11 +3,7 @@ import { Request, Response } from 'express';
 import Room from '../models/room';
 import Task from '../models/task';
 
-interface ExtendedRequest extends Request {
-  title: string,
-}
-
-export const createRoom = async (req: ExtendedRequest, res: Response) => {
+export const createRoom = async (req: Request, res: Response) => {
   try {
     const { title } = req.body;
 
