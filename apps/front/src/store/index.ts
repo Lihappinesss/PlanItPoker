@@ -1,27 +1,25 @@
 import { configureStore } from '@reduxjs/toolkit';
+import { setupListeners } from '@reduxjs/toolkit/query';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
 import rootReducer from './reducer';
-import { authApi } from './api/auth';
-import { roomApi } from './api/room';
-import { taskApi } from './api/task';
+import { baseApi } from './api/baseApi';
 
+export const store = configureStore({
+  reducer: rootReducer,
 
-const createStore = () => {
-  return configureStore({
-    reducer: rootReducer,
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().concat(authApi.middleware, roomApi.middleware, taskApi.middleware),
-  });
-};
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(baseApi.middleware),
+});
 
-export const store = createStore();
+setupListeners(store.dispatch);
 
 export const dispatch = store.dispatch;
 
-export type IAppDispatch = typeof store.dispatch;
+export type AppDispatch = typeof store.dispatch;
 
-export const useAppDispatch = () => useDispatch<IAppDispatch>();
+export const useAppDispatch = () => useDispatch<AppDispatch>();
 
 export type RootState = ReturnType<typeof store.getState>;
+
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;

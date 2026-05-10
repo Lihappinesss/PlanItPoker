@@ -1,5 +1,3 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-
 import {
   IRegisterReq,
   IUserInfo,
@@ -9,18 +7,18 @@ import {
   ICheckPasswordReq,
 } from './types';
 
-export const authApi = createApi({
-  reducerPath: 'authApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:3000' }),
+import { baseApi } from '../baseApi';
 
+
+export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     register: builder.mutation<IUserInfo, IRegisterReq>({
       query: (newUser) => ({
         url: '/api/register',
         method: 'POST',
         body: newUser,
-        credentials: 'include',
       }),
+      invalidatesTags: ['User'],
     }),
 
     login: builder.mutation<IUserInfo, ILoginData>({
@@ -28,16 +26,16 @@ export const authApi = createApi({
         url: '/api/login',
         method: 'POST',
         body: user,
-        credentials: 'include',
       }),
+      invalidatesTags: ['User'],
     }),
 
     getUserInfo: builder.query<IUserInfo, void>({
       query: () => ({
         url: '/api/auth',
         method: 'GET',
-        credentials: 'include',
       }),
+      providesTags: ['User'],
     }),
 
     changeData: builder.mutation<IUserInfo, IChangeUserData>({
@@ -45,24 +43,23 @@ export const authApi = createApi({
         url: '/api/user/update',
         method: 'PUT',
         body: newData,
-        credentials: 'include',
       }),
+      invalidatesTags: ['User'],
     }),
 
     logout: builder.mutation<void, void>({
       query: () => ({
         url: '/api/logout',
         method: 'DELETE',
-        credentials: 'include',
       }),
+      invalidatesTags: ['User'],
     }),
 
     checkPassword: builder.mutation<IPasswordInfo, ICheckPasswordReq>({
-      query: (user) => ({
+      query: (body) => ({
         url: '/api/checkPassword',
         method: 'POST',
-        body: user,
-        credentials: 'include',
+        body,
       }),
     }),
   }),

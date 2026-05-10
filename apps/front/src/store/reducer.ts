@@ -1,15 +1,11 @@
 import { combineReducers } from '@reduxjs/toolkit';
 
 import { authReducer } from './authSlice';
-import { authApi } from './api/auth';
-import { roomApi } from './api/room';
-import { taskApi } from './api/task';
+import { baseApi } from './api/baseApi';
 
 const rootReducer = combineReducers({
   auth: authReducer,
-  roomApi: roomApi.reducer,
-  authApi: authApi.reducer,
-  taskApi: taskApi.reducer,
+  [baseApi.reducerPath]: baseApi.reducer,
 });
 
 export default rootReducer;

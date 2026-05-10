@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { baseApi } from '../baseApi';
 
 import {
   ICreateTask,
@@ -8,48 +8,46 @@ import {
   IUpdatedTask,
 } from './types';
 
-
-export const taskApi = createApi({
-  reducerPath: 'taskApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:3000' }),
+export const taskApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     createTask: builder.mutation<void, ICreateTask>({
-      query: newTask => ({
+      query: (newTask) => ({
         url: '/api/create/task',
         method: 'POST',
         body: newTask,
-        credentials: 'include',
       }),
+      invalidatesTags: ['Task'],
     }),
 
     deleteTask: builder.mutation<void, Id>({
       query: ({ id }) => ({
         url: `/api/delete/task/${id}`,
         method: 'DELETE',
-        credentials: 'include',
       }),
+      invalidatesTags: ['Task'],
     }),
 
     updateTask: builder.mutation<void, { taskId: number; updatedTask: IUpdatedTask }>({
       query: ({ taskId, updatedTask }) => ({
         url: `/api/update/task/${taskId}`,
         method: 'PUT',
-        credentials: 'include',
-        body: updatedTask
+        body: updatedTask,
       }),
+      invalidatesTags: ['Task'],
     }),
 
     getAllTasks: builder.query<ITask[], IGetTask>({
       query: ({ roomId }) => `/api/tasks/${roomId}`,
+      providesTags: ['Task'],
     }),
 
     deleteTasks: builder.mutation<void, IGetTask>({
       query: ({ roomId }) => ({
         url: `/api/delete/tasks/${roomId}`,
         method: 'DELETE',
-        credentials: 'include',
       }),
-    })
+      invalidatesTags: ['Task'],
+    }),
   }),
 });
 
