@@ -13,7 +13,7 @@ const enum AUTH_ROUTES {
   LOGIN = '/api/login',
   REGISTER = '/api/register',
   CHECK_AUTH = '/api/auth',
-  CHANGE_DATA = '/api/user/update/:id',
+  CHANGE_DATA = '/api/user/update',
   LOGOUT = '/api/logout',
   CHECK_PASSWORD = '/api/checkPassword',
 }

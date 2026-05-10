@@ -31,8 +31,7 @@ const Profile = () => {
 
   const navigate = useNavigate();
 
-  const handleChange = useCallback(
-  (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
 
     setFormData((prev) => ({
@@ -41,44 +40,39 @@ const Profile = () => {
     }));
 
     setError('');
-  },
-  []
-);
+  }, []);
 
-const handleSave = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
+  const handleSave = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-  if (!userData?.user?.id) {
-    setError('Пользователь не загружен');
-    return;
-  }
+    if (!userData?.user) {
+      setError('Пользователь не загружен');
+      return;
+    }
 
-  try {
-    await updateUserData({
-      id: userData.user.id,
-      username: formData.username,
-      role: formData.role,
-      password: formData.password,
-    }).unwrap();
+    try {
+      await updateUserData({
+        username: formData.username,
+        role: formData.role,
+        password: formData.password,
+      }).unwrap();
 
-    await logout().unwrap();
-    navigate('/login');
-  } catch (error) {
-    setError('Произошла ошибка при сохранении данных');
-  }
-  }, [formData, userData, updateUserData, logout, navigate]);
+      setError('');
+    } catch (error) {
+      setError('Произошла ошибка при сохранении данных');
+    }
+  }, [formData, userData, updateUserData]);
 
-const handleLogout = useCallback(async () => {
-  try {
-    await logout().unwrap();
-    navigate('/login');
-  } catch (error) {
-    setError('Произошла ошибка при выходе');
-  }
-}, [logout, navigate]);
+  const handleLogout = useCallback(async () => {
+    try {
+      await logout().unwrap();
+      navigate('/login');
+    } catch (error) {
+      setError('Произошла ошибка при выходе');
+    }
+  }, [logout, navigate]);
 
-const handleBlur = useCallback(
-  async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBlur = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!userData?.user?.username) {
       setError('Пользователь не загружен');
       return;
@@ -93,9 +87,7 @@ const handleBlur = useCallback(
     } catch (error) {
       setError('Произошла ошибка при проверке пароля');
     }
-  },
-  [checkPassword, userData]
-);
+  }, [checkPassword, userData]);
 
   return (
     <form className={styles.profile} onSubmit={handleSave}>

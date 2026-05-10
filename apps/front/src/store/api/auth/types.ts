@@ -22,7 +22,6 @@ export interface IUserInfo {
 export interface IChangeUserData {
   username: string;
   password: string;
-  id: number;
   role: string;
 }
 

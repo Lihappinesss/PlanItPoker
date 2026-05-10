@@ -124,9 +124,21 @@ export const checkAuth = async (req: RequestWithSessionUser, res: Response): Pro
   }
 };
 
-export const changeData = async (req: RequestWithSessionUser, res: Response): Promise<void> => {
+export const changeData = async (
+  req: RequestWithSessionUser,
+  res: Response
+): Promise<void> => {
   try {
-    const userId = req.params.id;
+    const userId = req.session.user?.id;
+
+    if (!userId) {
+      res.status(401).json({
+        message: 'Unauthorized',
+      });
+
+      return;
+    }
+
     const { username, password, role } = req.body;
 
     const user = await User.findByPk(userId);
