@@ -33,7 +33,7 @@ export const authApi = createApi({
 
     getUserInfo: builder.query<IUserInfo, void>({
       query: () => ({
-        url: '/',
+        url: '/api/auth',
         method: 'GET',
         credentials: 'include',
       }),
