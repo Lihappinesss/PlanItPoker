@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef } from 'react';
 import cx from 'classnames';
 
 import Shapka from '@src/components/Shapka';
@@ -20,17 +20,15 @@ const MainPage = () => {
   const [isShowCreate, setShowCreate] = useState(false);
   const createAnchor = useRef<HTMLDivElement>(null);
   const [createRoom] = useCreateRoomMutation();
-  const { data: rooms, refetch: refetchRooms } = useGetRoomsQuery();
+  const { data: rooms } = useGetRoomsQuery();
   const [deleteRoom] = useDeleteRoomMutation();
 
-  const handleCreateRoom = useCallback((title: string) => {
+  const handleCreateRoom = async (title: string) => {
     if (title) {
-      createRoom({title}).then(() => {
-        refetchRooms();
-      });
+      await createRoom({ title }).unwrap();
       setShowCreate(false);
     }
-  }, [createRoom, refetchRooms]);
+  };
 
   const handleCloseOverlay = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     if (createAnchor.current && createAnchor.current.contains(e.target as Node)) {
@@ -39,13 +37,11 @@ const MainPage = () => {
     setShowCreate(false);
   };
 
-  const handleDeleteRoom = useCallback((id: number) => {
+  const handleDeleteRoom = async (id: number) => {
     if (id) {
-      deleteRoom({ id }).then(() => {
-        refetchRooms();
-      });
+      await deleteRoom({ id }).unwrap();
     }
-  }, [deleteRoom, refetchRooms]);
+  };
 
   return (
     <div className={cx(styles.mainPage)}>

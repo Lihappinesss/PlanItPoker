@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import cx from 'classnames';
 
 import Button from '@components/Button';
@@ -26,9 +26,9 @@ function TaskList(props: ITaskList) {
   const dropdownRef = useRef<HTMLLIElement>(null);
   const [links, setLinks] = useState('');
 
-  const enteredLinks = useMemo(() =>
-    links.split(/[\s,]+/).filter(link => link.trim() !== ''),
-  [links]);
+  const enteredLinks = links
+    .split(/[\s,]+/)
+    .filter((link) => link.trim() !== '');
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
@@ -41,11 +41,11 @@ function TaskList(props: ITaskList) {
     return () => document.removeEventListener('click', handleOutsideClick);
   }, []);
 
-  const handleSendTasks = useCallback((list: string[]) => {
+  const handleSendTasks = (list: string[]) => {
     handleCreateTask(list);
     setShowAddTask(false);
     setLinks('');
-  }, [handleCreateTask]);
+  };
 
   return (
     <aside className={cx(
