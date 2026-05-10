@@ -1,4 +1,10 @@
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import React from 'react';
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 import Plan from '@pages/plan';
@@ -10,18 +16,24 @@ import NotFound from '@pages/notFound';
 import { selectIsAuth } from './store/authSlice';
 import { useGetUserInfoQuery } from '@src/store/api/auth';
 
-const App = () => {
+const App: React.FC = () => {
   const isAuthenticated = useSelector(selectIsAuth);
 
-  useGetUserInfoQuery();
+  const { isLoading, isFetching } = useGetUserInfoQuery();
+
+  const isAuthChecking = isLoading || isFetching;
+
+  if (isAuthChecking) {
+    return null;
+  }
 
   return (
     <Router>
       <Routes>
         {isAuthenticated ? (
           <>
-            <Route path="/plan/:id" element={<Plan />} />
             <Route path="/" element={<MainPage />} />
+            <Route path="/plan/:id" element={<Plan />} />
             <Route path="/login" element={<Navigate to="/" replace />} />
             <Route path="/register" element={<Navigate to="/" replace />} />
             <Route path="*" element={<NotFound />} />
