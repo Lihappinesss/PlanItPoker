@@ -3,17 +3,22 @@ const { withReact } = require('@nx/react');
 const { merge } = require('webpack-merge');
 const path = require('path');
 
+const resolvePackage = (packageName) =>
+  path.dirname(require.resolve(`${packageName}/package.json`, { paths: [__dirname] }));
 
 module.exports = composePlugins(
   withNx(),
-  withReact(), 
+  withReact(),
   (config) => {
-
-  return merge(config, {
-    resolve: {
-      alias: {
-        '@src': path.resolve(__dirname, 'apps/client/src'),
+    return merge(config, {
+      resolve: {
+        alias: {
+          react: resolvePackage('react'),
+          'react-dom': resolvePackage('react-dom'),
+          'react-redux': resolvePackage('react-redux'),
+          '@src': path.resolve(__dirname, 'src'),
+        },
       },
-    },
-  });
-});
+    });
+  }
+);
