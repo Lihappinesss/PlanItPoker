@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import Plan from '@pages/plan';
 import MainPage from '@pages/mainPage';
@@ -8,29 +7,21 @@ import SignIn from '@src/pages/signIn';
 import SignUp from '@pages/signUp';
 import NotFound from '@pages/notFound';
 
-import { selectUser, setUser } from './store/authSlice';
+import { selectIsAuth } from './store/authSlice';
 import { useGetUserInfoQuery } from '@src/store/api/auth';
 
 const App = () => {
-  const user = useSelector(selectUser);
-  const isAuthenticated = Boolean(user);
+  const isAuthenticated = useSelector(selectIsAuth);
 
-  const { data } = useGetUserInfoQuery();
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (data?.user) {
-      dispatch(setUser(data.user));
-    }
-  }, [data, dispatch]);
+  useGetUserInfoQuery();
 
   return (
     <Router>
       <Routes>
         {isAuthenticated ? (
           <>
-            <Route path="/" element={<MainPage />} />
             <Route path="/plan/:id" element={<Plan />} />
+            <Route path="/" element={<MainPage />} />
             <Route path="/login" element={<Navigate to="/" replace />} />
             <Route path="/register" element={<Navigate to="/" replace />} />
             <Route path="*" element={<NotFound />} />
