@@ -11,6 +11,7 @@ export interface ExtendedWebSocket extends WebSocket {
       address: string;
     };
   };
+  userId?: number;
   vote?: number;
   login: string;
   roomId?: number;
@@ -19,9 +20,7 @@ export interface ExtendedWebSocket extends WebSocket {
 }
 
 export interface JoinRoomPayload {
-  login: string;
   roomId: number;
-  role: string;
 }
 
 export interface VotePayload {

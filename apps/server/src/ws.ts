@@ -1,7 +1,10 @@
 import WebSocket from 'ws';
 import http from 'http';
 import { Express } from 'express';
+import session from 'express-session';
+import type { IncomingMessage } from 'http';
 import Task from './models/task';
+import User from './models/user';
 
 import {
   AddTasksPayload,
@@ -13,6 +16,14 @@ import {
   VotePayload,
   WsRequest,
 } from './types';
+
+type SessionRequest = IncomingMessage & {
+  session?: session.Session & Partial<session.SessionData> & {
+    user?: {
+      id: number;
+    };
+  };
+};
 
 const sendJson = (ws: ExtendedWebSocket, payload: unknown) => {
   ws.send(JSON.stringify(payload));
@@ -83,9 +94,6 @@ const isJoinRoomPayload = (payload: unknown): payload is JoinRoomPayload => {
 
   return Boolean(
     candidate &&
-    typeof candidate.login === 'string' &&
-    candidate.login.trim() &&
-    typeof candidate.role === 'string' &&
     Number.isFinite(Number(candidate.roomId))
   );
 };
@@ -145,7 +153,10 @@ const isUpdateStoryPointPayload = (
 };
 
 
-function startWs(app: Express) {
+function startWs(
+  app: Express,
+  sessionMiddleware: ReturnType<typeof session>
+) {
   const server = http.createServer(app);
 
   const PORT = process.env.SERVER_PORT || 3000;
@@ -154,18 +165,37 @@ function startWs(app: Express) {
     console.log(`Server is running on port ${PORT}`);
   });
 
-  const wss = new WebSocket.Server({ server });
+  const wss = new WebSocket.Server({ noServer: true });
   const connectedClients: Map<string, Set<ExtendedWebSocket>> = new Map();
 
-  wss.on('connection', (ws: ExtendedWebSocket) => {
+  server.on('upgrade', (request, socket, head) => {
+    sessionMiddleware(request as never, {} as never, () => {
+      const sessionRequest = request as SessionRequest;
+      const userId = sessionRequest.session?.user?.id;
+
+      if (!userId) {
+        socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+        socket.destroy();
+        return;
+      }
+
+      wss.handleUpgrade(request, socket, head, (ws) => {
+        const extendedSocket = ws as ExtendedWebSocket;
+        extendedSocket.userId = userId;
+        wss.emit('connection', extendedSocket, request);
+      });
+    });
+  });
+
+  wss.on('connection', (ws: ExtendedWebSocket, request: IncomingMessage) => {
     let login = '';
     let roomId: number | undefined;
     let role = '';
 
     ws.on('message', async (message) => {
-      const request = parseRequest(message);
+      const parsedRequest = parseRequest(message);
 
-      if (!request) {
+      if (!parsedRequest) {
         sendJson(ws, {
           command: 'error',
           message: 'Invalid WebSocket payload',
@@ -173,8 +203,8 @@ function startWs(app: Express) {
         return;
       }
 
-      if (request.command === 'joinrRoom') {
-        if (!isJoinRoomPayload(request.payload)) {
+      if (parsedRequest.command === 'joinrRoom') {
+        if (!isJoinRoomPayload(parsedRequest.payload)) {
           sendJson(ws, {
             command: 'error',
             message: 'Invalid payload for joinrRoom',
@@ -182,10 +212,31 @@ function startWs(app: Express) {
           return;
         }
 
-        roomId = Number(request.payload.roomId);
-        login = request.payload.login;
-        role = request.payload.role;
+        const sessionRequest = request as SessionRequest;
+        const userId = sessionRequest.session?.user?.id ?? ws.userId;
 
+        if (!userId) {
+          sendJson(ws, {
+            command: 'error',
+            message: 'Unauthorized WebSocket session',
+          });
+          return;
+        }
+
+        const user = await User.findByPk(userId);
+        if (!user) {
+          sendJson(ws, {
+            command: 'error',
+            message: 'User not found',
+          });
+          return;
+        }
+
+        roomId = Number(parsedRequest.payload.roomId);
+        login = user.username;
+        role = user.role;
+
+        ws.userId = user.id;
         ws.login = login;
         ws.roomId = roomId;
         ws.role = role;
@@ -210,8 +261,8 @@ function startWs(app: Express) {
         });
       }
 
-      else if (request.command === 'vote') {
-        if (!isVotePayload(request.payload)) {
+      else if (parsedRequest.command === 'vote') {
+        if (!isVotePayload(parsedRequest.payload)) {
           sendJson(ws, {
             command: 'error',
             message: 'Invalid payload for vote',
@@ -228,7 +279,7 @@ function startWs(app: Express) {
           return;
         }
 
-        const vote = Number(request.payload.vote);
+        const vote = Number(parsedRequest.payload.vote);
 
         const userSockets = connectedClients.get(ws.login);
         if (!userSockets) return;
@@ -291,7 +342,7 @@ function startWs(app: Express) {
               storyPoint: roundedStoryPoint,
             },
             {
-              where: { id: request.payload.taskId, roomId: request.payload.roomId },
+              where: { id: parsedRequest.payload.taskId, roomId: parsedRequest.payload.roomId },
             }
           );
 
@@ -303,8 +354,8 @@ function startWs(app: Express) {
         }
       }
 
-      else if (request.command === 'addTasksRequest') {
-        if (!isAddTasksPayload(request.payload)) {
+      else if (parsedRequest.command === 'addTasksRequest') {
+        if (!isAddTasksPayload(parsedRequest.payload)) {
           sendJson(ws, {
             command: 'error',
             message: 'Invalid payload for addTasksRequest',
@@ -317,7 +368,7 @@ function startWs(app: Express) {
           return;
         }
 
-        const newTasks = request.payload.tasks;
+        const newTasks = parsedRequest.payload.tasks;
 
         for (const taskLink of newTasks) {
           const [, created] = await Task.findOrCreate({
@@ -343,7 +394,7 @@ function startWs(app: Express) {
         broadcastToRoom(wss, roomId, JSON.parse(taskMessage));
       }
 
-      else if (request.command === 'proceedToNextTask') {
+      else if (parsedRequest.command === 'proceedToNextTask') {
         if (!roomId) return;
 
         const currentRoomId = ws.roomId;
@@ -381,8 +432,8 @@ function startWs(app: Express) {
         broadcastToRoom(wss, roomId, JSON.parse(nextTaskMessage));
       }
 
-      else if (request.command === 'removeTasks') {
-        if (!isRemoveTasksPayload(request.payload)) {
+      else if (parsedRequest.command === 'removeTasks') {
+        if (!isRemoveTasksPayload(parsedRequest.payload)) {
           sendJson(ws, {
             command: 'error',
             message: 'Invalid payload for removeTasks',
@@ -390,7 +441,7 @@ function startWs(app: Express) {
           return;
         }
 
-        const { roomId, tasksForRemove } = request.payload;
+        const { roomId, tasksForRemove } = parsedRequest.payload;
         const taskIds = tasksForRemove.map((task: { id: number }) => task.id);
 
         try {
@@ -414,8 +465,8 @@ function startWs(app: Express) {
         }
       }
 
-      else if (request.command === 'removeTask') {
-        if (!isRemoveTaskPayload(request.payload)) {
+      else if (parsedRequest.command === 'removeTask') {
+        if (!isRemoveTaskPayload(parsedRequest.payload)) {
           sendJson(ws, {
             command: 'error',
             message: 'Invalid payload for removeTask',
@@ -423,7 +474,7 @@ function startWs(app: Express) {
           return;
         }
 
-        const { roomId, taskForRemove } = request.payload;
+        const { roomId, taskForRemove } = parsedRequest.payload;
 
         try {
           await Task.destroy({
@@ -446,8 +497,8 @@ function startWs(app: Express) {
         }
       }
 
-      else if (request.command === 'updateStoryPoint') {
-        if (!isUpdateStoryPointPayload(request.payload)) {
+      else if (parsedRequest.command === 'updateStoryPoint') {
+        if (!isUpdateStoryPointPayload(parsedRequest.payload)) {
           sendJson(ws, {
             command: 'error',
             message: 'Invalid payload for updateStoryPoint',
@@ -455,7 +506,7 @@ function startWs(app: Express) {
           return;
         }
 
-        const { roomId, taskId, vote } = request.payload;
+        const { roomId, taskId, vote } = parsedRequest.payload;
 
         try {
           await Task.update(
@@ -479,10 +530,10 @@ function startWs(app: Express) {
       }
 
       else {
-        sendJson(ws, {
-          command: 'error',
-          message: `Unsupported command: ${request.command}`,
-        });
+          sendJson(ws, {
+            command: 'error',
+            message: `Unsupported command: ${parsedRequest.command}`,
+          });
       }
     });
 
