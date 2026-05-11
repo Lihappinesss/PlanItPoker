@@ -7,15 +7,27 @@ export const createTask = async (req: Request, res: Response) => {
   try {
     const { roomId, links } = req.body;
 
-    if (!links && links.length === 0 || !roomId) {
+    if (!roomId || !Array.isArray(links) || links.length === 0) {
       res.status(400).json({ error: 'Links and roomId are required' });
       return;
     }
 
-    const newTasks = await Promise.all(
-      links.map(async (link: string) => {
-        return await Task.create({ link, status: 'pending', roomId, storyPoint: 0 });
-      })
+    const normalizedLinks = links
+      .map((link: string) => link.trim())
+      .filter((link: string) => link.length > 0);
+
+    if (normalizedLinks.length === 0) {
+      res.status(400).json({ error: 'At least one valid link is required' });
+      return;
+    }
+
+    const newTasks = await Task.bulkCreate(
+      normalizedLinks.map((link: string) => ({
+        link,
+        status: 'pending',
+        roomId,
+        storyPoint: 0,
+      }))
     );
 
     res.status(201).send(newTasks);
@@ -85,11 +97,7 @@ export const getAllTasksInRoom = async (req: Request, res: Response) => {
 export const deleteTasksInRoom = async (req: Request, res: Response) => {
   try {
     const roomId = req.params.roomId;
-    const tasks = await Task.findAll({ where: { roomId } });
-
-    await Promise.all(tasks.map(async (task) => {
-      await task.destroy();
-    }));
+    await Task.destroy({ where: { roomId } });
 
     res.status(204).end();
   } catch (error) {

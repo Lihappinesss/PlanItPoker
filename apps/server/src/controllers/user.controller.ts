@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
+import { UniqueConstraintError } from 'sequelize';
 
 import User from '../models/user';
 
@@ -36,7 +37,15 @@ export const register = async (req: RequestWithSessionUser, res: Response): Prom
   try {
     const { username, email, password, role } = req.body;
 
-    const hashedPassword = bcrypt.hashSync(password, 10);
+    if (!username || !email || !password || !role) {
+      res.status(400).json({
+        message: 'Username, email, password and role are required',
+      });
+
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await User.create({
       username,
@@ -56,6 +65,14 @@ export const register = async (req: RequestWithSessionUser, res: Response): Prom
       user: getSafeUser(newUser),
     });
   } catch (error) {
+    if (error instanceof UniqueConstraintError) {
+      res.status(409).json({
+        message: 'User with this username or email already exists',
+      });
+
+      return;
+    }
+
     console.error(error);
     res.status(500).send('Internal Server Error');
   }
@@ -65,9 +82,17 @@ export const login = async (req: RequestWithSessionUser, res: Response, next: Ne
   try {
     const { username, password } = req.body;
 
+    if (!username || !password) {
+      res.status(400).json({
+        message: 'Username and password are required',
+      });
+
+      return;
+    }
+
     const user = await User.findOne({ where: { username } });
 
-    if (user && bcrypt.compareSync(password, user.password)) {
+    if (user && await bcrypt.compare(password, user.password)) {
       req.session.user = {
         id: user.id,
       };
@@ -88,7 +113,7 @@ export const login = async (req: RequestWithSessionUser, res: Response, next: Ne
   } catch (error) {
     console.log(error);
     res.status(500).send('Internal Server Error');
-    next(error);
+    return next(error);
   }
 };
 
@@ -158,7 +183,7 @@ export const changeData = async (
     }
 
     if (password) {
-      user.password = bcrypt.hashSync(password, 10);
+      user.password = await bcrypt.hash(password, 10);
     }
 
     if (role) {
@@ -172,6 +197,14 @@ export const changeData = async (
       user: getSafeUser(user),
     });
   } catch (error) {
+    if (error instanceof UniqueConstraintError) {
+      res.status(409).json({
+        message: 'User with this username already exists',
+      });
+
+      return;
+    }
+
     console.log(error);
     res.status(500).send('Internal Server Error');
   }
@@ -214,6 +247,14 @@ export const checkPassword = async (req: RequestWithSessionUser, res: Response):
 
     const { password } = req.body;
 
+    if (!password) {
+      res.status(400).json({
+        message: 'Password is required',
+      });
+
+      return;
+    }
+
     const user = await User.findByPk(userId);
 
     if (!user) {
@@ -224,7 +265,7 @@ export const checkPassword = async (req: RequestWithSessionUser, res: Response):
       return;
     }
 
-    const isSame = bcrypt.compareSync(password, user.password);
+    const isSame = await bcrypt.compare(password, user.password);
 
     res.status(200).json({
       isSame,

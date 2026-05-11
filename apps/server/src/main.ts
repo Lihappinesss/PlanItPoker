@@ -3,7 +3,6 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import path from 'path';
 import session from 'express-session';
-import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 
 import { dbConnect } from './db';
@@ -11,11 +10,12 @@ import routes from './routes';
 
 import startWs from './ws';
 
-const { SESSION_SECRET } = process.env;
-
 dotenv.config();
 
+const { SESSION_SECRET, NODE_ENV } = process.env;
+
 const app = express();
+const isProduction = NODE_ENV === 'production';
 
 const corsOptions = {
   origin: ['http://localhost:4200', 'http://localhost:3000'],
@@ -27,11 +27,12 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(bodyParser.json());
 app.use(cookieParser());
+
 if (!SESSION_SECRET) {
   throw new Error('SESSION_SECRET is not defined');
 }
+
 app.use(
   session({
     secret: SESSION_SECRET,
@@ -39,9 +40,11 @@ app.use(
     saveUninitialized: false,
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 7,
-      secure: false,
+      httpOnly: true,
+      sameSite: isProduction ? 'none' : 'lax',
+      secure: isProduction,
     },
-    proxy: true,
+    proxy: isProduction,
   })
 );
 
@@ -49,7 +52,7 @@ routes(app);
 
 startWs(app);
 
-dbConnect();
+void dbConnect();
 
 app.use(express.static(path.join(__dirname, '../../apps/front')));
 
