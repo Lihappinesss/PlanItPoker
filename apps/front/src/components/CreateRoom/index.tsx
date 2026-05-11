@@ -38,12 +38,9 @@ const CreateRoom = ({ handleClose, handleCreateRoom }: CreateRoomTypes) => {
       >
         Создать комнату
       </Button>
-      <img
-        src={close}
-        className={styles.close}
-        onClick={handleClose}
-        alt='close'
-      />
+      <button type='button' className={styles.close} onClick={handleClose} aria-label='Закрыть'>
+        <img src={close} alt='' />
+      </button>
     </div>
   );
 };

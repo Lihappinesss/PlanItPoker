@@ -50,8 +50,8 @@ const MainPage = () => {
         <Profile />
         <div className={styles.roomContainer}>
           <div className={styles.title}>Комнаты</div>
-          {rooms && rooms.length > 0 && rooms.map((room, i) => (
-            <div key ={i} className={styles.room}>
+          {rooms && rooms.length > 0 && rooms.map((room) => (
+            <div key={room.id} className={styles.room}>
               <RoomCard
                 title={room.title}
                 id={room.id}

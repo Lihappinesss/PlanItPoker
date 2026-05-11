@@ -25,7 +25,7 @@ function PlayerPoints(props: IPlayerPoints) {
         <div className={styles.group}>
           <div className={styles.title}>Участники</div>
           <ul>
-            {votingUsers.length > 0 && votingUsers.map((participant, i: number) => {
+            {votingUsers.length > 0 && votingUsers.map((participant) => {
               const userVote = usersVotes.find(userVote => userVote.login === participant.login);
               const allVoted = votingUsers.every(u => usersVotes.some(v => v.login === u.login && v.vote !== undefined));
               const isCurrentUser = participant.login === currentUser?.username;
@@ -45,7 +45,7 @@ function PlayerPoints(props: IPlayerPoints) {
               }
 
               return (
-                <li key={i} className={styles.userItem}>
+                <li key={participant.login} className={styles.userItem}>
                   <span className={styles.login}>{participant.login}</span>
                   <span className={styles.userVote}>{display}</span>
                 </li>
@@ -57,8 +57,8 @@ function PlayerPoints(props: IPlayerPoints) {
           <div className={styles.group}>
             <div className={styles.title}>Наблюдатели</div>
             <ul>
-              {observers.map((observer, i) => (
-                <li key={i} className={styles.login}>{observer.login}</li>
+              {observers.map((observer) => (
+                <li key={observer.login} className={styles.login}>{observer.login}</li>
               ))}
             </ul>
           </div>

@@ -20,7 +20,5 @@
     }
   },
   "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx"],
-  "files": [
-    "styled-jsx.d.ts"
-  ]
+  "files": []
 }

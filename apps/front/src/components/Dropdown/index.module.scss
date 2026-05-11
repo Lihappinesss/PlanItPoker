@@ -1,5 +1,22 @@
+.dropdown {
+  position: relative;
+}
+
 .dropdownContent {
   position: absolute;
   z-index: 1;
   display: flex;
+  top: var(--dropdown-top, auto);
+  right: var(--dropdown-right, auto);
+  left: var(--dropdown-left, auto);
+  bottom: var(--dropdown-bottom, auto);
+}
+
+.center {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.right {
+  right: var(--dropdown-right, 0);
 }

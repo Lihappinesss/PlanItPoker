@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 
 import close from 'src/icons/close.png';
-
 import { useGetAllTasksQuery } from '@src/store/api/task';
 
 import styles from './index.module.scss';
@@ -20,7 +19,7 @@ const RoomCard = (props: cardTypes) => {
     handleDeleteRoom,
   } = props;
 
-  const { data: tasks} = useGetAllTasksQuery({ roomId: id });
+  const { data: tasks } = useGetAllTasksQuery({ roomId: id });
 
   return (
     <div className={styles.roomCard}>

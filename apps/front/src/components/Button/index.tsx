@@ -1,5 +1,8 @@
+import type { CSSProperties } from 'react';
+
 import types from './types';
 import sizes from './sizes';
+import styles from './index.module.scss';
 
 
 export interface IButton {
@@ -27,55 +30,28 @@ const Button = ({ handleClick, type = 0, size = 'l', submit, children }: IButton
     maxWidth
   } = sizes[size];
 
+  const buttonStyle = {
+    '--button-max-width': maxWidth,
+    '--button-padding': padding,
+    '--button-font-size': fontSize,
+    '--button-line-height': lineHeight,
+    '--button-border-radius': `${borderRadius}px`,
+    '--button-color': color,
+    '--button-background': backgrounColor,
+    '--button-border-color': borderColor,
+    '--button-hover-background': hover.backgrounColor,
+    '--button-hover-color': hover.color,
+    '--button-hover-border-color': hover.borderColor,
+  } as CSSProperties;
+
   return (
     <button
       onClick={handleClick}
       type={submit ? 'submit' : 'button'}
-      className='button'
+      className={styles.button}
+      style={buttonStyle}
     >
       {children}
-      <style jsx>{`
-        .button {
-          width: 100%;
-          max-width: ${maxWidth};
-          padding: ${padding};
-          font-size: ${fontSize};
-          line-height: ${lineHeight};
-          border-radius: ${borderRadius}px;
-          color: ${color};
-          background: ${backgrounColor};
-          border: 1px solid ${borderColor};
-          cursor: pointer;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          box-sizing: border-box;
-          transition: all 0.2s ease;
-
-          &:hover {
-            background: ${hover.backgrounColor};
-            color: ${hover.color};
-            border-color: ${hover.borderColor};
-          }
-        }
-
-        @media (max-width: 768px) {
-          .adaptiveButton {
-            padding: 8px 16px;
-            font-size: 15px;
-            line-height: 22px;
-            max-width: 100%;
-          }
-        }
-
-        @media (max-width: 480px) {
-          .adaptiveButton {
-            padding: 6px 12px;
-            font-size: 14px;
-            line-height: 20px;
-          }
-        }
-      `}</style>
     </button>
   );
 };

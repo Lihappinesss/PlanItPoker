@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { useState, useEffect, useRef } from 'react';
 import cx from 'classnames';
 
@@ -17,6 +18,10 @@ function Dropdown(props: IDropdownProps) {
 
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const dropdownStyle = {
+    '--dropdown-top': topPosition !== undefined ? String(topPosition) : 'auto',
+    '--dropdown-right': right !== undefined ? String(right) : 'auto',
+  } as CSSProperties;
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -41,31 +46,19 @@ function Dropdown(props: IDropdownProps) {
   }, [isOpen]);
   
   return (
-    <div ref={dropdownRef} className={cx(styles.dropdown)}>
-      <style jsx scoped>{`
-        .${styles.dropdownContent} {
-          &.dropdown--center {
-            top: ${topPosition ? topPosition : ''};
-            left: 50%;
-            transform: translateX(-50%);
-            position: absolute;
-            z-index: 1;
-            display: flex;
-          }
-          &.dropdown--right {
-            top: ${topPosition ? topPosition : ''};
-            right: ${right};
-            position: absolute;
-            z-index: 1;
-            display: flex;
-          }
-        }
-      `}</style>
+    <div ref={dropdownRef} className={styles.dropdown}>
       <div onClick={toggleDropdown}>
         {trigger}
       </div>
       {isOpen && (
-        <div className={cx(`${styles.dropdownContent}`, [`dropdown--${contentPosition}`])}>
+        <div
+          className={cx(
+            styles.dropdownContent,
+            contentPosition === 'center' && styles.center,
+            contentPosition === 'right' && styles.right
+          )}
+          style={dropdownStyle}
+        >
           {children}
         </div>
       )}
