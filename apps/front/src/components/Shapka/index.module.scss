@@ -4,15 +4,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 80px;
-  padding: 20px 100px;
+  min-height: 88px;
+  padding: 18px 0;
   box-sizing: border-box;
-  background: $violetColor;
-  color: $layout;
 }
 
 .logo {
-  color: $layout;
+  color: inherit;
 }
 
 .link {
@@ -21,7 +19,7 @@
 
 @media (max-width: 670px) {
   .shapka {
-    padding: 10px 20px;
+    padding: 14px 0;
     height: auto;
     flex-wrap: wrap;
     gap: 10px;
@@ -29,7 +27,7 @@
 
   .logo {
     font-size: 20px;
-    margin-right: 10px;
+    margin-right: 0;
   }
 
   .name {

@@ -15,7 +15,7 @@
         "baseHref": "/",
         "main": "apps/front/src/main.tsx",
         "tsConfig": "apps/front/tsconfig.json",
-        "styles": ["apps/front/src/styles.scss"],
+        "styles": ["apps/front/src/tailwind.css", "apps/front/src/styles.scss"],
         "scripts": [],
         "isolatedConfig": true,
         "webpackConfig": "apps/front/webpack.config.js"
