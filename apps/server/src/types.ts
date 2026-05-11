@@ -11,11 +11,47 @@ export interface ExtendedWebSocket extends WebSocket {
       address: string;
     };
   };
-  vote: number;
+  vote?: number;
   login: string;
-  roomId?: string;
+  roomId?: number;
   role?: string;
   hasVoted: boolean;
-  currentTask: string;
-  roomTasks: Map<string, Set<string>>;
+}
+
+export interface JoinRoomPayload {
+  login: string;
+  roomId: number;
+  role: string;
+}
+
+export interface VotePayload {
+  vote: number;
+  taskId: number;
+  roomId: number;
+}
+
+export interface AddTasksPayload {
+  tasks: string[];
+  login: string;
+}
+
+export interface RemoveTasksPayload {
+  roomId: number;
+  tasksForRemove: Array<{ id: number }>;
+}
+
+export interface RemoveTaskPayload {
+  roomId: number;
+  taskForRemove: number;
+}
+
+export interface UpdateStoryPointPayload {
+  roomId: number;
+  taskId: number;
+  vote: number;
+}
+
+export interface WsRequest<TPayload = unknown> {
+  command: string;
+  payload: TPayload;
 }
