@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import Input from '@src/components/Input';
@@ -29,35 +29,29 @@ const SignIn = () => {
   const [login] = useLoginMutation();
   const navigate = useNavigate();
 
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { name, value } = e.target;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
 
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
 
-      setErrorMessage(null);
-    },
-    []
-  );
+    setErrorMessage(null);
+  };
 
-  const handleLogin = useCallback(
-    async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-      try {
-        await login(formData).unwrap();
+    try {
+      await login(formData).unwrap();
 
-        navigate('/');
-      } catch (error) {
-        setErrorMessage('Неверный логин или пароль');
-        console.error('Login error:', error);
-      }
-    },
-    [login, formData, navigate]
-  );
+      navigate('/');
+    } catch (error) {
+      setErrorMessage('Неверный логин или пароль');
+      console.error('Login error:', error);
+    }
+  };
 
   return (
     <Auth>

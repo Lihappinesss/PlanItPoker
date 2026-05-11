@@ -1,0 +1,29 @@
+.button {
+  width: 100%;
+  max-width: var(--button-max-width);
+  padding: var(--button-padding);
+  font-size: var(--button-font-size);
+  line-height: var(--button-line-height);
+  border-radius: var(--button-border-radius);
+  color: var(--button-color);
+  background: var(--button-background);
+  border: 1px solid var(--button-border-color);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.button:hover {
+  background: var(--button-hover-background);
+  color: var(--button-hover-color);
+  border-color: var(--button-hover-border-color);
+}
+
+@media (max-width: 768px) {
+  .button {
+    max-width: 100%;
+  }
+}

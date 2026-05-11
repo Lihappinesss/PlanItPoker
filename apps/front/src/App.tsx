@@ -1,11 +1,9 @@
-import React from 'react';
 import {
   BrowserRouter as Router,
   Route,
   Routes,
   Navigate,
 } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 
 import Plan from '@pages/plan';
 import MainPage from '@pages/mainPage';
@@ -14,10 +12,11 @@ import SignUp from '@pages/signUp';
 import NotFound from '@pages/notFound';
 
 import { selectIsAuth } from './store/authSlice';
+import { useAppSelector } from './store';
 import { useGetUserInfoQuery } from '@src/store/api/auth';
 
-const App: React.FC = () => {
-  const isAuthenticated = useSelector(selectIsAuth);
+const App = () => {
+  const isAuthenticated = useAppSelector(selectIsAuth);
 
   const { isLoading, isFetching } = useGetUserInfoQuery();
 

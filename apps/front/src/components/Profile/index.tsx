@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import {
@@ -49,7 +49,7 @@ const Profile = () => {
     }
   }, [userData]);
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
 
     setFormData((prev) => ({
@@ -58,9 +58,9 @@ const Profile = () => {
     }));
 
     setError('');
-  }, []);
+  };
 
-  const handleSave = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!userData?.user) {
@@ -79,18 +79,18 @@ const Profile = () => {
     } catch (error) {
       setError('Произошла ошибка при сохранении данных');
     }
-  }, [formData, userData, updateUserData]);
+  };
 
-  const handleLogout = useCallback(async () => {
+  const handleLogout = async () => {
     try {
       await logout().unwrap();
       navigate('/login');
     } catch (error) {
       setError('Произошла ошибка при выходе');
     }
-  }, [logout, navigate]);
+  };
 
-  const handleBlur = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBlur = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
       const response = await checkPassword({
         password: e.target.value,
@@ -100,7 +100,7 @@ const Profile = () => {
     } catch (error) {
       setError('Произошла ошибка при проверке пароля');
     }
-  }, [checkPassword]);
+  };
 
   return (
     <form className={styles.profile} onSubmit={handleSave}>

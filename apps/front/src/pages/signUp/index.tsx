@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { useRegisterMutation } from '@src/store/api/auth';
@@ -48,7 +48,7 @@ const SignUp = () => {
   const [register] = useRegisterMutation();
   const navigate = useNavigate();
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
 
     setFormData((prev) => ({
@@ -60,17 +60,13 @@ const SignUp = () => {
       ...prev,
       [name]: '',
     }));
-  }, []);
+  };
 
-  const validateEmail = useCallback((email: string) => {
-    return emailPattern.test(email);
-  }, []);
+  const validateEmail = (email: string) => emailPattern.test(email);
 
-  const validatePassword = useCallback((password: string) => {
-    return passwordPattern.test(password);
-  }, []);
+  const validatePassword = (password: string) => passwordPattern.test(password);
 
-  const handleBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
     let errorMessage = '';
@@ -94,9 +90,9 @@ const SignUp = () => {
       ...prev,
       [name]: errorMessage,
     }));
-  }, [validateEmail, validatePassword]);
+  };
 
-  const handleRegister = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
@@ -132,7 +128,7 @@ const SignUp = () => {
 
       console.error('Register error:', err);
     }
-  }, [formData, error, register, navigate]);
+  };
 
   return (
     <Auth>

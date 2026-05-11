@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
 import Button from '@src/components/Button';
 import Indent from '@src/components/Indent';
@@ -17,9 +17,9 @@ interface CreateRoomTypes {
 const CreateRoom = ({ handleClose, handleCreateRoom }: CreateRoomTypes) => {
   const [title, setTitle] = useState('');
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
-  }, []);
+  };
 
   return (
     <div className={styles.create}>
@@ -38,12 +38,9 @@ const CreateRoom = ({ handleClose, handleCreateRoom }: CreateRoomTypes) => {
       >
         Создать комнату
       </Button>
-      <img
-        src={close}
-        className={styles.close}
-        onClick={handleClose}
-        alt='close'
-      />
+      <button type='button' className={styles.close} onClick={handleClose} aria-label='Закрыть'>
+        <img src={close} alt='' />
+      </button>
     </div>
   );
 };
