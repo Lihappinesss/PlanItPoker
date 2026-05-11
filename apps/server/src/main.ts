@@ -33,24 +33,24 @@ if (!SESSION_SECRET) {
   throw new Error('SESSION_SECRET is not defined');
 }
 
-app.use(
-  session({
-    secret: SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      maxAge: 1000 * 60 * 60 * 24 * 7,
-      httpOnly: true,
-      sameSite: isProduction ? 'none' : 'lax',
-      secure: isProduction,
-    },
-    proxy: isProduction,
-  })
-);
+const sessionMiddleware = session({
+  secret: SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+    httpOnly: true,
+    sameSite: isProduction ? 'none' : 'lax',
+    secure: isProduction,
+  },
+  proxy: isProduction,
+});
+
+app.use(sessionMiddleware);
 
 routes(app);
 
-startWs(app);
+startWs(app, sessionMiddleware);
 
 void dbConnect();
 

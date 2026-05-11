@@ -1,12 +1,162 @@
 import WebSocket from 'ws';
 import http from 'http';
 import { Express } from 'express';
+import session from 'express-session';
+import type { IncomingMessage } from 'http';
 import Task from './models/task';
+import User from './models/user';
 
-import { ExtendedWebSocket } from './types';
+import {
+  AddTasksPayload,
+  ExtendedWebSocket,
+  JoinRoomPayload,
+  RemoveTaskPayload,
+  RemoveTasksPayload,
+  UpdateStoryPointPayload,
+  VotePayload,
+  WsRequest,
+} from './types';
+
+type SessionRequest = IncomingMessage & {
+  session?: session.Session & Partial<session.SessionData> & {
+    user?: {
+      id: number;
+    };
+  };
+};
+
+const sendJson = (ws: ExtendedWebSocket, payload: unknown) => {
+  ws.send(JSON.stringify(payload));
+};
+
+const parseRequest = (message: WebSocket.RawData): WsRequest | null => {
+  try {
+    const parsed = JSON.parse(message.toString()) as WsRequest;
+
+    if (!parsed || typeof parsed.command !== 'string') {
+      return null;
+    }
+
+    return parsed;
+  } catch (error) {
+    return null;
+  }
+};
+
+const getClientsInRoom = (
+  connectedClients: Map<string, Set<ExtendedWebSocket>>,
+  roomId: number
+) =>
+  Array.from(connectedClients.values())
+    .flatMap((set) => Array.from(set))
+    .filter((client) => client.roomId === roomId);
+
+const getUniqueClientsInRoom = (
+  connectedClients: Map<string, Set<ExtendedWebSocket>>,
+  roomId: number
+) => {
+  const uniqueClientsMap = new Map<string, ExtendedWebSocket>();
+
+  for (const socketSet of connectedClients.values()) {
+    for (const client of socketSet) {
+      if (client.roomId === roomId && !uniqueClientsMap.has(client.login)) {
+        uniqueClientsMap.set(client.login, client);
+      }
+    }
+  }
+
+  return Array.from(uniqueClientsMap.values());
+};
+
+const broadcastToRoom = (
+  wss: WebSocket.Server,
+  roomId: number,
+  payload: unknown,
+  exclude?: ExtendedWebSocket
+) => {
+  const message = JSON.stringify(payload);
+
+  wss.clients.forEach((client) => {
+    const extendedClient = client as ExtendedWebSocket;
+
+    if (
+      extendedClient.readyState === WebSocket.OPEN &&
+      extendedClient.roomId === roomId &&
+      extendedClient !== exclude
+    ) {
+      extendedClient.send(message);
+    }
+  });
+};
+
+const isJoinRoomPayload = (payload: unknown): payload is JoinRoomPayload => {
+  const candidate = payload as JoinRoomPayload;
+
+  return Boolean(
+    candidate &&
+    Number.isFinite(Number(candidate.roomId))
+  );
+};
+
+const isVotePayload = (payload: unknown): payload is VotePayload => {
+  const candidate = payload as VotePayload;
+
+  return Boolean(
+    candidate &&
+    Number.isFinite(Number(candidate.vote)) &&
+    Number.isFinite(Number(candidate.taskId)) &&
+    Number.isFinite(Number(candidate.roomId))
+  );
+};
+
+const isAddTasksPayload = (payload: unknown): payload is AddTasksPayload => {
+  const candidate = payload as AddTasksPayload;
+
+  return Boolean(
+    candidate &&
+    Array.isArray(candidate.tasks) &&
+    candidate.tasks.every((task) => typeof task === 'string')
+  );
+};
+
+const isRemoveTasksPayload = (payload: unknown): payload is RemoveTasksPayload => {
+  const candidate = payload as RemoveTasksPayload;
+
+  return Boolean(
+    candidate &&
+    Number.isFinite(Number(candidate.roomId)) &&
+    Array.isArray(candidate.tasksForRemove)
+  );
+};
+
+const isRemoveTaskPayload = (payload: unknown): payload is RemoveTaskPayload => {
+  const candidate = payload as RemoveTaskPayload;
+
+  return Boolean(
+    candidate &&
+    Number.isFinite(Number(candidate.roomId)) &&
+    Number.isFinite(Number(candidate.taskForRemove))
+  );
+};
+
+const isUpdateStoryPointPayload = (
+  payload: unknown
+): payload is UpdateStoryPointPayload => {
+  const candidate = payload as UpdateStoryPointPayload;
+
+  return Boolean(
+    candidate &&
+    Number.isFinite(Number(candidate.roomId)) &&
+    Number.isFinite(Number(candidate.taskId)) &&
+    typeof candidate.vote === 'number'
+  );
+};
 
 
-function startWs(app: Express) {
+function startWs(
+  app: Express,
+  sessionMiddleware: ReturnType<typeof session>
+) {
   const server = http.createServer(app);
 
   const PORT = process.env.SERVER_PORT || 3000;
@@ -15,22 +165,78 @@ function startWs(app: Express) {
     console.log(`Server is running on port ${PORT}`);
   });
 
-  const wss = new WebSocket.Server({ server });
+  const wss = new WebSocket.Server({ noServer: true });
   const connectedClients: Map<string, Set<ExtendedWebSocket>> = new Map();
 
-  wss.on('connection', (ws: ExtendedWebSocket) => {
+  server.on('upgrade', (request, socket, head) => {
+    sessionMiddleware(request as never, {} as never, () => {
+      const sessionRequest = request as SessionRequest;
+      const userId = sessionRequest.session?.user?.id;
+
+      if (!userId) {
+        socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+        socket.destroy();
+        return;
+      }
+
+      wss.handleUpgrade(request, socket, head, (ws) => {
+        const extendedSocket = ws as ExtendedWebSocket;
+        extendedSocket.userId = userId;
+        wss.emit('connection', extendedSocket, request);
+      });
+    });
+  });
+
+  wss.on('connection', (ws: ExtendedWebSocket, request: IncomingMessage) => {
     let login = '';
-    let roomId: string | undefined;
+    let roomId: number | undefined;
     let role = '';
 
-    ws.on('message', async (message: string) => {
-      const request = JSON.parse(message);
+    ws.on('message', async (message) => {
+      const parsedRequest = parseRequest(message);
 
-      if (request.command === 'joinrRoom') {
-        roomId = request.payload.roomId;
-        login = request.payload.login;
-        role = request.payload.role;
+      if (!parsedRequest) {
+        sendJson(ws, {
+          command: 'error',
+          message: 'Invalid WebSocket payload',
+        });
+        return;
+      }
 
+      if (parsedRequest.command === 'joinrRoom') {
+        if (!isJoinRoomPayload(parsedRequest.payload)) {
+          sendJson(ws, {
+            command: 'error',
+            message: 'Invalid payload for joinrRoom',
+          });
+          return;
+        }
+
+        const sessionRequest = request as SessionRequest;
+        const userId = sessionRequest.session?.user?.id ?? ws.userId;
+
+        if (!userId) {
+          sendJson(ws, {
+            command: 'error',
+            message: 'Unauthorized WebSocket session',
+          });
+          return;
+        }
+
+        const user = await User.findByPk(userId);
+        if (!user) {
+          sendJson(ws, {
+            command: 'error',
+            message: 'User not found',
+          });
+          return;
+        }
+
+        roomId = Number(parsedRequest.payload.roomId);
+        login = user.username;
+        role = user.role;
+
+        ws.userId = user.id;
         ws.login = login;
         ws.roomId = roomId;
         ws.role = role;
@@ -43,83 +249,69 @@ function startWs(app: Express) {
         }
         userSockets.add(ws);
 
-        const uniqueClientsMap = new Map<string, ExtendedWebSocket>();
-
-        for (const socketSet of connectedClients.values()) {
-          for (const client of socketSet) {
-            if (client.roomId === roomId && !uniqueClientsMap.has(client.login)) {
-              uniqueClientsMap.set(client.login, client);
-            }
-          }
-        }
-
-        const clientsInRoom = Array.from(uniqueClientsMap.values()).map(client => ({
+        const clientsInRoom = getUniqueClientsInRoom(connectedClients, roomId).map((client) => ({
           login: client.login,
           roomId: client.roomId,
           role: client.role,
         }));
 
-        const updateMessage = JSON.stringify({
+        broadcastToRoom(wss, roomId, {
           command: 'updateConnectedClients',
-          clients: clientsInRoom
-        });
-
-        wss.clients.forEach((client: ExtendedWebSocket) => {
-          if (client.readyState === WebSocket.OPEN && client.roomId === roomId) {
-            client.send(updateMessage);
-          }
+          clients: clientsInRoom,
         });
       }
 
-      else if (request.command === 'vote') {
-        const vote = Number(request.payload.vote);
+      else if (parsedRequest.command === 'vote') {
+        if (!isVotePayload(parsedRequest.payload)) {
+          sendJson(ws, {
+            command: 'error',
+            message: 'Invalid payload for vote',
+          });
+          return;
+        }
 
-        if (isNaN(vote)) return;
+        const currentRoomId = ws.roomId;
+        if (currentRoomId === undefined) {
+          sendJson(ws, {
+            command: 'error',
+            message: 'User is not joined to a room',
+          });
+          return;
+        }
+
+        const vote = Number(parsedRequest.payload.vote);
 
         const userSockets = connectedClients.get(ws.login);
         if (!userSockets) return;
 
         const hasVoted = Array.from(userSockets).some(
-          (client) => client.roomId === ws.roomId && client.vote !== undefined
+          (client) => client.roomId === currentRoomId && client.vote !== undefined
         );
 
         if (hasVoted) return;
 
         userSockets.forEach((client) => {
-          if (client.roomId === ws.roomId) {
+          if (client.roomId === currentRoomId) {
             client.vote = vote;
             client.hasVoted = true;
           }
         });
 
-        ws.send(
-          JSON.stringify({
-            command: 'ownVote',
-            login: ws.login,
-            vote,
-            roomId: ws.roomId,
-          })
-        );
+        sendJson(ws, {
+          command: 'ownVote',
+          login: ws.login,
+          vote,
+          roomId: currentRoomId,
+        });
 
-        const voteStatusMessage = JSON.stringify({
+        broadcastToRoom(wss, currentRoomId, {
           command: 'voteStatus',
           login: ws.login,
-          roomId: ws.roomId,
+          roomId: currentRoomId,
           vote,
-        });
-        wss.clients.forEach((client: ExtendedWebSocket) => {
-          if (
-            client.readyState === WebSocket.OPEN &&
-            client.roomId === ws.roomId &&
-            client !== ws
-          ) {
-            client.send(voteStatusMessage);
-          }
-        });
+        }, ws);
 
-        const clientsInRoom = Array.from(connectedClients.values())
-          .flatMap((set) => Array.from(set))
-          .filter((client) => client.roomId === ws.roomId);
+        const clientsInRoom = getClientsInRoom(connectedClients, currentRoomId);
 
         const uniqueLogins = Array.from(new Set(clientsInRoom.map((c) => c.login)));
 
@@ -137,7 +329,7 @@ function startWs(app: Express) {
             return {
               login,
               vote: voteClient?.vote,
-              roomId: ws.roomId,
+              roomId: currentRoomId,
             };
           });
 
@@ -150,31 +342,33 @@ function startWs(app: Express) {
               storyPoint: roundedStoryPoint,
             },
             {
-              where: { id: request.payload.taskId, roomId: request.payload.roomId },
+              where: { id: parsedRequest.payload.taskId, roomId: parsedRequest.payload.roomId },
             }
           );
 
-          const voteMessage = JSON.stringify({
+          broadcastToRoom(wss, currentRoomId, {
             command: 'updateVotes',
             votes: votesByUser,
             storyPoint: roundedStoryPoint,
           });
-
-          wss.clients.forEach((client: ExtendedWebSocket) => {
-            if (client.readyState === WebSocket.OPEN && client.roomId === ws.roomId) {
-              client.send(voteMessage);
-            }
-          });
         }
       }
 
-      else if (request.command === 'addTasksRequest') {
+      else if (parsedRequest.command === 'addTasksRequest') {
+        if (!isAddTasksPayload(parsedRequest.payload)) {
+          sendJson(ws, {
+            command: 'error',
+            message: 'Invalid payload for addTasksRequest',
+          });
+          return;
+        }
+
         if (!roomId) {
           console.error('Room ID is undefined.');
           return;
         }
 
-        const newTasks = request.payload.tasks;
+        const newTasks = parsedRequest.payload.tasks;
 
         for (const taskLink of newTasks) {
           const [, created] = await Task.findOrCreate({
@@ -197,19 +391,22 @@ function startWs(app: Express) {
           tasks: tasks.map(t => t.link),
         });
 
-        wss.clients.forEach((client: ExtendedWebSocket) => {
-          if (client.readyState === WebSocket.OPEN && client.roomId === roomId) {
-            client.send(taskMessage);
-          }
-        });
+        broadcastToRoom(wss, roomId, JSON.parse(taskMessage));
       }
 
-      else if (request.command === 'proceedToNextTask') {
+      else if (parsedRequest.command === 'proceedToNextTask') {
         if (!roomId) return;
 
-        const clientsInRoom = Array.from(connectedClients.values())
-          .flatMap(set => Array.from(set))
-          .filter(client => client.roomId === ws.roomId);
+        const currentRoomId = ws.roomId;
+        if (currentRoomId === undefined) {
+          sendJson(ws, {
+            command: 'error',
+            message: 'User is not joined to a room',
+          });
+          return;
+        }
+
+        const clientsInRoom = getClientsInRoom(connectedClients, currentRoomId);
 
         clientsInRoom.forEach(client => {
           client.vote = undefined;
@@ -232,21 +429,19 @@ function startWs(app: Express) {
           tasks: rest.map(t => t.link),
         });
 
-        wss.clients.forEach((client: ExtendedWebSocket) => {
-          if (client.readyState === WebSocket.OPEN && client.roomId === roomId) {
-            client.send(nextTaskMessage);
-          }
-        });
+        broadcastToRoom(wss, roomId, JSON.parse(nextTaskMessage));
       }
 
-      else if (request.command === 'removeTasks') {
-        const { roomId, tasksForRemove } = request.payload;
-
-        if (!Array.isArray(tasksForRemove)) {
-          console.error('Invalid payload for removeTasks');
+      else if (parsedRequest.command === 'removeTasks') {
+        if (!isRemoveTasksPayload(parsedRequest.payload)) {
+          sendJson(ws, {
+            command: 'error',
+            message: 'Invalid payload for removeTasks',
+          });
           return;
         }
 
+        const { roomId, tasksForRemove } = parsedRequest.payload;
         const taskIds = tasksForRemove.map((task: { id: number }) => task.id);
 
         try {
@@ -264,24 +459,22 @@ function startWs(app: Express) {
             },
           });
 
-          wss.clients.forEach((client: ExtendedWebSocket) => {
-            if (client.readyState === WebSocket.OPEN && client.roomId === roomId) {
-              client.send(updateMessage);
-            }
-          });
+          broadcastToRoom(wss, roomId, JSON.parse(updateMessage));
         } catch (error) {
           console.error('Error while removing tasks:', error);
         }
       }
 
-      else if (request.command === 'removeTask') {
-        const { roomId, taskForRemove } = request.payload;
-
-
-        if (!taskForRemove || !roomId) {
-          console.error('Invalid payload for removeTasks');
+      else if (parsedRequest.command === 'removeTask') {
+        if (!isRemoveTaskPayload(parsedRequest.payload)) {
+          sendJson(ws, {
+            command: 'error',
+            message: 'Invalid payload for removeTask',
+          });
           return;
         }
+
+        const { roomId, taskForRemove } = parsedRequest.payload;
 
         try {
           await Task.destroy({
@@ -298,23 +491,22 @@ function startWs(app: Express) {
             },
           });
 
-          wss.clients.forEach((client: ExtendedWebSocket) => {
-            if (client.readyState === WebSocket.OPEN && client.roomId === roomId) {
-              client.send(updateMessage);
-            }
-          });
+          broadcastToRoom(wss, roomId, JSON.parse(updateMessage));
         } catch (error) {
           console.error('Error while removing tasks:', error);
         }
       }
 
-      else if (request.command === 'updateStoryPoint') {
-        const { roomId, taskId, vote } = request.payload;
-
-        if (!roomId || !taskId || typeof vote !== 'number') {
-          console.error('Invalid payload for updateStoryPoint');
+      else if (parsedRequest.command === 'updateStoryPoint') {
+        if (!isUpdateStoryPointPayload(parsedRequest.payload)) {
+          sendJson(ws, {
+            command: 'error',
+            message: 'Invalid payload for updateStoryPoint',
+          });
           return;
         }
+
+        const { roomId, taskId, vote } = parsedRequest.payload;
 
         try {
           await Task.update(
@@ -331,25 +523,17 @@ function startWs(app: Express) {
             }
           });
 
-          wss.clients.forEach((client: ExtendedWebSocket) => {
-            if (
-              client.readyState === WebSocket.OPEN &&
-              client.roomId === roomId
-            ) {
-              client.send(updateMessage);
-            }
-          });
+          broadcastToRoom(wss, roomId, JSON.parse(updateMessage));
         } catch (error) {
           console.error('Failed to update storyPoint:', error);
         }
       }
 
       else {
-        wss.clients.forEach((client) => {
-          if (client !== ws && client.readyState === WebSocket.OPEN) {
-            client.send(message);
-          }
-        });
+          sendJson(ws, {
+            command: 'error',
+            message: `Unsupported command: ${parsedRequest.command}`,
+          });
       }
     });
 
@@ -366,27 +550,15 @@ function startWs(app: Express) {
           if (clientSet.size === 0) connectedClients.delete(ws.login);
         }
 
-        const uniqueClientsMap = new Map<string, ExtendedWebSocket>();
-        for (const clientSet of connectedClients.values()) {
-          for (const client of clientSet) {
-            if (client.roomId === roomId && !uniqueClientsMap.has(client.login)) {
-              uniqueClientsMap.set(client.login, client);
-            }
-          }
-        }
-
-        const clientsInRoom = Array.from(uniqueClientsMap.values()).map(client => ({
+        const clientsInRoom = getUniqueClientsInRoom(connectedClients, roomId).map((client) => ({
           login: client.login,
           roomId: client.roomId,
           role: client.role,
         }));
 
-        const updateMessage = JSON.stringify({ command: 'updateConnectedClients', clients: clientsInRoom });
-
-        wss.clients.forEach((client: ExtendedWebSocket) => {
-          if (client.readyState === WebSocket.OPEN && client.roomId === roomId) {
-            client.send(updateMessage);
-          }
+        broadcastToRoom(wss, roomId, {
+          command: 'updateConnectedClients',
+          clients: clientsInRoom,
         });
       } catch (error) {
         console.error('Error handling ws close:', error);
