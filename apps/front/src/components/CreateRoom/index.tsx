@@ -1,47 +1,84 @@
 import { useState } from 'react';
 
-import Button from '@src/components/Button';
-import Indent from '@src/components/Indent';
-import Input from '@src/components/Input';
-
 import close from 'src/icons/close.png';
 
 import styles from './index.module.scss';
 
-interface CreateRoomTypes {
-  handleClose: () => void,
-  handleCreateRoom: (title: string) => void,
+interface CreateRoomProps {
+  handleClose: () => void;
+  handleCreateRoom: (title: string) => void;
 }
 
-
-const CreateRoom = ({ handleClose, handleCreateRoom }: CreateRoomTypes) => {
+const CreateRoom = ({ handleClose, handleCreateRoom }: CreateRoomProps) => {
   const [title, setTitle] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
   };
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const trimmedTitle = title.trim();
+
+    if (!trimmedTitle) {
+      return;
+    }
+
+    handleCreateRoom(trimmedTitle);
+  };
+
   return (
-    <div className={styles.create}>
-      <div className={styles.title}>Создайте комнату</div>
-      <Input
-        handleChange={handleChange}
-        name='roomName'
-        placeholder='Название комнаты'
-        type='text'
-      />
-      <Indent top={30} />
-      <Button
-        type={0}
-        size='l'
-        handleClick={() => handleCreateRoom(title)}
+    <form className={styles.create} onSubmit={handleSubmit}>
+      <button
+        type='button'
+        className={styles.close}
+        onClick={handleClose}
+        aria-label='Close modal'
       >
-        Создать комнату
-      </Button>
-      <button type='button' className={styles.close} onClick={handleClose} aria-label='Закрыть'>
-        <img src={close} alt='' />
+        <img src={close} alt='' aria-hidden='true' />
       </button>
-    </div>
+
+      <div className={styles.label}>New room</div>
+
+      <h2 className={styles.title}>Create room</h2>
+
+      <p className={styles.description}>
+        Give your room a short and clear name so your team can quickly find the right session.
+      </p>
+
+      <label className={styles.field}>
+        <span className={styles.fieldLabel}>Room name</span>
+
+        <input
+          value={title}
+          onChange={handleChange}
+          name='roomName'
+          className={styles.input}
+          placeholder='e.g. Backend planning'
+          type='text'
+          autoFocus
+        />
+      </label>
+
+      <div className={styles.actions}>
+        <button
+          type='button'
+          className={styles.cancelButton}
+          onClick={handleClose}
+        >
+          Cancel
+        </button>
+
+        <button
+          type='submit'
+          className={styles.createButton}
+          disabled={!title.trim()}
+        >
+          Create room
+        </button>
+      </div>
+    </form>
   );
 };
 
