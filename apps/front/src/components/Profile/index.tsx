@@ -11,7 +11,6 @@ import {
 import type { UserRole } from '@src/store/api/auth/types';
 
 import Input from '@src/components/Input';
-import Button from '@src/components/Button';
 
 import styles from './index.module.scss';
 
@@ -44,12 +43,15 @@ const Profile = () => {
     if (userData?.user) {
       setFormData((prev) => ({
         ...prev,
+        username: userData.user.username,
         role: userData.user.role,
       }));
     }
   }, [userData]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
 
     setFormData((prev) => ({
@@ -64,20 +66,20 @@ const Profile = () => {
     e.preventDefault();
 
     if (!userData?.user) {
-      setError('Пользователь не загружен');
+      setError('User data is not loaded');
       return;
     }
 
     try {
       await updateUserData({
-        username: formData.username,
+        username: formData.username || userData.user.username,
         role: formData.role,
         password: formData.password,
       }).unwrap();
 
       setError('');
-    } catch (error) {
-      setError('Произошла ошибка при сохранении данных');
+    } catch {
+      setError('Something went wrong while saving your changes');
     }
   };
 
@@ -85,52 +87,109 @@ const Profile = () => {
     try {
       await logout().unwrap();
       navigate('/login');
-    } catch (error) {
-      setError('Произошла ошибка при выходе');
+    } catch {
+      setError('Something went wrong while signing out');
     }
   };
 
   const handleBlur = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const password = e.target.value;
+
+    if (!password) {
+      return;
+    }
+
     try {
       const response = await checkPassword({
-        password: e.target.value,
+        password,
       }).unwrap();
 
-      setError(response.isSame ? '' : 'Пароли не совпадают');
-    } catch (error) {
-      setError('Произошла ошибка при проверке пароля');
+      setError(response.isSame ? '' : 'Current password is incorrect');
+    } catch {
+      setError('Something went wrong while checking the password');
     }
   };
 
   return (
     <form className={styles.profile} onSubmit={handleSave}>
-      <Input
-        label='Изменить логин'
-        handleChange={handleChange}
-        placeholder={userData?.user?.username || 'логин'}
-        name='username'
-        type='text'
-      />
+      <div className={styles.header}>
+        <h2 className={styles.title}>Profile settings</h2>
+        <p className={styles.subtitle}>
+          Update your name, role and password.
+        </p>
+      </div>
 
-      <label htmlFor='select-role' className={styles.label}>
-        Изменить роль
-      </label>
+      <div className={styles.field}>
+        <Input
+          label='Username'
+          handleChange={handleChange}
+          placeholder='Enter your username'
+          name='username'
+          type='text'
+        />
+      </div>
 
-      <div className={styles.selectWrapper}>
-        <select
-          onChange={handleChange}
-          name='role'
-          id='select-role'
-          className={styles.select}
-          value={formData.role}
+      <div className={styles.field}>
+        <label htmlFor='select-role' className={styles.label}>
+          Role
+        </label>
+
+        <div className={styles.selectWrapper}>
+          <select
+            onChange={handleChange}
+            name='role'
+            id='select-role'
+            className={styles.select}
+            value={formData.role}
+          >
+            <option value='watching'>Observer</option>
+            <option value='voting'>Voter</option>
+          </select>
+
+          <svg className={styles.arrow}>
+            <use xlinkHref='#select-arrow-down'></use>
+          </svg>
+        </div>
+      </div>
+
+      <div className={styles.field}>
+        <Input
+          label='Current password'
+          handleChange={handleChange}
+          name='prevPassword'
+          type='password'
+          handleBlur={handleBlur}
+          placeholder='Enter current password'
+        />
+      </div>
+
+      <div className={styles.field}>
+        <Input
+          label='New password'
+          handleChange={handleChange}
+          name='password'
+          type='password'
+          placeholder='Enter new password'
+        />
+      </div>
+
+      {error && <div className={styles.error}>{error}</div>}
+
+      <div className={styles.buttonGroup}>
+        <button
+          type='submit'
+          className={styles.saveButton}
         >
-          <option value='watching'>Наблюдающий</option>
-          <option value='voting'>Голосующий</option>
-        </select>
+          Save changes
+        </button>
 
-        <svg className={styles.arrow}>
-          <use xlinkHref='#select-arrow-down'></use>
-        </svg>
+        <button
+          type='button'
+          className={styles.signOutButton}
+          onClick={handleLogout}
+        >
+          Sign out
+        </button>
       </div>
 
       <svg className={styles.sprites}>
@@ -138,34 +197,6 @@ const Profile = () => {
           <polyline points='1 1 5 5 9 1'></polyline>
         </symbol>
       </svg>
-
-      {error && <div className={styles.error}>{error}</div>}
-
-      <Input
-        label='Изменить пароль'
-        handleChange={handleChange}
-        name='prevPassword'
-        type='password'
-        handleBlur={handleBlur}
-        placeholder='Старый пароль'
-      />
-
-      <Input
-        handleChange={handleChange}
-        name='password'
-        type='password'
-        placeholder='Новый пароль'
-      />
-
-      <div className={styles.buttonGroup}>
-        <Button type={0} size='l' submit>
-          Сохранить
-        </Button>
-
-        <Button type={1} size='l' handleClick={handleLogout}>
-          Выйти
-        </Button>
-      </div>
     </form>
   );
 };
