@@ -1,10 +1,5 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-
-import Input from '@src/components/Input';
-import Button from '@src/components/Button';
-import Indent from '@src/components/Indent';
-import Auth from '@src/components/Layouts/Auth';
 import { useNavigate } from 'react-router-dom';
 
 import { useLoginMutation } from '@src/store/api/auth';
@@ -17,6 +12,10 @@ interface FormData {
   password: string;
 }
 
+interface FormData {
+  username: string;
+  password: string;
+}
 
 const SignIn = () => {
   const [formData, setFormData] = useState<FormData>({
@@ -45,48 +44,69 @@ const SignIn = () => {
 
     try {
       await login(formData).unwrap();
-
       navigate('/');
     } catch (error) {
-      setErrorMessage('Неверный логин или пароль');
+      setErrorMessage('Invalid username or password');
       console.error('Login error:', error);
     }
   };
 
   return (
-    <Auth>
-      <form className={styles.signin} onSubmit={handleLogin}>
-        <div className={styles.enter}>Вход</div>
+    <div className={styles.signin}>
+      <form className={styles.form} onSubmit={handleLogin}>
+        <div className={styles.header}>
+          <div className={styles.label}>Welcome back</div>
+          <h1 className={styles.title}>Sign in</h1>
+          <p className={styles.description}>Enter your credentials to continue planning with your team.</p>
+        </div>
 
-        <Input
-          label='Логин'
-          name='username'
-          handleChange={handleChange}
-          type='text'
-        />
+        <label className={styles.field}>
+          <span className={styles.fieldLabel}>Username</span>
 
-        <Input
-          label='Пароль'
-          name='password'
-          handleChange={handleChange}
-          type='password'
-        />
+          <input
+            className={styles.input}
+            name='username'
+            value={formData.username}
+            onChange={handleChange}
+            type='text'
+            placeholder='Enter your username'
+            autoComplete='username'
+          />
+        </label>
 
-        {errorMessage && <div className={styles.error}>{errorMessage}</div>}
+        <label className={styles.field}>
+          <span className={styles.fieldLabel}>Password</span>
 
-        <Button type={0} size='l' submit>
-          Войти
-        </Button>
+          <input
+            className={styles.input}
+            name='password'
+            value={formData.password}
+            onChange={handleChange}
+            type='password'
+            placeholder='Enter your password'
+            autoComplete='current-password'
+          />
+        </label>
 
-        <Indent top={20} />
+        {errorMessage && (
+          <div className={styles.error}>
+            {errorMessage}
+          </div>
+        )}
 
-        <Button type={0} size='l'>
-          <Link to='/register' className={styles.link}>
-            Зарегистрироваться
+        <button type='submit' className={styles.submitButton}>
+          Sign in
+        </button>
+
+        <div className={styles.footer}>
+          <span>Don’t have an account?</span>
+
+          <Link to='/register' className={styles.registerLink}>
+            Create account
           </Link>
-        </Button>
+        </div>
       </form>
-    </Auth>
+    </div>
   );
 };
 
