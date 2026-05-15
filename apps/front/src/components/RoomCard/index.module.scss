@@ -2,87 +2,185 @@
 
 .roomCard {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 20px;
-  padding: 20px;
-  border: 1px solid $greyColor;
-  border-radius: 20px;
-  background: $layout;
-  margin-bottom: 20px;
 
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  padding: 18px 20px;
+
+  border: 1px solid rgb(36 31 28 / 8%);
+  border-radius: 20px;
+  background: rgb(255 255 255 / 46%);
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease;
 
   &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    transform: translateY(-1px);
+    border-color: rgb(36 31 28 / 12%);
+    background: rgb(255 255 255 / 64%);
+    box-shadow: 0 14px 30px rgb(65 43 19 / 8%);
   }
 }
 
-.container {
-  display: flex;
-  flex-direction: column;
-}
+.mainInfo {
+  min-width: 0;
 
-.key {
-  font-size: 14px;
-  color: $placeholder;
-  margin-bottom: 4px;
-}
-
-.value,
-.titleRoom {
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.titleRoom {
-  color: $violetColor;
-}
-
-.right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
 }
 
-.button {
+.title {
+  margin: 0;
+
+  min-width: 0;
+
+  font-size: 22px;
+  font-weight: 650;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+
+  color: #241f1c;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tasksBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  min-height: 28px;
+  padding: 0 12px;
+
+  border: 1px solid rgb(234 99 50 / 14%);
+  border-radius: 999px;
+  background: rgb(253 226 212 / 54%);
+  color: #a84a27;
+
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+
+  white-space: nowrap;
+}
+
+.actions {
   display: flex;
-  border: none;
-  background: none;
-  cursor: pointer;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
-.close {
-  width: 14px;
-  height: 14px;
-}
+.deleteButton,
+.openLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
-.link {
+  min-width: 92px;
+  min-height: 38px;
+  padding: 0 16px;
+
+  border-radius: 999px;
+
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
   text-decoration: none;
-  color: $primary;
-  font-weight: 500;
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    background 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease;
 }
 
-@media (max-width: 900px) {
-  .cardsWrapper {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+.deleteButton {
+  border: 1px solid rgb(36 31 28 / 10%);
+  background: rgb(255 255 255 / 42%);
+  color: #655d55;
+
+  &:hover {
+    transform: translateY(-1px);
+    border-color: rgb(211 84 76 / 24%);
+    background: rgb(255 246 245 / 72%);
+    color: #b64138;
   }
 
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.openLink {
+  border: 1px solid #241f1c;
+  background: #241f1c;
+  color: #fff;
+
+  &:hover {
+    transform: translateY(-1px);
+    border-color: #ea6332;
+    background: #ea6332;
+    box-shadow: 0 10px 22px rgb(234 99 50 / 18%);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 760px) {
   .roomCard {
-    padding: 15px;
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 
-  .key,
-  .value,
-  .titleRoom,
-  .link {
-    font-size: 14px;
+  .title {
+    font-size: 20px;
+    font-weight: 500;
   }
 
-  .close {
-    width: 10px;
-    height: 10px;
+  .mainInfo {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .actions {
+    width: 100%;
+  }
+
+  .deleteButton,
+  .openLink {
+    flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .roomCard {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .deleteButton,
+  .openLink {
+    width: 100%;
   }
 }
