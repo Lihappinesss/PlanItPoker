@@ -1,89 +1,190 @@
 @import '../../styles.scss';
 
 .tasks {
-  overflow-y: auto;
-  background-color: $layout;
-  box-sizing: border-box;
-  max-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  max-height: 52vh;
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
   overflow-y: auto;
 }
 
 .task {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  border-radius: 8px;
-  padding: 15px;
-  border: 1px solid $greyColor;
-  margin-bottom: 15px;
+  gap: 12px;
 
-  &._active {
-    background-color: #eadff2;
+  padding: 14px;
+
+  border: 1px solid rgb(36 31 28 / 8%);
+  border-radius: 16px;
+  background: rgb(255 255 255 / 42%);
+
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    background 0.16s ease,
+    box-shadow 0.16s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    border-color: rgb(234 99 50 / 18%);
+    background: rgb(255 255 255 / 68%);
+    box-shadow: 0 10px 24px rgb(65 43 19 / 7%);
   }
 }
 
+.active {
+  border-color: rgb(234 99 50 / 28%);
+  background: rgb(253 226 212 / 36%);
+}
+
 .link {
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 20px;
-  color: $purpleColor;
+  min-width: 0;
+
+  color: #241f1c;
+
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.35;
+  text-decoration: none;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  transition: color 0.16s ease;
+
+  &:hover {
+    color: #ea6332;
+  }
 }
 
 .taskManage {
   display: flex;
-  flex-direction: column;
   align-items: center;
+  gap: 8px;
 }
 
-.btn {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: none;
-  background-color: unset;
-  align-self: flex-end;
-  cursor: pointer;
-}
-
-.setSpBtn {
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.stList {
-  display: flex;
-  width: 100%;
-  background-color: $layout;
-  padding: 1.4rem;
-  border-radius: 12px;
-  border: 1px solid $purpleColor;
-}
-
-.stBtn {
-  background: unset;
-  border: none;
-  outline: 0;
-  padding: 0;
-  border-radius: 50%;
-  cursor: pointer;
-  height: 2.8rem;
-  width: 2.8rem;
-  align-items: center;
+.storyPointButton,
+.deleteButton {
   display: inline-flex;
-  font-size: 1rem;
-  font-weight: 600;
+  align-items: center;
   justify-content: center;
-  letter-spacing: .02em;
-  position: relative;
-  text-align: center;
-  text-decoration: none;
-  transition: all .09s linear;
+
+  width: 34px;
+  height: 34px;
+
+  border-radius: 12px;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.storyPointButton {
+  border: 1px solid rgb(234 99 50 / 16%);
+  background: rgb(253 226 212 / 46%);
+  color: #a84a27;
+
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1;
 
   &:hover {
-    background-color: #e8e9ea;
+    transform: translateY(-1px);
+    border-color: rgb(234 99 50 / 28%);
+    background: rgb(253 226 212 / 72%);
   }
 }
 
-.delete {
+.deleteButton {
+  border: 1px solid rgb(36 31 28 / 10%);
+  background: rgb(255 255 255 / 42%);
+
+  img {
+    opacity: 0.62;
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+    border-color: rgb(211 84 76 / 24%);
+    background: rgb(255 246 245 / 72%);
+
+    img {
+      opacity: 0.9;
+    }
+  }
+}
+
+.storyPointList {
+  display: flex;
+  gap: 8px;
+
+  margin: 0;
+  padding: 12px;
+
+  border: 1px solid rgb(36 31 28 / 10%);
+  border-radius: 16px;
+  background: #fcf8ef;
+
+  list-style: none;
+
+  box-shadow: 0 18px 42px rgb(65 43 19 / 12%);
+}
+
+.storyPointOption {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 36px;
+  height: 36px;
+
+  border: 1px solid rgb(36 31 28 / 8%);
+  border-radius: 12px;
+  background: rgb(255 255 255 / 58%);
+  color: #241f1c;
+
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+
   cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    background 0.16s ease,
+    color 0.16s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    border-color: rgb(234 99 50 / 24%);
+    background: #ea6332;
+    color: #fff;
+  }
+}
+
+@media (max-width: 670px) {
+  .tasks {
+    max-height: none;
+  }
+
+  .task {
+    padding: 12px;
+  }
+
+  .link {
+    font-size: 13px;
+  }
 }
