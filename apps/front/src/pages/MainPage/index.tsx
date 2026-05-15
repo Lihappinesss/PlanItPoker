@@ -1,11 +1,10 @@
 import { useState, useRef } from 'react';
-import cx from 'classnames';
 
 import Shapka from '@src/components/Shapka';
-import Button from '@src/components/Button';
 import CreateRoom from '@src/components/CreateRoom';
 import RoomCard from '@src/components/RoomCard';
 import Profile from '@components/Profile';
+import PokerCardsIllustration from '@components/PokerCardsIllustration';
 
 import {
   useCreateRoomMutation,
@@ -44,54 +43,85 @@ const MainPage = () => {
   };
 
   return (
-    <div className={cx(styles.mainPage, 'relative min-h-screen overflow-hidden')}>
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[420px] bg-[radial-gradient(circle_at_top_left,rgba(232,106,51,0.16),transparent_34%),radial-gradient(circle_at_70%_10%,rgba(47,111,237,0.1),transparent_26%)]" />
+    <main className={styles.page}>
       <Shapka />
-      <div className={cx(styles.wrapper, 'app-shell relative pb-10 pt-6 md:pt-10')}>
-        <Profile />
-        <div className={cx(styles.roomContainer, 'board-panel')}>
-          <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+
+      <section className={styles.hero}>
+        <div>
+          <h1 className={styles.title}>
+            Team Planning Workspace
+          </h1>
+
+          <p className={styles.description}>
+            Create or join a room to estimate, collaborate and ship better software.
+          </p>
+        </div>
+
+        <div><PokerCardsIllustration /></div>
+
+      </section>
+
+      <section className={styles.contentGrid}>
+        <aside className={styles.profileCard}>
+          <Profile />
+        </aside>
+
+        <section className={styles.workspaceCard}>
+          <div className={styles.workspaceHeader}>
             <div>
-              <div className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-accent-deep/80">
-                Workspace
-              </div>
-              <div className="section-title">Комнаты команды</div>
+              <div className={styles.sectionLabel}>Workspace</div>
+              <h2 className={styles.sectionTitle}>Rooms</h2>
             </div>
-            <p className="max-w-md text-sm leading-6 text-muted md:text-base">
-              Выберите активную комнату для обсуждения задач или создайте новую для следующей сессии планирования.
-            </p>
-          </div>
-          {rooms && rooms.length > 0 && rooms.map((room) => (
-            <div key={room.id} className={styles.room}>
-              <RoomCard
-                title={room.title}
-                id={room.id}
-                handleDeleteRoom={handleDeleteRoom}
-              />
-            </div>
-          ))}
-          <div className={cx(styles.button, 'pt-4')}>
-            <Button
-              type={0}
-              size='l'
-              handleClick={() => setShowCreate(true)}
+
+            <button
+              type='button'
+              className={styles.createRoomButton}
+              onClick={() => setShowCreate(true)}
             >
-              Создать комнату
-            </Button>
+              <span className={styles.createRoomIcon}>+</span>
+              Create Room
+            </button>
+          </div>
+
+          <div className={styles.roomsList}>
+            {rooms && rooms.length > 0 ? (
+              rooms.map((room) => (
+                <div key={room.id} className={styles.room}>
+                  <RoomCard
+                    title={room.title}
+                    id={room.id}
+                    handleDeleteRoom={handleDeleteRoom}
+                  />
+                </div>
+              ))
+            ) : (
+              <div className={styles.emptyRooms}>
+                <div className={styles.emptyTitle}>Пока нет комнат</div>
+                <p className={styles.emptyText}>
+                  Создай первую комнату, и она появится здесь.
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
+      </section>
+
+      {isShowCreate && (
+        <div
+          className={styles.overlay}
+          onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>): void =>
+            handleCloseOverlay(e)
+          }
+        >
+          <div ref={createAnchor} className={styles.createRoom}>
+            <CreateRoom
+              handleClose={() => setShowCreate(false)}
+              handleCreateRoom={handleCreateRoom}
+            />
           </div>
         </div>
-        {isShowCreate && (
-          <div
-            className={styles.overlay}
-            onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>):void => handleCloseOverlay(e)}
-          >
-            <div ref={createAnchor} className={styles.createRoom}>
-              <CreateRoom handleClose={() => setShowCreate(false)} handleCreateRoom={handleCreateRoom} />
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
+      )}
+    </main>
   );
 };
 
