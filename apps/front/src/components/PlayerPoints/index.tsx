@@ -1,13 +1,11 @@
 import { useGetUserInfoQuery } from '@src/store/api/auth';
 
-import Button from "@components/Button";
-
-import { IPlayerPoints } from "./types";
+import { IPlayerPoints } from './types';
 
 import styles from './index.module.scss';
 
 
-function PlayerPoints(props: IPlayerPoints) {
+export default function PlayerPoints(props: IPlayerPoints) {
   const {
     usersVotes,
     observers,
@@ -19,29 +17,32 @@ function PlayerPoints(props: IPlayerPoints) {
   const { data } = useGetUserInfoQuery();
   const currentUser = data?.user;
 
+  const allVoted = votingUsers.length > 0 && votingUsers.every((user) =>
+    usersVotes.some((vote) => (
+      vote.login === user.login && vote.vote !== undefined
+    )),
+  );
+
   return (
-    <>
-      <div className={styles.rightSidebar}>
-        <div className={styles.group}>
-          <div className={styles.title}>Участники</div>
-          <ul>
-            {votingUsers.length > 0 && votingUsers.map((participant) => {
-              const userVote = usersVotes.find(userVote => userVote.login === participant.login);
-              const allVoted = votingUsers.every(u => usersVotes.some(v => v.login === u.login && v.vote !== undefined));
+    <aside className={styles.rightSidebar}>
+      <section className={styles.group}>
+        <div className={styles.title}>Participants</div>
+
+        <ul className={styles.list}>
+          {votingUsers.length > 0 ? (
+            votingUsers.map((participant) => {
+              const userVote = usersVotes.find((vote) => (
+                vote.login === participant.login
+              ));
+
               const isCurrentUser = participant.login === currentUser?.username;
 
               let display: string | number = '—';
 
               if (allVoted) {
                 display = userVote?.vote !== undefined ? userVote.vote : '—';
-              } else {
-                if (userVote?.vote !== undefined) {
-                  if (isCurrentUser) {
-                    display = userVote.vote;
-                  } else {
-                    display = '✅';
-                  }
-                }
+              } else if (userVote?.vote !== undefined) {
+                display = isCurrentUser ? userVote.vote : '✓';
               }
 
               return (
@@ -50,40 +51,46 @@ function PlayerPoints(props: IPlayerPoints) {
                   <span className={styles.userVote}>{display}</span>
                 </li>
               );
-            })}
+            })
+          ) : (
+            <li className={styles.emptyText}>No participants yet</li>
+          )}
+        </ul>
+      </section>
+
+      {observers.length > 0 && (
+        <section className={styles.group}>
+          <div className={styles.title}>Observers</div>
+
+          <ul className={styles.list}>
+            {observers.map((observer) => (
+              <li key={observer.login} className={styles.observerItem}>
+                {observer.login}
+              </li>
+            ))}
           </ul>
-        </div>
-        {observers.length > 0 && (
-          <div className={styles.group}>
-            <div className={styles.title}>Наблюдатели</div>
-            <ul>
-              {observers.map((observer) => (
-                <li key={observer.login} className={styles.login}>{observer.login}</li>
-              ))}
-            </ul>
-          </div>
+        </section>
+      )}
+
+      <section className={styles.group}>
+        <div className={styles.title}>Result</div>
+
+        {currentSt ? (
+          <div className={styles.result}>{currentSt}</div>
+        ) : (
+          <div className={styles.emptyText}>Waiting for votes</div>
         )}
+      </section>
 
-        <div className={styles.group}>
-          <div className={styles.title}>Результат</div>
-          {currentSt && <div className={styles.result}>{currentSt}</div>}
-        </div>
-
-
-      </div>
       {currentSt && (
-        <div className={styles.button}>
-          <Button
-            type={0}
-            size='s'
-            handleClick={() => handleNextTask()}
-          >
-            Следующая задача
-          </Button>
-        </div>
-        )}
-    </>
+        <button
+          type='button'
+          className={styles.nextButton}
+          onClick={handleNextTask}
+        >
+          Next task
+        </button>
+      )}
+    </aside>
   );
 }
-
-export default PlayerPoints;
