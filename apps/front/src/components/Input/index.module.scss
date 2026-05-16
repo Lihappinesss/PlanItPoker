@@ -8,33 +8,19 @@
 
 .labelText {
   display: block;
+  margin-bottom: 6px;
+
   font-size: 16px;
   font-weight: 500;
-  margin-bottom: 6px;
 }
 
 .input {
   display: block;
-  width: 100%;
-  padding: 10px 15px;
+  @include text-input(10px 15px, $radius-sm);
+
   font-size: 16px;
   line-height: 22px;
-  color: $placeholder;
-  background-color: $layout;
-  border: 1px solid $greyColor;
-  border-radius: 12px;
-  box-sizing: border-box;
-  transition: border 0.3s, box-shadow 0.3s;
-
-  &:focus {
-    border: 1px solid $purpleColor;
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(158, 56, 220, 0.2);
-  }
-
-  &::placeholder {
-    color: $placeholder;
-  }
+  color: $text-secondary;
 }
 
 @media (max-width: 768px) {

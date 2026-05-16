@@ -1,8 +1,7 @@
 @import '../../styles.scss';
 
 .page {
-  width: min(100% - 48px, 1440px);
-  margin: 0 auto;
+  @include shell();
   padding: 12px 0 24px;
 }
 
@@ -34,17 +33,13 @@
   font-size: 17px;
   line-height: 1.55;
 
-  color: #655d55;
+  color: $text-secondary;
 }
 
 .statsCard {
   padding: 28px 32px;
 
-  border: 1px solid rgb(36 31 28 / 8%);
-  border-radius: 28px;
-  background: rgb(255 255 255 / 44%);
-
-  box-shadow: 0 18px 50px rgb(65 43 19 / 8%);
+  @include panel($background: $surface-glass-44, $border-color: $line-soft, $shadow: 0 18px 50px rgb(65 43 19 / 8%));
 }
 
 .statsCard span {
@@ -58,7 +53,7 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
 
-  color: #7d7167;
+  color: $text-muted;
 }
 
 .statsCard strong {
@@ -80,11 +75,7 @@
 
 .profileCard,
 .workspaceCard {
-  border: 1px solid rgb(36 31 28 / 10%);
-  border-radius: 28px;
-  background: rgb(255 255 255 / 42%);
-
-  box-shadow: 0 18px 48px rgb(65 43 19 / 8%);
+  @include panel();
 }
 
 .profileCard {
@@ -107,13 +98,8 @@
 .sectionLabel {
   margin-bottom: 8px;
 
-  font-size: 12px;
-  font-weight: 800;
-  line-height: 1;
+  @include title-eyebrow();
   letter-spacing: 0.24em;
-  text-transform: uppercase;
-
-  color: #d85d31;
 }
 
 .sectionTitle {
@@ -128,48 +114,23 @@
 }
 
 .createRoomButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  @include primary-button(48px, 0 22px, $radius-pill);
   gap: 10px;
-
-  min-height: 48px;
-  padding: 0 22px;
-
   border: 0;
-  border-radius: 999px;
-
-  background: #ea6332;
-  color: #fff;
-
   font-size: 15px;
   font-weight: 700;
-  line-height: 1;
-
-  cursor: pointer;
-
   box-shadow:
     0 14px 28px rgb(234 99 50 / 24%),
     inset 0 1px 0 rgb(255 255 255 / 22%);
-
-  transition:
-    transform 0.16s ease,
-    box-shadow 0.16s ease,
-    background 0.16s ease;
 }
 
 .createRoomButton:hover {
-  background: #df5828;
-  transform: translateY(-1px);
-
   box-shadow:
     0 18px 34px rgb(234 99 50 / 28%),
     inset 0 1px 0 rgb(255 255 255 / 22%);
 }
 
 .createRoomButton:active {
-  transform: translateY(0);
-
   box-shadow:
     0 10px 20px rgb(234 99 50 / 20%),
     inset 0 1px 0 rgb(255 255 255 / 18%);
@@ -201,13 +162,13 @@
   overflow: hidden;
 
   border-radius: 18px;
-  background: rgb(255 255 255 / 36%);
+  background: $surface-glass-36;
 }
 
 .emptyRooms {
   border: 1px dashed rgb(36 31 28 / 16%);
   border-radius: 24px;
-  background: rgb(255 255 255 / 30%);
+  background: $surface-glass-30;
   padding: 40px 24px;
   text-align: center;
 }

@@ -1,7 +1,5 @@
 @import '../../styles.scss';
 
-@import '../../styles.scss';
-
 .plan {
   min-height: 100vh;
   display: flex;
@@ -17,10 +15,8 @@
 }
 
 .main {
-  width: min(100% - 48px, 1440px);
-  margin: 0 auto;
+  @include shell();
   padding: 40px 0 48px;
-  box-sizing: border-box;
 
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr) 340px;
@@ -73,9 +69,9 @@
   width: 44px;
   height: 44px;
 
-  border: 1px solid rgb(36 31 28 / 10%);
-  border-radius: 14px;
-  background: rgb(255 255 255 / 78%);
+  border: 1px solid $line-base;
+  border-radius: $radius-md;
+  background: $surface-glass-78;
 
   box-shadow: 0 12px 28px rgb(65 43 19 / 10%);
 
@@ -93,7 +89,7 @@
 
   &:hover {
     transform: translateY(-1px);
-    background: rgb(255 255 255 / 92%);
+    background: $surface-glass-92;
     box-shadow: 0 16px 34px rgb(65 43 19 / 12%);
   }
 
@@ -175,7 +171,7 @@
 
 @media (max-width: 670px) {
   .main {
-    width: min(100% - 32px, 1440px);
+    @include shell(1440px, 32px);
     padding: 60px 0 32px;
   }
 

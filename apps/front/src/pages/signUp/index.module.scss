@@ -22,12 +22,7 @@
   gap: 16px;
 
   padding: 36px;
-
-  border: 1px solid rgb(36 31 28 / 10%);
-  border-radius: 28px;
-  background: rgb(255 255 255 / 42%);
-
-  box-shadow: 0 18px 48px rgb(65 43 19 / 8%);
+  @include panel();
 }
 
 .header {
@@ -36,14 +31,7 @@
 
 .badge {
   margin-bottom: 10px;
-
-  font-size: 12px;
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-
-  color: #d85d31;
+  @include title-eyebrow();
 }
 
 .title {
@@ -63,7 +51,7 @@
   font-size: 15px;
   line-height: 1.55;
 
-  color: #655d55;
+  color: $text-secondary;
 }
 
 .field {
@@ -73,46 +61,12 @@
 }
 
 .label {
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-
-  color: #7d7167;
+  @include field-label();
 }
 
 .input,
 .select {
-  width: 100%;
-  min-height: 48px;
-  box-sizing: border-box;
-
-  border: 1px solid rgb(36 31 28 / 12%);
-  border-radius: 16px;
-  outline: none;
-
-  background: rgb(255 255 255 / 48%);
-  color: #241f1c;
-
-  font-size: 15px;
-  font-weight: 500;
-
-  transition:
-    border-color 0.16s ease,
-    background 0.16s ease,
-    box-shadow 0.16s ease;
-
-  &:hover {
-    border-color: rgb(234 99 50 / 28%);
-    background: rgb(255 255 255 / 70%);
-  }
-
-  &:focus {
-    border-color: rgb(234 99 50 / 46%);
-    background: rgb(255 255 255 / 82%);
-    box-shadow: 0 0 0 4px rgb(234 99 50 / 10%);
-  }
+  @include text-input(0 16px);
 }
 
 .input {
@@ -133,8 +87,8 @@
   cursor: pointer;
 
   option {
-    background-color: #fcf8ef;
-    color: #241f1c;
+    background-color: $surface-base;
+    color: $text-primary;
   }
 }
 
@@ -157,54 +111,13 @@
 
 .error,
 .common {
+  @include danger-message();
   padding: 10px 12px;
-
-  border: 1px solid rgb(211 84 76 / 18%);
-  border-radius: 14px;
-  background: rgb(255 246 245 / 78%);
-  color: #b64138;
-
-  font-size: 13px;
-  line-height: 1.4;
 }
 
 .submitButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  min-height: 46px;
+  @include primary-button(46px, 0 18px);
   margin-top: 4px;
-  padding: 0 18px;
-
-  border: 1px solid transparent;
-  border-radius: 14px;
-
-  background: #ea6332;
-  color: #fff;
-
-  font-size: 14px;
-  font-weight: 650;
-  line-height: 1;
-
-  cursor: pointer;
-
-  box-shadow: 0 10px 20px rgb(234 99 50 / 16%);
-
-  transition:
-    transform 0.16s ease,
-    background 0.16s ease,
-    box-shadow 0.16s ease;
-
-  &:hover {
-    transform: translateY(-1px);
-    background: #df5828;
-    box-shadow: 0 14px 26px rgb(234 99 50 / 20%);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
 }
 
 .footer {
@@ -217,11 +130,11 @@
 
   font-size: 14px;
   line-height: 1.4;
-  color: #655d55;
+  color: $text-secondary;
 }
 
 .loginLink {
-  color: #d85d31;
+  color: $accent-strong;
 
   font-size: 14px;
   font-weight: 700;
@@ -230,7 +143,7 @@
   transition: color 0.16s ease;
 
   &:hover {
-    color: #b94b23;
+    color: $accent-deep;
   }
 }
 

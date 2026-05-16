@@ -8,9 +8,7 @@
 
   padding: 18px 20px;
 
-  border: 1px solid rgb(36 31 28 / 8%);
-  border-radius: 20px;
-  background: rgb(255 255 255 / 46%);
+  @include panel($radius: $radius-xl, $background: $surface-glass-46, $border-color: $line-soft, $shadow: none);
 
   transition:
     transform 0.18s ease,
@@ -20,9 +18,9 @@
 
   &:hover {
     transform: translateY(-1px);
-    border-color: rgb(36 31 28 / 12%);
+    border-color: $line-strong;
     background: rgb(255 255 255 / 64%);
-    box-shadow: 0 14px 30px rgb(65 43 19 / 8%);
+    box-shadow: $shadow-card-hover;
   }
 }
 
@@ -62,7 +60,7 @@
 
   border: 1px solid rgb(234 99 50 / 14%);
   border-radius: 999px;
-  background: rgb(253 226 212 / 54%);
+  background: $accent-soft;
   color: #a84a27;
 
   font-size: 12px;
@@ -81,50 +79,25 @@
 
 .deleteButton,
 .openLink {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
   min-width: 92px;
-  min-height: 38px;
-  padding: 0 16px;
-
-  border-radius: 999px;
-
   font-size: 13px;
   font-weight: 700;
-  line-height: 1;
   text-decoration: none;
-  white-space: nowrap;
-
-  cursor: pointer;
-
-  transition:
-    transform 0.16s ease,
-    border-color 0.16s ease,
-    background 0.16s ease,
-    color 0.16s ease,
-    box-shadow 0.16s ease;
+  @include button-base(38px, 0 16px, $radius-pill);
 }
 
 .deleteButton {
-  border: 1px solid rgb(36 31 28 / 10%);
-  background: rgb(255 255 255 / 42%);
-  color: #655d55;
+  @include secondary-button(38px, 0 16px, $radius-pill);
 
   &:hover {
-    transform: translateY(-1px);
-    border-color: rgb(211 84 76 / 24%);
+    border-color: $danger-hover-border;
     background: rgb(255 246 245 / 72%);
-    color: #b64138;
-  }
-
-  &:active {
-    transform: translateY(0);
+    color: $danger;
   }
 }
 
 .openLink {
+  @include button-base(38px, 0 16px, $radius-pill);
   border: 1px solid #241f1c;
   background: #241f1c;
   color: #fff;
