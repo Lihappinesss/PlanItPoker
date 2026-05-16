@@ -3,7 +3,8 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "outDir": "../../dist/out-tsc",
-    "module": "commonjs",
+    "module": "Node16",
+    "moduleResolution": "node16",
     "types": ["node", "express", "express-session"]
   },
   "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"],
