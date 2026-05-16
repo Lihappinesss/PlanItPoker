@@ -1,93 +1,124 @@
 @import '../../styles.scss';
 
 .profile {
-  padding: 30px;
-  max-width: 550px;
   width: 100%;
-  border: 1px solid $greyColor;
-  border-radius: 15px;
+  box-sizing: border-box;
+
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  box-sizing: border-box;
-  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  gap: 18px;
+}
 
-  @media (max-width: 1320px) {
-    max-width: 492px;
-  }
+.header {
+  margin-bottom: 4px;
+}
 
-  @media (max-width: 768px) {
-    padding: 20px;
-  }
+.title {
+  margin: 0;
 
-  @media (max-width: 480px) {
-    padding: 15px;
-    min-width: 300px;
-  }
+  font-size: 22px;
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+
+  color: #241f1c;
+}
+
+.subtitle {
+  margin: 8px 0 0;
+
+  font-size: 14px;
+  line-height: 1.45;
+
+  color: $text-secondary;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .label {
-  margin-bottom: 8px;
   display: block;
-  font-weight: 500;
+  @include field-label();
 }
 
 .selectWrapper {
   position: relative;
   width: 100%;
-  margin-bottom: 20px;
 }
 
 .select {
-  width: 100%;
-  padding: 10px 35px 10px 12px;
-  border-radius: 12px;
-  border: 1px solid $greyColor;
+  @include text-input(0 44px 0 16px);
   appearance: none;
-  font-size: 16px;
-  color: $placeholder;
   cursor: pointer;
-  box-sizing: border-box;
 
   option {
-    background-color: $layout;
-    color: inherit;
+    background-color: $surface-base;
+    color: $text-primary;
   }
 }
 
 .arrow {
   position: absolute;
   top: 50%;
-  right: 12px;
-  transform: translateY(-50%);
+  right: 16px;
+
   width: 10px;
   height: 6px;
+
+  transform: translateY(-50%);
+
+  stroke: #8a7d72;
   stroke-width: 2;
-  stroke: #9098A9;
   fill: none;
+
   pointer-events: none;
 }
 
 .error {
-  color: $redColor;
+  @include danger-message();
 }
 
 .buttonGroup {
-  display: flex;
-  gap: 20px;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 
-  @media (max-width: 768px) {
-    flex-direction: column;
-    width: 100%;
-  }
+  margin-top: 8px;
+}
 
-  .button {
-    width: 100%;
-    max-width: 100%;
-  }
+.saveButton,
+.signOutButton {
+  @include button-base();
+}
+
+.saveButton {
+  @include primary-button();
+}
+
+.signOutButton {
+  @include secondary-button();
+  background: $surface-glass-36;
+  color: $text-primary;
 }
 
 .sprites {
   display: none;
+}
+
+@media (max-width: 768px) {
+  .profile {
+    gap: 16px;
+  }
+
+  .buttonGroup {
+    grid-template-columns: 1fr;
+  }
+
+  .saveButton,
+  .signOutButton {
+    width: 100%;
+  }
 }

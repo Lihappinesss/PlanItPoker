@@ -1,0 +1,139 @@
+@mixin transition($properties...) {
+  transition: $properties;
+}
+
+@mixin shell($max-width: 1440px, $gutter: 48px) {
+  width: min(100% - #{$gutter}, #{$max-width});
+  margin: 0 auto;
+}
+
+@mixin panel(
+  $radius: $radius-3xl,
+  $background: $surface-glass-42,
+  $border-color: $line-base,
+  $shadow: $shadow-card
+) {
+  border: 1px solid $border-color;
+  border-radius: $radius;
+  background: $background;
+  box-shadow: $shadow;
+}
+
+@mixin title-eyebrow($color: $accent-strong) {
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: $color;
+}
+
+@mixin field-label($color: $text-muted) {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $color;
+}
+
+@mixin text-input($padding: 0 16px, $radius: $radius-lg) {
+  width: 100%;
+  min-height: 48px;
+  box-sizing: border-box;
+  padding: $padding;
+  border: 1px solid $line-strong;
+  border-radius: $radius;
+  outline: none;
+  background: $surface-glass-48;
+  color: $text-primary;
+  font-size: 15px;
+  font-weight: 500;
+  @include transition(
+    border-color 0.16s ease,
+    background 0.16s ease,
+    box-shadow 0.16s ease
+  );
+
+  &::placeholder {
+    color: $text-placeholder;
+  }
+
+  &:hover {
+    border-color: $accent-border;
+    background: $surface-glass-70;
+  }
+
+  &:focus {
+    border-color: $accent-focus;
+    background: $surface-glass-82;
+    box-shadow: 0 0 0 4px $accent-ring;
+  }
+}
+
+@mixin button-base($min-height: 44px, $padding: 0 16px, $radius: $radius-md) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: $min-height;
+  padding: $padding;
+  border-radius: $radius;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  @include transition(
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    background 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease
+  );
+}
+
+@mixin primary-button($min-height: 44px, $padding: 0 16px, $radius: $radius-md) {
+  @include button-base($min-height, $padding, $radius);
+  border: 1px solid transparent;
+  background: $accent;
+  color: #fff;
+  box-shadow: $shadow-accent;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    background: $accent-hover;
+    box-shadow: $shadow-accent-hover;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+@mixin secondary-button($min-height: 44px, $padding: 0 16px, $radius: $radius-md) {
+  @include button-base($min-height, $padding, $radius);
+  border: 1px solid $line-strong;
+  background: $surface-glass-42;
+  color: $text-secondary;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    border-color: $line-heavy;
+    background: $surface-glass-70;
+    color: $text-primary;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+@mixin danger-message {
+  padding: 12px 14px;
+  border: 1px solid $danger-border;
+  border-radius: $radius-md;
+  background: $danger-surface;
+  color: $danger;
+  font-size: 13px;
+  line-height: 1.4;
+}

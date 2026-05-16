@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import cx from 'classnames';
 
-import Button from '@components/Button';
 import Task from '@components/Task';
 
 import { ITaskList } from './types';
@@ -48,23 +47,27 @@ function TaskList(props: ITaskList) {
   };
 
   return (
-    <aside className={cx(
+    <aside
+      className={cx(
         styles.sidebar,
-        showAddTask && showUnratedTasks && styles._showAddTask,
+        showAddTask && showUnratedTasks && styles.showAddTask,
       )}
-      >
+    >
       <div className={styles.header}>
         <button
-          className={cx(styles.tabButton, showUnratedTasks && styles._active)}
+          type='button'
+          className={cx(styles.tabButton, showUnratedTasks && styles.active)}
           onClick={() => setUnratedTasks(true)}
         >
-          Активные
+          Active
         </button>
+
         <button
-          className={cx(styles.tabButton, !showUnratedTasks && styles._active)}
+          type='button'
+          className={cx(styles.tabButton, !showUnratedTasks && styles.active)}
           onClick={() => setUnratedTasks(false)}
         >
-          Завершенные
+          Completed
         </button>
       </div>
 
@@ -77,42 +80,54 @@ function TaskList(props: ITaskList) {
             handleRemoveTask={handleRemoveTask}
             handleUpdateStoryPoint={handleUpdateStoryPoint}
           />
+
           <div className={styles.issue}>
-            {!showAddTask &&
-              <div>
+            {!showAddTask && (
+              <div className={styles.actions}>
                 {showUnratedTasks && (
-                  <button className={cx(styles.btn, styles.addTask)} onClick={() => setShowAddTask(true)}>
-                    Добавить задачу
+                  <button
+                    type='button'
+                    className={cx(styles.actionButton, styles.primaryAction)}
+                    onClick={() => setShowAddTask(true)}
+                  >
+                    Add task
                   </button>
                 )}
-                <button className={styles.btn} onClick={() => handleRemoveTasks()}>
-                  Удалить все задачи
+
+                <button
+                  type='button'
+                  className={cx(styles.actionButton, styles.dangerAction)}
+                  onClick={() => handleRemoveTasks()}
+                >
+                  Delete all
                 </button>
               </div>
-            }
+            )}
 
             <div className={styles.createTaskWrapper}>
               <textarea
                 onChange={(e) => setLinks(e.target.value)}
                 value={links}
                 className={styles.textarea}
-                placeholder='Добавьте задачу'
+                placeholder='Paste task links or describe a task'
               />
+
               <div className={styles.createTaskBtns}>
-                <Button
-                  type={0}
-                  size='xs'
-                  handleClick={() => handleSendTasks(enteredLinks)}
+                <button
+                  type='button'
+                  className={styles.saveButton}
+                  onClick={() => handleSendTasks(enteredLinks)}
                 >
-                  Сохранить
-                </Button>
-                <Button
-                  type={1}
-                  size='xs'
-                  handleClick={() => setShowAddTask(false)}
+                  Save
+                </button>
+
+                <button
+                  type='button'
+                  className={styles.cancelButton}
+                  onClick={() => setShowAddTask(false)}
                 >
-                  Отменить
-                </Button>
+                  Cancel
+                </button>
               </div>
             </div>
           </div>

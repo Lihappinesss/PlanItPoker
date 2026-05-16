@@ -1,73 +1,230 @@
 @import '../../styles.scss';
 
 .signup {
+  width: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+  overflow: hidden;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  padding: 50px 16px 24px;
+}
+
+.form {
+  width: min(100%, 440px);
+  box-sizing: border-box;
+
   display: flex;
   flex-direction: column;
+  gap: 16px;
+
+  padding: 36px;
+  @include panel();
 }
 
-.enter {
-  font-weight: 800;
-  font-size: 24px;
-  line-height: 29px;
-  margin-bottom: 40px;
-  align-self: center;
+.header {
+  margin-bottom: 4px;
 }
 
-.link {
-  text-decoration: none;
-  text-align: center;
-  color: $layout;
+.badge {
+  margin-bottom: 10px;
+  @include title-eyebrow();
 }
 
-.changeRole {
-  position: relative;
-  margin-bottom: 20px;
-  svg {
-    position: absolute;
-    right: 12px;
-    top: calc(50% - 3px);
-    width: 10px;
-    height: 6px;
-    stroke-width: 2px;
-    stroke: #9098A9;
-    fill: none;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    pointer-events: none;
+.title {
+  margin: 0;
+
+  font-size: 32px;
+  font-weight: 650;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+
+  color: #241f1c;
+}
+
+.description {
+  margin: 12px 0 0;
+
+  font-size: 15px;
+  line-height: 1.55;
+
+  color: $text-secondary;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  @include field-label();
+}
+
+.input,
+.select {
+  @include text-input(0 16px);
+}
+
+.input {
+  padding: 0 16px;
+
+  &::placeholder {
+    color: #8a7d72;
   }
+}
+
+.selectWrapper {
+  position: relative;
 }
 
 .select {
   appearance: none;
-  padding: 10px 20px;
-  border: 1px solid $greyColor;
-  width: 100%;
-  border-radius: 15px;
-  color: $placeholder;
-  font-size: 16px;
-  line-height: 19px;
+  padding: 0 44px 0 16px;
   cursor: pointer;
+
+  option {
+    background-color: $surface-base;
+    color: $text-primary;
+  }
 }
 
-.label {
-  margin-bottom: 10px;
-  display: block;
+.arrow {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+
+  width: 10px;
+  height: 6px;
+
+  transform: translateY(-50%);
+
+  stroke: #8a7d72;
+  stroke-width: 2;
+  fill: none;
+
+  pointer-events: none;
+}
+
+.error,
+.common {
+  @include danger-message();
+  padding: 10px 12px;
+}
+
+.submitButton {
+  @include primary-button(46px, 0 18px);
+  margin-top: 4px;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  margin-top: 2px;
+
+  font-size: 14px;
+  line-height: 1.4;
+  color: $text-secondary;
+}
+
+.loginLink {
+  color: $accent-strong;
+
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+
+  transition: color 0.16s ease;
+
+  &:hover {
+    color: $accent-deep;
+  }
 }
 
 .sprites {
   position: absolute;
   width: 0;
   height: 0;
+
   pointer-events: none;
   user-select: none;
 }
 
-.error {
-  color: $redColor;
-  margin-top: 10px;
-}
+@media (max-width: 480px) {
+  .signup {
+    width: min(100% - 32px, 440px);
+    padding: 28px 20px;
+    border-radius: 24px;
+    gap: 14px;
+  }
 
-.common {
-  color: $redColor;
-  margin-bottom: 10px;
+  .badge {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+  }
+
+  .title {
+    font-size: 26px;
+    line-height: 1.15;
+  }
+
+  .description {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .label {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+
+  .input,
+  .select {
+    min-height: 44px;
+    font-size: 14px;
+    border-radius: 14px;
+  }
+
+  .input {
+    padding: 0 14px;
+  }
+
+  .select {
+    padding: 0 40px 0 14px;
+  }
+
+  .arrow {
+    right: 14px;
+    width: 9px;
+    height: 5px;
+  }
+
+  .error,
+  .common {
+    padding: 10px 12px;
+    font-size: 12px;
+    border-radius: 13px;
+  }
+
+  .submitButton {
+    min-height: 44px;
+    font-size: 13px;
+    border-radius: 13px;
+  }
+
+  .footer {
+    flex-direction: column;
+    gap: 4px;
+    font-size: 13px;
+  }
+
+  .loginLink {
+    font-size: 13px;
+  }
 }

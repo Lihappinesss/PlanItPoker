@@ -212,7 +212,10 @@ const Plan = () => {
       <Shapka />
 
       <main className={styles.main}>
-        <div className={cx(styles.left, { [styles.open]: isTaskListOpen })} ref={taskListRef}>
+        <aside
+          className={cx(styles.left, { [styles.open]: isTaskListOpen })}
+          ref={taskListRef}
+        >
           <TaskList
             tasks={filteredTasks}
             updateFilteredTasks={updateFilteredTasks}
@@ -223,13 +226,16 @@ const Plan = () => {
             handleRemoveTask={handleRemoveTask}
             handleUpdateStoryPoint={handleUpdateStoryPoint}
           />
-        </div>
+        </aside>
 
-        <div className={styles.center}>
-          <TaskVotingBoard currentTask={currentTask} handleVote={handleVote} />
-        </div>
+        <section className={styles.center}>
+          <TaskVotingBoard
+            currentTask={currentTask}
+            handleVote={handleVote}
+          />
+        </section>
 
-        <div className={styles.right}>
+        <aside className={styles.right}>
           <PlayerPoints
             usersVotes={usersVotes}
             currentSt={currentSt}
@@ -237,21 +243,25 @@ const Plan = () => {
             votingUsers={votingUsers}
             handleNextTask={handleNextTask}
           />
-        </div>
+        </aside>
       </main>
 
       {isTaskListOpen && (
-        <div
+        <button
+          type='button'
           className={styles.overlay}
+          aria-label='Close task list'
           onClick={() => setIsTaskListOpen(false)}
         />
       )}
 
       <button
-        className={cx(styles.showTasks, isTaskListOpen && styles._isTaskListOpen)}
+        type='button'
+        className={cx(styles.showTasks, isTaskListOpen && styles.isTaskListOpen)}
         onClick={() => setIsTaskListOpen(true)}
+        aria-label='Show task list'
       >
-        <img src={more} alt='show list tasks' />
+        <img src={more} alt='' aria-hidden='true' />
       </button>
     </div>
   );

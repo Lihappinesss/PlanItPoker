@@ -4,11 +4,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useRegisterMutation } from '@src/store/api/auth';
 import type { UserRole } from '@src/store/api/auth/types';
 
-import Input from '@src/components/Input';
-import Button from '@src/components/Button';
-import Indent from '@src/components/Indent';
-import Auth from '@src/components/Layouts/Auth';
-
 import styles from './index.module.scss';
 
 interface FormData {
@@ -58,6 +53,7 @@ const SignUp = () => {
 
     setError((prev) => ({
       ...prev,
+      common: '',
       [name]: '',
     }));
   };
@@ -74,16 +70,19 @@ const SignUp = () => {
     if (name === 'email') {
       errorMessage = validateEmail(value)
         ? ''
-        : 'Пожалуйста, введите корректный email.';
-    } else if (name === 'password') {
+        : 'Please enter a valid email address.';
+    }
+
+    if (name === 'password') {
       errorMessage = validatePassword(value)
         ? ''
-        : 'Пароль должен содержать...';
-    } else if (name === 'username') {
-      errorMessage =
-        value.length >= 6
-          ? ''
-          : 'Логин должен содержать минимум 6 символов';
+        : 'Password must be at least 8 characters and include uppercase, lowercase and a number.';
+    }
+
+    if (name === 'username') {
+      errorMessage = value.length >= 6
+        ? ''
+        : 'Username must be at least 6 characters.';
     }
 
     setError((prev) => ({
@@ -95,35 +94,33 @@ const SignUp = () => {
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (
+      !formData.email ||
+      !formData.password ||
+      !formData.username ||
+      !formData.role
+    ) {
+      setError((prev) => ({
+        ...prev,
+        common: 'Please fill in all required fields.',
+      }));
+
+      return;
+    }
+
+    const hasErrors = Object.values(error).some((err) => err !== '');
+
+    if (hasErrors) {
+      return;
+    }
+
     try {
-      if (
-        !formData.email ||
-        !formData.password ||
-        !formData.username ||
-        !formData.role
-      ) {
-        setError((prev) => ({
-          ...prev,
-          common: 'Пожалуйста, заполните все обязательные поля.',
-        }));
-
-        return;
-      }
-
-      const hasErrors = Object.values(error).some((err) => err !== '');
-
-      if (hasErrors) {
-        console.log('Ошибки валидации:', error);
-        return;
-      }
-
       await register(formData).unwrap();
-
       navigate('/');
     } catch (err) {
       setError((prev) => ({
         ...prev,
-        common: 'Произошла ошибка при регистрации.',
+        common: 'Something went wrong while creating your account.',
       }));
 
       console.error('Register error:', err);
@@ -131,62 +128,90 @@ const SignUp = () => {
   };
 
   return (
-    <Auth>
-      <form className={styles.signup} onSubmit={handleRegister}>
-        <div className={styles.enter}>Регистрация</div>
+    <div className={styles.signup}>
+      <form className={styles.form} onSubmit={handleRegister}>
+        <div className={styles.header}>
+          <div className={styles.badge}>Get started</div>
+          <h1 className={styles.title}>Create account</h1>
+          <p className={styles.description}>
+            Join your team workspace and start estimating tasks together.
+          </p>
+        </div>
 
-        {error.common && <div className={styles.common}>{error.common}</div>}
+        {error.common && (
+          <div className={styles.common}>{error.common}</div>
+        )}
 
-        <Input
-          label='Email'
-          handleChange={handleChange}
-          name='email'
-          handleBlur={handleBlur}
-          type='email'
-        />
+        <label className={styles.field}>
+          <span className={styles.label}>Email</span>
+
+          <input
+            className={styles.input}
+            value={formData.email}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            name='email'
+            type='email'
+            placeholder='Enter your email'
+            autoComplete='email'
+          />
+        </label>
 
         {error.email && <div className={styles.error}>{error.email}</div>}
 
-        <Input
-          label='Пароль'
-          handleChange={handleChange}
-          name='password'
-          handleBlur={handleBlur}
-          type='password'
-        />
+        <label className={styles.field}>
+          <span className={styles.label}>Password</span>
+
+          <input
+            className={styles.input}
+            value={formData.password}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            name='password'
+            type='password'
+            placeholder='Create a password'
+            autoComplete='new-password'
+          />
+        </label>
 
         {error.password && <div className={styles.error}>{error.password}</div>}
 
-        <Input
-          label='Логин'
-          handleChange={handleChange}
-          name='username'
-          handleBlur={handleBlur}
-          type='text'
-        />
+        <label className={styles.field}>
+          <span className={styles.label}>Username</span>
+
+          <input
+            className={styles.input}
+            value={formData.username}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            name='username'
+            type='text'
+            placeholder='Choose a username'
+            autoComplete='username'
+          />
+        </label>
 
         {error.username && <div className={styles.error}>{error.username}</div>}
 
-        <label htmlFor='select-role' className={styles.label}>
-          Роль
+        <label className={styles.field}>
+          <span className={styles.label}>Role</span>
+
+          <div className={styles.selectWrapper}>
+            <select
+              value={formData.role}
+              onChange={handleChange}
+              name='role'
+              className={styles.select}
+            >
+              <option value='watching'>Observer</option>
+              <option value='voting'>Voter</option>
+            </select>
+
+            <svg className={styles.arrow}>
+              <use xlinkHref='#select-arrow-down'></use>
+            </svg>
+          </div>
         </label>
-
-        <div className={styles.changeRole}>
-          <select
-            value={formData.role}
-            onChange={handleChange}
-            name='role'
-            id='select-role'
-            className={styles.select}
-          >
-            <option value='watching'>Наблюдающий</option>
-            <option value='voting'>Голосующий</option>
-          </select>
-
-          <svg>
-            <use xlinkHref='#select-arrow-down'></use>
-          </svg>
-        </div>
 
         <svg className={styles.sprites}>
           <symbol id='select-arrow-down' viewBox='0 0 10 6'>
@@ -194,19 +219,19 @@ const SignUp = () => {
           </symbol>
         </svg>
 
-        <Button type={0} size='l' submit>
-          Зарегистрироваться
-        </Button>
+        <button type='submit' className={styles.submitButton}>
+          Create account
+        </button>
 
-        <Indent top={20} />
+        <div className={styles.footer}>
+          <span>Already have an account?</span>
 
-        <Button type={0} size='l'>
-          <Link to='/login' className={styles.link}>
-            Авторизоваться
+          <Link to='/login' className={styles.loginLink}>
+            Sign in
           </Link>
-        </Button>
+        </div>
       </form>
-    </Auth>
+    </div>
   );
 };
 

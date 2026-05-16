@@ -1,114 +1,262 @@
 @import '../../styles.scss';
 
-.mainPage {
-  height: 100vh;
-  position: relative;
-  background: $layout;
+.page {
+  @include shell();
+  padding: 12px 0 24px;
 }
 
-.wrapper {
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+  align-items: center;
+  gap: 48px;
+
+  margin: 20px 0 28px;
+}
+
+.title {
+  max-width: 550px;
+  margin: 0;
+
+  font-size: clamp(32px, 3vw, 44px);
+  font-weight: 500;
+  line-height: 1.16;
+  letter-spacing: -0.015em;
+
+  color: #241f1c;
+}
+
+.description {
+  max-width: 520px;
+  margin: 16px 0 0;
+
+  font-size: 17px;
+  line-height: 1.55;
+
+  color: $text-secondary;
+}
+
+.statsCard {
+  padding: 28px 32px;
+
+  @include panel($background: $surface-glass-44, $border-color: $line-soft, $shadow: 0 18px 50px rgb(65 43 19 / 8%));
+}
+
+.statsCard span {
+  display: block;
+
+  margin-bottom: 8px;
+
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+
+  color: $text-muted;
+}
+
+.statsCard strong {
+  display: block;
+
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
+
+  color: #241f1c;
+}
+
+.contentGrid {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  align-items: start;
+  gap: 32px;
+}
+
+.profileCard,
+.workspaceCard {
+  @include panel();
+}
+
+.profileCard {
+  padding: 24px;
+}
+
+.workspaceCard {
+  padding: 28px;
+}
+
+.workspaceHeader {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+
+  margin-bottom: 24px;
+}
+
+.sectionLabel {
+  margin-bottom: 8px;
+
+  @include title-eyebrow();
+  letter-spacing: 0.24em;
+}
+
+.sectionTitle {
+  margin: 0;
+
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+
+  color: #241f1c;
+}
+
+.createRoomButton {
+  @include primary-button(48px, 0 22px, $radius-pill);
+  gap: 10px;
+  border: 0;
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow:
+    0 14px 28px rgb(234 99 50 / 24%),
+    inset 0 1px 0 rgb(255 255 255 / 22%);
+}
+
+.createRoomButton:hover {
+  box-shadow:
+    0 18px 34px rgb(234 99 50 / 28%),
+    inset 0 1px 0 rgb(255 255 255 / 22%);
+}
+
+.createRoomButton:active {
+  box-shadow:
+    0 10px 20px rgb(234 99 50 / 20%),
+    inset 0 1px 0 rgb(255 255 255 / 18%);
+}
+
+.createRoomIcon {
+  display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 0 40px;
-  margin-top: 100px;
-  padding: 0 20px;
+
+  width: 22px;
+  height: 22px;
+
+  border: 1px solid rgb(255 255 255 / 50%);
+  border-radius: 50%;
+
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.roomsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.room {
+  overflow: hidden;
+
+  border-radius: 18px;
+  background: $surface-glass-36;
+}
+
+.emptyRooms {
+  border: 1px dashed rgb(36 31 28 / 16%);
+  border-radius: 24px;
+  background: $surface-glass-30;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.emptyTitle {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: #241f1c;
+}
+
+.emptyText {
+  max-width: 320px;
+  margin: 12px auto 0;
+
+  font-size: 14px;
+  line-height: 1.6;
+  color: #655d55;
 }
 
 .overlay {
   position: fixed;
+  inset: 0;
+  z-index: 100;
+
   display: flex;
   align-items: center;
-  justify-self: center;
-  width: 100%;
-  height: 100%;
-  inset: 0;
-  background: rgba(158, 56, 220, 0.30);
-  z-index: 1;
-  cursor: pointer;
+  justify-content: center;
+
+  background: rgb(31 29 23 / 28%);
+  backdrop-filter: blur(4px);
 }
 
-.roomContainer {
-  display: flex;
-  flex-direction: column;
-  background: $layout;
-  max-width: 700px;
-  width: 100%;
-  padding: 40px 20px;
-  box-sizing: border-box;
-  border-radius: 32px;
-  border: 1px solid $greyColor;
-  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-}
-
-.room {
-  display: grid;
-  gap: 20px;
-  align-items: stretch;
-}
-
-.title {
-  font-size: 18px;
-  line-height: 21px;
-  font-weight: 500;
-  margin-bottom: 20px;
-}
-
-.button {
-  width: 60%;
-}
-
-.button,
 .createRoom {
-  margin: 0 auto;
+  width: min(100% - 32px, 480px);
 }
 
-@media (max-width: 1320px) {
-  .roomContainer {
-    max-width: 492px;
+@media (max-width: 1100px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    justify-items: center;
+  }
+
+  .statsCard {
+    max-width: 520px;
+  }
+
+  .contentGrid {
+    grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 990px) {
-  .wrapper {
-    flex-direction: column-reverse;
-    gap: 20px 0;
-    align-items: center;
-    margin-top: 40px;
+@media (max-width: 670px) {
+  .page {
+    width: min(100% - 32px, 1440px);
+    padding: 12px 0 32px;
   }
-}
 
-@media (max-width: 768px) {
-  .roomContainer {
-    border-radius: 20px;
-    padding: 20px 15px;
+  .hero {
+    margin: 24px 0 32px;
   }
 
   .title {
-    font-size: 16px;
-    margin-bottom: 15px;
-    text-align: center;
-  }
-}
-
-@media (max-width: 480px) {
-  .wrapper {
-    padding: 0 10px;
-    margin-top: 20px;
+    font-size: 31px;
   }
 
-  .roomContainer {
-    padding: 15px 10px;
-    border-radius: 16px;
-    min-width: 300px;
+  .description {
+    margin-top: 18px;
+    font-size: 17px;
   }
 
-  .title {
-    font-size: 14px;
-    line-height: 18px;
+  .profileCard,
+  .workspaceCard {
+    border-radius: 22px;
+    padding: 20px;
   }
 
-  .button,
-  .createRoom {
+  .workspaceHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sectionTitle {
+    font-size: 24px;
+  }
+
+  .createRoomButton {
     width: 100%;
   }
 }

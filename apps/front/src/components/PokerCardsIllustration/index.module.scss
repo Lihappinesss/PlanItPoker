@@ -1,0 +1,56 @@
+.illustration {
+  width: min(100%, 420px);
+  justify-self: end;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.card {
+  fill: rgb(255 252 246 / 84%);
+  stroke: #5f6670;
+  stroke-width: 1.6;
+  filter: drop-shadow(0 12px 18px rgb(65 43 19 / 8%));
+}
+
+.cardNumber {
+  fill: #252a32;
+  font-size: 24px;
+  font-weight: 500;
+  font-family: Georgia, serif;
+}
+
+.cardLetter {
+  fill: #ea6332;
+  font-size: 64px;
+  font-weight: 800;
+  font-family: Arial, sans-serif;
+}
+
+.suit {
+  fill: #0e3f66;
+}
+
+.sketchLine {
+  fill: none;
+  stroke: #d99a2b;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.8;
+}
+
+.blueStroke {
+  fill: none;
+  stroke: #0e3f66;
+  stroke-width: 7;
+  stroke-linecap: round;
+}
+
+.dots circle {
+  fill: #e8cfa7;
+  opacity: 0.75;
+}

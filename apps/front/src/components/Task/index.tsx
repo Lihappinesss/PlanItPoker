@@ -62,12 +62,16 @@ const Task = ((props: ITaskProps) => {
                     <li
                       className={cx(
                         styles.task,
-                        !i && !task.storyPoint && styles._active
+                        !i && !task.storyPoint && styles.active,
                       )}
-                      ref={i === openIndex ? (node) => {
-                        ref.current = node;
-                        provided.innerRef(node);
-                      } : provided.innerRef}
+                      ref={
+                        i === openIndex
+                          ? (node) => {
+                              ref.current = node;
+                              provided.innerRef(node);
+                            }
+                          : provided.innerRef
+                      }
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
                     >
@@ -75,54 +79,64 @@ const Task = ((props: ITaskProps) => {
                         to={link}
                         className={styles.link}
                         target='_blank'
+                        rel='noreferrer'
                       >
                         {result ? result[0] : link}
                       </Link>
 
                       <div className={styles.taskManage}>
-                        <div
-                          className={styles.delete}
+                        <Dropdown
+                          contentPosition='right'
+                          right='20px'
+                          topPosition='75px'
+                          trigger={
+                            <button
+                              type='button'
+                              className={styles.storyPointButton}
+                              aria-label='Set story point'
+                              title='Set story point'
+                            >
+                              {storyPoint || '-'}
+                            </button>
+                          }
+                        >
+                          <ul className={styles.storyPointList}>
+                            {VOTES.map((vote) => (
+                              <li key={vote}>
+                                <button
+                                  type='button'
+                                  className={styles.storyPointOption}
+                                  onClick={() => handleUpdateStoryPoint(id, vote)}
+                                >
+                                  {vote}
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </Dropdown>
+
+                        <button
+                          type='button'
+                          className={styles.deleteButton}
                           onClick={() => handleRemoveTask(id)}
-                          role='button'
-                          tabIndex={0}
-                          onKeyDown={(e) => e.key === 'Enter' && handleRemoveTask(id)}
+                          aria-label='Delete task'
+                          title='Delete task'
                         >
                           <img
-                            width={20}
-                            height={20}
+                            width={16}
+                            height={16}
                             src={deleteIcon}
-                            alt='delete task'
+                            alt=''
+                            aria-hidden='true'
                           />
-                        </div>
-
-                          <Dropdown
-                            contentPosition='right'
-                            right='20px'
-                            topPosition='75px'
-                            trigger={
-                              <button
-                                className={cx(styles.btn, styles.setSpBtn)}
-                                aria-label='Назначить Story Point'
-                                title='Назначить Story Point'
-                              >
-                                {storyPoint ? storyPoint : '-'}
-                              </button>
-                            }
-                          >
-                            <ul className={styles.stList}>
-                              {VOTES.map((vote, index) => (
-                                <li key={index}>
-                                  <button className={cx(styles.stBtn, styles.btn)} onClick={() => handleUpdateStoryPoint(id, vote)}>{vote}</button>
-                                </li>
-                              ))}
-                            </ul>
-                          </Dropdown>
-                        </div>
+                        </button>
+                      </div>
                     </li>
                   )}
                 </Draggable>
               );
             })}
+
             {provided.placeholder}
           </ul>
         )}

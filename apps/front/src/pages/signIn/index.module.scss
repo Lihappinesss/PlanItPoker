@@ -1,48 +1,161 @@
 @import '../../styles.scss';
 
 .signin {
+  width: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+  overflow: hidden;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  padding: 50px 16px 24px;
+}
+
+.form {
+  width: min(100%, 440px);
+  box-sizing: border-box;
+
   display: flex;
   flex-direction: column;
-  max-width: 400px;
-  margin: 0 auto;
+  gap: 16px;
+
+  padding: 36px;
+  @include panel();
 }
 
-.enter {
-  align-self: center;
-  font-weight: 800;
-  font-size: 24px;
-  line-height: 29px;
-  margin-bottom: 40px;
+.header {
+  margin-bottom: 6px;
 }
 
-.link {
+.label {
+  margin-bottom: 10px;
+  @include title-eyebrow();
+}
+
+.title {
+  margin: 0;
+
+  font-size: 32px;
+  font-weight: 650;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+
+  color: #241f1c;
+}
+
+.description {
+  margin: 12px 0 0;
+
+  font-size: 15px;
+  line-height: 1.55;
+  color: $text-secondary;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fieldLabel {
+  @include field-label();
+}
+
+.input {
+  @include text-input();
+}
+
+.error {
+  @include danger-message();
+}
+
+.submitButton {
+  @include primary-button(46px, 0 18px);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  margin-top: 2px;
+
+  font-size: 14px;
+  line-height: 1.4;
+  color: $text-secondary;
+}
+
+.registerLink {
+  color: $accent-strong;
+
+  font-size: 14px;
+  font-weight: 700;
   text-decoration: none;
-  color: $layout;
-  text-align: center;
-  display: block;
-}
 
-.error{
-  color: $redColor;
-  font-size: 20px;
-  line-height: 20px;
-  margin-bottom: 20px;
-  text-align: center;
+  transition: color 0.16s ease;
+
+  &:hover {
+    color: $accent-deep;
+  }
 }
 
 @media (max-width: 480px) {
   .signin {
-    padding: 0 15px;
-    max-width: 100%;
+    width: min(100% - 32px, 420px);
+    padding: 28px 20px;
+    border-radius: 24px;
+    gap: 16px;
   }
 
-  .enter {
-    font-size: 20px;
-    margin-bottom: 25px;
+  .label {
+    font-size: 10px;
+    letter-spacing: 0.18em;
   }
 
-  .link {
+  .title {
+    font-size: 26px;
+    line-height: 1.15;
+  }
+
+  .description {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .fieldLabel {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+
+  .input {
+    min-height: 44px;
+    padding: 0 14px;
     font-size: 14px;
+    border-radius: 14px;
   }
 
+  .error {
+    font-size: 12px;
+    padding: 10px 12px;
+  }
+
+  .submitButton {
+    min-height: 44px;
+    font-size: 13px;
+    border-radius: 13px;
+  }
+
+  .footer {
+    flex-direction: column;
+    gap: 4px;
+
+    font-size: 13px;
+  }
+
+  .registerLink {
+    font-size: 13px;
+  }
 }

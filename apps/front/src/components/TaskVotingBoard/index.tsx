@@ -16,25 +16,39 @@ function TaskVotingBoard(props: ITaskVotingBoard) {
   } = props;
 
   return (
-    <div className={styles.taskVotingBoard}>
-      {currentTask?.link && (
-        <Link to={currentTask?.link} className={styles.link} target='blank'>
-          {currentTask.link.match(regex) || currentTask.link}
-        </Link>
-      )}
-      <div className={styles.select}>Оцените задачу</div>
+    <section className={styles.taskVotingBoard}>
+      <div className={styles.header}>
+
+        {currentTask?.link ? (
+          <Link
+            to={currentTask.link}
+            className={styles.link}
+            target='_blank'
+            rel='noreferrer'
+          >
+            {currentTask.link.match(regex)?.[0] || 'View task'}
+          </Link>
+        ) : (
+          <p className={styles.emptyText}>
+            Select or add a task to start voting.
+          </p>
+        )}
+      </div>
+
       <div className={styles.votes}>
         {VOTES.map((vote, i) => (
           <button
-            key={i}
+            key={vote}
+            type='button'
             className={styles.vote}
             onClick={() => handleVote(i + 1)}
+            aria-label={`Vote ${vote}`}
           >
             {vote}
           </button>
         ))}
       </div>
-    </div>
+    </section>
   );
 }
 
