@@ -4,8 +4,9 @@ import cors from 'cors';
 import path from 'path';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
+import connectPgSimple from 'connect-pg-simple';
 
-import { dbConnect } from './db';
+import { dbConnect, sessionPool } from './db';
 import routes from './routes';
 
 import startWs from './ws';
@@ -21,9 +22,11 @@ const {
   SESSION_COOKIE_DOMAIN,
   SESSION_COOKIE_SAME_SITE,
   SESSION_COOKIE_SECURE,
+  SESSION_TABLE_NAME,
 } = process.env;
 
 const app = express();
+const PostgresSessionStore = connectPgSimple(session);
 const isProduction = NODE_ENV === 'production';
 const allowedOrigins = (CLIENT_URL || 'http://localhost:4200,http://localhost:3000')
   .split(',')
@@ -80,6 +83,11 @@ const sessionMiddleware = session({
   secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  store: new PostgresSessionStore({
+    pool: sessionPool,
+    tableName: SESSION_TABLE_NAME || 'user_sessions',
+    createTableIfMissing: true,
+  }),
   cookie: {
     maxAge: 1000 * 60 * 60 * 24 * 7,
     httpOnly: true,
