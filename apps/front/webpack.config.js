@@ -16,6 +16,8 @@ module.exports = composePlugins(
           react: resolvePackage('react'),
           'react-dom': resolvePackage('react-dom'),
           'react-redux': resolvePackage('react-redux'),
+          '@components': path.resolve(__dirname, 'src/components'),
+          '@pages': path.resolve(__dirname, 'src/pages'),
           '@src': path.resolve(__dirname, 'src'),
         },
       },

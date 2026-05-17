@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import close from 'src/icons/close.png';
+import close from '@src/icons/close.png';
 
 import styles from './index.module.scss';
 
