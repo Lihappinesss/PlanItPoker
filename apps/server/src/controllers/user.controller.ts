@@ -4,7 +4,36 @@ import { UniqueConstraintError } from 'sequelize';
 
 import User from '../models/user';
 
-const SESSION_COOKIE_NAME = 'connect.sid';
+const {
+  NODE_ENV,
+  SESSION_COOKIE_NAME = 'connect.sid',
+  SESSION_COOKIE_DOMAIN,
+  SESSION_COOKIE_SAME_SITE,
+  SESSION_COOKIE_SECURE,
+} = process.env;
+
+const isProduction = NODE_ENV === 'production';
+
+const parseBoolean = (value: string | undefined, fallback: boolean) => {
+  if (value === undefined) {
+    return fallback;
+  }
+
+  return value.toLowerCase() === 'true';
+};
+
+const normalizeSameSite = (
+  value: string | undefined
+): 'lax' | 'strict' | 'none' => {
+  if (value === 'strict' || value === 'none' || value === 'lax') {
+    return value;
+  }
+
+  return isProduction ? 'none' : 'lax';
+};
+
+const cookieSecure = parseBoolean(SESSION_COOKIE_SECURE, isProduction);
+const cookieSameSite = normalizeSameSite(SESSION_COOKIE_SAME_SITE);
 
 interface SafeUser {
   id: number;
@@ -223,8 +252,11 @@ export const logout = (req: Request, res: Response): void => {
     }
 
     res.clearCookie(SESSION_COOKIE_NAME, {
-      secure: false,
       path: '/',
+      httpOnly: true,
+      secure: cookieSecure,
+      sameSite: cookieSameSite,
+      ...(SESSION_COOKIE_DOMAIN ? { domain: SESSION_COOKIE_DOMAIN } : {}),
     });
 
     res.status(200).json({

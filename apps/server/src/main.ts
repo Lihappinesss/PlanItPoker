@@ -12,7 +12,16 @@ import startWs from './ws';
 
 dotenv.config();
 
-const { SESSION_SECRET, NODE_ENV, CLIENT_URL } = process.env;
+const {
+  SESSION_SECRET,
+  NODE_ENV,
+  CLIENT_URL,
+  TRUST_PROXY,
+  SESSION_COOKIE_NAME,
+  SESSION_COOKIE_DOMAIN,
+  SESSION_COOKIE_SAME_SITE,
+  SESSION_COOKIE_SECURE,
+} = process.env;
 
 const app = express();
 const isProduction = NODE_ENV === 'production';
@@ -20,6 +29,35 @@ const allowedOrigins = (CLIENT_URL || 'http://localhost:4200,http://localhost:30
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
+const sessionCookieName = SESSION_COOKIE_NAME || 'connect.sid';
+
+const parseBoolean = (value: string | undefined, fallback: boolean) => {
+  if (value === undefined) {
+    return fallback;
+  }
+
+  return value.toLowerCase() === 'true';
+};
+
+const normalizeSameSite = (
+  value: string | undefined
+): 'lax' | 'strict' | 'none' => {
+  if (value === 'strict' || value === 'none' || value === 'lax') {
+    return value;
+  }
+
+  return isProduction ? 'none' : 'lax';
+};
+
+const cookieSecure = parseBoolean(SESSION_COOKIE_SECURE, isProduction);
+const cookieSameSite = normalizeSameSite(SESSION_COOKIE_SAME_SITE);
+const trustProxy = TRUST_PROXY !== undefined
+  ? Number.isNaN(Number(TRUST_PROXY))
+    ? TRUST_PROXY
+    : Number(TRUST_PROXY)
+  : isProduction ? 1 : false;
+
+app.set('trust proxy', trustProxy);
 
 const corsOptions = {
   origin: allowedOrigins,
@@ -38,19 +76,25 @@ if (!SESSION_SECRET) {
 }
 
 const sessionMiddleware = session({
+  name: sessionCookieName,
   secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
     maxAge: 1000 * 60 * 60 * 24 * 7,
     httpOnly: true,
-    sameSite: isProduction ? 'none' : 'lax',
-    secure: isProduction,
+    sameSite: cookieSameSite,
+    secure: cookieSecure,
+    ...(SESSION_COOKIE_DOMAIN ? { domain: SESSION_COOKIE_DOMAIN } : {}),
   },
   proxy: isProduction,
 });
 
 app.use(sessionMiddleware);
+
+app.get('/health', (_req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
 
 routes(app);
 
