@@ -89,6 +89,62 @@ const broadcastToRoom = (
   });
 };
 
+const tryFinalizeVoting = async (
+  wss: WebSocket.Server,
+  connectedClients: Map<string, Set<ExtendedWebSocket>>,
+  roomId: number,
+  taskId?: number
+) => {
+  const uniqueClientsInRoom = getUniqueClientsInRoom(connectedClients, roomId);
+  const votingClients = uniqueClientsInRoom.filter((client) => client.role === 'voting');
+
+  if (votingClients.length === 0) {
+    return;
+  }
+
+  const allVoted = votingClients.every((client) => client.vote !== undefined);
+
+  if (!allVoted) {
+    return;
+  }
+
+  const votesByUser = votingClients.map((client) => ({
+    login: client.login,
+    vote: client.vote,
+    roomId,
+  }));
+
+  const total = votesByUser.reduce((sum, userVote) => sum + (userVote.vote || 0), 0);
+  const storyPoint = parseFloat((total / votesByUser.length).toFixed(2));
+  const roundedStoryPoint = Math.round(storyPoint);
+
+  let targetTaskId = taskId;
+
+  if (targetTaskId === undefined) {
+    const currentTask = await Task.findOne({
+      where: { roomId, status: 'pending', storyPoint: 0 },
+      order: [['id', 'ASC']],
+    });
+
+    targetTaskId = currentTask?.id;
+  }
+
+  if (targetTaskId === undefined) {
+    return;
+  }
+
+  await Task.update(
+    { storyPoint: roundedStoryPoint },
+    { where: { id: targetTaskId, roomId } }
+  );
+
+  broadcastToRoom(wss, roomId, {
+    command: 'updateVotes',
+    votes: votesByUser,
+    storyPoint: roundedStoryPoint,
+  });
+};
+
 const isJoinRoomPayload = (payload: unknown): payload is JoinRoomPayload => {
   const candidate = payload as JoinRoomPayload;
 
@@ -311,47 +367,12 @@ function startWs(
           vote,
         }, ws);
 
-        const clientsInRoom = getClientsInRoom(connectedClients, currentRoomId);
-
-        const uniqueLogins = Array.from(new Set(clientsInRoom.map((c) => c.login)));
-
-        const votingLogins = Array.from(
-          new Set(clientsInRoom.filter(c => c.role === 'voting').map(c => c.login))
+        await tryFinalizeVoting(
+          wss,
+          connectedClients,
+          currentRoomId,
+          parsedRequest.payload.taskId
         );
-
-        const allVoted = votingLogins.every((login) =>
-          clientsInRoom.some((c) => c.login === login && c.vote !== undefined)
-        );
-
-        if (allVoted) {
-          const votesByUser = uniqueLogins.map((login) => {
-            const voteClient = clientsInRoom.find((c) => c.login === login && c.vote !== undefined);
-            return {
-              login,
-              vote: voteClient?.vote,
-              roomId: currentRoomId,
-            };
-          });
-
-          const total = votesByUser.reduce((sum, v) => sum + (v.vote || 0), 0);
-          const storyPoint = parseFloat((total / votesByUser.length).toFixed(2));
-          const roundedStoryPoint = Math.round(storyPoint);
-
-          await Task.update(
-            {
-              storyPoint: roundedStoryPoint,
-            },
-            {
-              where: { id: parsedRequest.payload.taskId, roomId: parsedRequest.payload.roomId },
-            }
-          );
-
-          broadcastToRoom(wss, currentRoomId, {
-            command: 'updateVotes',
-            votes: votesByUser,
-            storyPoint: roundedStoryPoint,
-          });
-        }
       }
 
       else if (parsedRequest.command === 'addTasksRequest') {
@@ -537,15 +558,16 @@ function startWs(
       }
     });
 
-    ws.on('close', () => {
+    ws.on('close', async () => {
       try {
         if (!ws.login) return;
 
         const roomId = ws.roomId;
         if (!roomId) return;
 
-        if (connectedClients.has(ws.login)) {
-          const clientSet = connectedClients.get(ws.login)!;
+        const clientSet = connectedClients.get(ws.login);
+
+        if (clientSet) {
           clientSet.delete(ws);
           if (clientSet.size === 0) connectedClients.delete(ws.login);
         }
@@ -560,6 +582,8 @@ function startWs(
           command: 'updateConnectedClients',
           clients: clientsInRoom,
         });
+
+        await tryFinalizeVoting(wss, connectedClients, roomId);
       } catch (error) {
         console.error('Error handling ws close:', error);
       }

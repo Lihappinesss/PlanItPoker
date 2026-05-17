@@ -79,6 +79,9 @@ const Plan = () => {
 
       if (data.command === 'updateConnectedClients') {
         updateUsers(data.clients);
+        updateUsersVotes((prev) => prev.filter((vote) => (
+          data.clients.some((client: IUser) => client.login === vote.login)
+        )));
         return;
       }
 
