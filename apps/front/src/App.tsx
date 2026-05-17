@@ -6,7 +6,7 @@ import {
 } from 'react-router-dom';
 
 import Plan from '@pages/plan';
-import MainPage from '@pages/mainPage';
+import MainPage from '@pages/MainPage';
 import SignIn from '@src/pages/signIn';
 import SignUp from '@pages/signUp';
 import NotFound from '@pages/notFound';
