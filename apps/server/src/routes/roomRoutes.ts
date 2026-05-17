@@ -1,4 +1,5 @@
 import { Express } from 'express';
+import { requireAuth } from '../middleware/requireAuth';
 
 import {
   createRoom,
@@ -13,9 +14,9 @@ const enum ROOM_ROUTES {
 }
 
 const roomRoutes = (app: Express) => {
-  app.post(ROOM_ROUTES.CREATE_ROOM, createRoom);
-  app.get(ROOM_ROUTES.GET_ROOMS, getRooms);
-  app.delete(ROOM_ROUTES.DELETE_ROOM, deleteRoom);
+  app.post(ROOM_ROUTES.CREATE_ROOM, requireAuth, createRoom);
+  app.get(ROOM_ROUTES.GET_ROOMS, requireAuth, getRooms);
+  app.delete(ROOM_ROUTES.DELETE_ROOM, requireAuth, deleteRoom);
 };
 
 export default roomRoutes;

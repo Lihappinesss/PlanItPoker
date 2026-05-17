@@ -13,6 +13,7 @@ import {
 import { useGetUserInfoQuery } from '@src/store/api/auth';
 
 import more from '@src/icons/more.svg';
+import { WS_BASE_URL } from '@src/config/env';
 
 import { IUser, ITask, IUserVote } from './types';
 
@@ -63,7 +64,7 @@ const Plan = () => {
   };
 
   useEffect(() => {
-    const newSocket = new WebSocket('ws://localhost:3000/plan/');
+    const newSocket = new WebSocket(WS_BASE_URL);
     socketRef.current = newSocket;
 
     newSocket.onopen = () => {
@@ -79,6 +80,9 @@ const Plan = () => {
 
       if (data.command === 'updateConnectedClients') {
         updateUsers(data.clients);
+        updateUsersVotes((prev) => prev.filter((vote) => (
+          data.clients.some((client: IUser) => client.login === vote.login)
+        )));
         return;
       }
 

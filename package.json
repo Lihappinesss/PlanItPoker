@@ -2,7 +2,15 @@
   "name": "@planit-poker/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "dev:front": "nx serve front",
+    "dev:server": "nx serve server",
+    "build:front": "nx build front",
+    "build:server": "nx build server",
+    "build": "nx run-many -t build --projects=front,server",
+    "migrate": "ts-node --project apps/server/tsconfig.json apps/server/src/scripts/migrate.ts",
+    "start": "node dist/apps/server/main.js"
+  },
   "private": true,
   "nohoist": [
     "**/styled-jsx",
