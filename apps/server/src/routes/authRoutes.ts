@@ -1,4 +1,5 @@
 import { Express } from 'express';
+import { authRateLimit } from '../middleware/authRateLimit';
 
 import {
   login,
@@ -19,12 +20,12 @@ const enum AUTH_ROUTES {
 }
 
 const authRoutes = (app: Express) => {
-  app.post(AUTH_ROUTES.LOGIN, login);
-  app.post(AUTH_ROUTES.REGISTER, register);
+  app.post(AUTH_ROUTES.LOGIN, authRateLimit, login);
+  app.post(AUTH_ROUTES.REGISTER, authRateLimit, register);
   app.get(AUTH_ROUTES.CHECK_AUTH, checkAuth);
-  app.put(AUTH_ROUTES.CHANGE_DATA, changeData);
+  app.put(AUTH_ROUTES.CHANGE_DATA, authRateLimit, changeData);
   app.delete(AUTH_ROUTES.LOGOUT, logout);
-  app.post(AUTH_ROUTES.CHECK_PASSWORD, checkPassword);
+  app.post(AUTH_ROUTES.CHECK_PASSWORD, authRateLimit, checkPassword);
 };
 
 export default authRoutes;

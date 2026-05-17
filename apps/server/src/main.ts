@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 import connectPgSimple from 'connect-pg-simple';
 
 import { dbConnect, sessionPool } from './db';
+import { applySecurityHeaders } from './middleware/securityHeaders';
 import routes from './routes';
 
 import startWs from './ws';
@@ -69,6 +70,8 @@ const corsOptions = {
   methods: ['POST', 'GET', 'DELETE', 'PUT']
 };
 
+app.disable('x-powered-by');
+app.use(applySecurityHeaders);
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
