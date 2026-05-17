@@ -7,31 +7,8 @@ The project consists of two main parts:
 - `front` — the client-side application
 - `server` — the backend application
 
-## Getting Started
+## Features
 
-Install dependencies:
-
-```bash
-npm install
-```
-
-## Run Backend
-
-To start the server, run:
-
-```bash
-npx nx serve server
-```
-
-## Run Frontend
-
-To start the frontend application, run:
-
-```bash
-npx nx serve front
-```
-
-### Features
 - User registration and authentication
 - Room creation
 - Task creation, updating, and deletion
@@ -39,8 +16,8 @@ npx nx serve front
 - Planning poker flow for task estimation
 - User profile management
 
+## Tech Stack
 
-### Tech Stack
 - React
 - TypeScript
 - Redux Toolkit
@@ -52,4 +29,63 @@ npx nx serve front
 - PostgreSQL
 - WebSocket
 - Nx
-- Rest API
+
+## Local Development
+
+1. Copy `.env.example` to `.env`.
+2. Fill in local PostgreSQL credentials and session settings.
+3. Install dependencies.
+
+```bash
+npm install
+```
+
+4. Run database migrations.
+
+```bash
+npm run migrate
+```
+
+5. Start backend and frontend in separate terminals.
+
+```bash
+npm run dev:server
+```
+
+```bash
+npm run dev:front
+```
+
+## Build and Start
+
+Build both applications:
+
+```bash
+npm run build
+```
+
+Start the production server after the build:
+
+```bash
+npm run start
+```
+
+The server serves static assets from `dist/apps/front`, so `npm run build` should be run before `npm run start`.
+
+## Deployment Checklist
+
+1. Configure all required environment variables from `.env.example`.
+2. Run `npm install`.
+3. Run `npm run build`.
+4. Run `npm run migrate`.
+5. Start the server with `npm run start`.
+6. Verify `GET /health` returns `200`.
+
+## Recommended Production Settings
+
+- `NODE_ENV=production`
+- `TRUST_PROXY=1` when running behind Render, Railway, Nginx, or another reverse proxy
+- `SESSION_COOKIE_SECURE=true` under HTTPS
+- `SESSION_COOKIE_SAME_SITE=none` if frontend and backend use different origins
+- `CLIENT_URL` should contain every allowed frontend origin as a comma-separated list
+- `APP_API_BASE_URL` and `APP_WS_BASE_URL` should point to your deployed backend

@@ -61,6 +61,13 @@ export async function runMigrations() {
   }
 }
 
+export async function closeDbConnections() {
+  await Promise.all([
+    sequelize.close(),
+    sessionPool.end(),
+  ]);
+}
+
 export async function dbConnect() {
   try {
     await sequelize.authenticate();
