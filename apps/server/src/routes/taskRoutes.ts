@@ -1,4 +1,5 @@
 import { Express } from 'express';
+import { requireAuth } from '../middleware/requireAuth';
 
 import {
   createTask,
@@ -17,11 +18,11 @@ const enum TASK_ROUTES {
 }
 
 const taskRoutes = (app: Express) => {
-  app.post(TASK_ROUTES.CREATE_TASK, createTask);
-  app.get(TASK_ROUTES.GET_TASKS, getAllTasksInRoom);
-  app.delete(TASK_ROUTES.DELETE_TASK, deleteTask);
-  app.put(TASK_ROUTES.UPDATE_TASK, updateTask);
-  app.delete(TASK_ROUTES.DELETE_TASKS, deleteTasksInRoom);
+  app.post(TASK_ROUTES.CREATE_TASK, requireAuth, createTask);
+  app.get(TASK_ROUTES.GET_TASKS, requireAuth, getAllTasksInRoom);
+  app.delete(TASK_ROUTES.DELETE_TASK, requireAuth, deleteTask);
+  app.put(TASK_ROUTES.UPDATE_TASK, requireAuth, updateTask);
+  app.delete(TASK_ROUTES.DELETE_TASKS, requireAuth, deleteTasksInRoom);
 };
 
 export default taskRoutes;
