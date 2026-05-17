@@ -5,6 +5,7 @@ import path from 'path';
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
 const {
+  POSTGRES_HOST,
   POSTGRES_USER,
   POSTGRES_PASSWORD,
   POSTGRES_DB,
@@ -14,7 +15,7 @@ const {
 export const sequelize = new Sequelize({
   dialect: 'postgres',
   logging: false,
-  host: 'localhost',
+  host: POSTGRES_HOST || 'localhost',
   port: Number(POSTGRES_PORT),
   username: POSTGRES_USER,
   password: POSTGRES_PASSWORD,

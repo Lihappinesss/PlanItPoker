@@ -1,4 +1,4 @@
-const { POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, POSTGRES_PORT } =
+const { POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, POSTGRES_PORT, POSTGRES_HOST } =
   process.env;
 
 module.exports = {
@@ -6,7 +6,7 @@ module.exports = {
     "username": POSTGRES_USER,
     "password": POSTGRES_PASSWORD,
     "database": POSTGRES_DB,
-    "host": "localhost",
+    "host": POSTGRES_HOST || "localhost",
     "port": Number(POSTGRES_PORT),
     "dialect": "postgres"
   },
@@ -14,7 +14,7 @@ module.exports = {
     "username": POSTGRES_USER,
     "password": POSTGRES_PASSWORD,
     "database": POSTGRES_DB,
-    "host": "localhost",
+    "host": POSTGRES_HOST || "localhost",
     "port": Number(POSTGRES_PORT),
     "dialect": "postgres"
   },
@@ -22,9 +22,8 @@ module.exports = {
     "username": POSTGRES_USER,
     "password": POSTGRES_PASSWORD,
     "database": POSTGRES_DB,
-    "host": "localhost",
+    "host": POSTGRES_HOST || "localhost",
     "port": Number(POSTGRES_PORT),
     "dialect": "postgres"
   }
 };
-

@@ -12,13 +12,17 @@ import startWs from './ws';
 
 dotenv.config();
 
-const { SESSION_SECRET, NODE_ENV } = process.env;
+const { SESSION_SECRET, NODE_ENV, CLIENT_URL } = process.env;
 
 const app = express();
 const isProduction = NODE_ENV === 'production';
+const allowedOrigins = (CLIENT_URL || 'http://localhost:4200,http://localhost:3000')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 const corsOptions = {
-  origin: ['http://localhost:4200', 'http://localhost:3000'],
+  origin: allowedOrigins,
   optionsSuccessStatus: 200,
   credentials: true,
   methods: ['POST', 'GET', 'DELETE', 'PUT']
