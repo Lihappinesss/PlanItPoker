@@ -1,7 +1,9 @@
-import { Sequelize } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 import path from 'path';
 import { Pool } from 'pg';
+
+import { migrations } from './migrations';
 
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
@@ -31,10 +33,38 @@ export const sessionPool = new Pool({
   database: POSTGRES_DB,
 });
 
+const MIGRATIONS_TABLE = 'SequelizeMeta';
+
+export async function runMigrations() {
+  const queryInterface = sequelize.getQueryInterface();
+
+  await queryInterface.createTable(MIGRATIONS_TABLE, {
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      primaryKey: true,
+    },
+  }).catch(() => null);
+
+  const [rows] = await sequelize.query(`SELECT name FROM "${MIGRATIONS_TABLE}"`);
+  const appliedMigrations = new Set(
+    (rows as Array<{ name: string }>).map((row) => row.name)
+  );
+
+  for (const migration of migrations) {
+    if (appliedMigrations.has(migration.name)) {
+      continue;
+    }
+
+    await migration.up(queryInterface, sequelize);
+    await queryInterface.bulkInsert(MIGRATIONS_TABLE, [{ name: migration.name }]);
+  }
+}
+
 export async function dbConnect() {
   try {
     await sequelize.authenticate();
-    await sequelize.sync();
+    await runMigrations();
     await sessionPool.query('SELECT 1');
     console.log('Connection has been established successfully.');
   } catch (error) {
