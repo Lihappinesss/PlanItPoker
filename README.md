@@ -89,3 +89,51 @@ The server serves static assets from `dist/apps/front`, so `npm run build` shoul
 - `SESSION_COOKIE_SAME_SITE=none` if frontend and backend use different origins
 - `CLIENT_URL` should contain every allowed frontend origin as a comma-separated list
 - `APP_API_BASE_URL` and `APP_WS_BASE_URL` should point to your deployed backend
+
+## Railway
+
+This repository is prepared for Railway with [railway.json](/Users/a.gallyamova/Documents/personal/PlanItPoker/railway.json).
+
+Railway-specific behavior:
+
+- Build command: `npm run build`
+- Pre-deploy command: `npm run migrate`
+- Start command: `npm run start`
+- Healthcheck path: `/health`
+- The app listens on Railway's injected `PORT` variable
+
+Recommended setup:
+
+1. Create a new Railway project.
+2. Add a PostgreSQL database to the project.
+3. Deploy this repository as a single service from the repository root.
+4. Set the service healthcheck path to `/health` if you prefer to manage it in the UI.
+5. Configure the variables below.
+
+Recommended Railway variables:
+
+- `NODE_ENV=production`
+- `TRUST_PROXY=1`
+- `SESSION_SECRET=<long-random-secret>`
+- `SESSION_COOKIE_SECURE=true`
+- `SESSION_COOKIE_SAME_SITE=lax`
+- `SESSION_COOKIE_NAME=connect.sid`
+- `SESSION_TABLE_NAME=user_sessions`
+- `POSTGRES_HOST=${{Postgres.PGHOST}}`
+- `POSTGRES_PORT=${{Postgres.PGPORT}}`
+- `POSTGRES_DB=${{Postgres.PGDATABASE}}`
+- `POSTGRES_USER=${{Postgres.PGUSER}}`
+- `POSTGRES_PASSWORD=${{Postgres.PGPASSWORD}}`
+
+Single-service URL setup on Railway:
+
+- `CLIENT_URL=https://${{RAILWAY_PUBLIC_DOMAIN}}`
+- `APP_API_BASE_URL=https://${{RAILWAY_PUBLIC_DOMAIN}}`
+- `APP_WS_BASE_URL=wss://${{RAILWAY_PUBLIC_DOMAIN}}/plan/`
+
+After the first deploy, verify:
+
+1. `GET /health` returns `200`
+2. registration and login work
+3. websocket voting works
+4. sessions survive a service restart
