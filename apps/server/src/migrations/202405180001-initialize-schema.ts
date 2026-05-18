@@ -87,6 +87,21 @@ const migration: Migration = {
           type: DataTypes.STRING,
           allowNull: false,
         },
+        ownerId: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          references: {
+            model: 'users',
+            key: 'id',
+          },
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE',
+        },
+        inviteCode: {
+          type: DataTypes.STRING,
+          allowNull: false,
+          unique: true,
+        },
         createdAt: {
           type: DataTypes.DATE,
           allowNull: false,
@@ -96,6 +111,33 @@ const migration: Migration = {
           type: DataTypes.DATE,
           allowNull: false,
           defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+        },
+      });
+    }
+
+    if (!(await tableExists(queryInterface, 'room_members'))) {
+      await queryInterface.createTable('room_members', {
+        roomId: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          primaryKey: true,
+          references: {
+            model: 'Rooms',
+            key: 'id',
+          },
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE',
+        },
+        userId: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          primaryKey: true,
+          references: {
+            model: 'users',
+            key: 'id',
+          },
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE',
         },
       });
     }
@@ -141,6 +183,26 @@ const migration: Migration = {
           allowNull: false,
           defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
         },
+      });
+    }
+
+    if (!(await columnExists(queryInterface, 'Rooms', 'ownerId'))) {
+      await queryInterface.addColumn('Rooms', 'ownerId', {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'users',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      });
+    }
+
+    if (!(await columnExists(queryInterface, 'Rooms', 'inviteCode'))) {
+      await queryInterface.addColumn('Rooms', 'inviteCode', {
+        type: DataTypes.STRING,
+        allowNull: true,
       });
     }
   },

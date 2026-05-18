@@ -7,12 +7,14 @@ import styles from './index.module.scss';
 export interface RoomCardProps {
   title: string;
   id: number;
+  inviteCode: string;
   handleDeleteRoom: (id: number) => void;
 }
 
 const RoomCard = ({
   title,
   id,
+  inviteCode,
   handleDeleteRoom,
 }: RoomCardProps) => {
   const { data: tasks } = useGetAllTasksQuery({ roomId: id });
@@ -22,10 +24,21 @@ const RoomCard = ({
   return (
     <article className={styles.roomCard}>
       <div className={styles.mainInfo}>
-        <h3 className={styles.title}>{title}</h3>
-        <span className={styles.tasksBadge}>
-          {tasksCount} {tasksCount === 1 ? 'task' : 'tasks'}
-        </span>
+        <div className={styles.titleBlock}>
+          <h3 className={styles.title}>{title}</h3>
+          <div className={styles.metaRow}>
+            <span className={styles.tasksBadge}>
+              {tasksCount} {tasksCount === 1 ? 'task' : 'tasks'}
+            </span>
+            <button
+              type='button'
+              className={styles.inviteCode}
+              onClick={() => navigator.clipboard.writeText(inviteCode)}
+            >
+              Code: {inviteCode}
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className={styles.actions}>

@@ -3,6 +3,7 @@ import { baseApi } from '../baseApi';
 import {
   ICreateRoom,
   IDeleteRoom,
+  IJoinRoom,
   IRoomsRes,
 } from './types';
 
@@ -25,6 +26,15 @@ export const roomApi = baseApi.injectEndpoints({
       invalidatesTags: ['Room'],
     }),
 
+    joinRoom: builder.mutation<void, IJoinRoom>({
+      query: (body) => ({
+        url: '/api/rooms/join',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['Room'],
+    }),
+
     getRooms: builder.query<IRoomsRes[], void>({
       query: () => '/api/rooms',
       providesTags: ['Room'],
@@ -35,5 +45,6 @@ export const roomApi = baseApi.injectEndpoints({
 export const {
   useCreateRoomMutation,
   useDeleteRoomMutation,
+  useJoinRoomMutation,
   useGetRoomsQuery,
 } = roomApi;

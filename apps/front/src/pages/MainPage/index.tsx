@@ -9,7 +9,8 @@ import PokerCardsIllustration from '@components/PokerCardsIllustration';
 import {
   useCreateRoomMutation,
   useGetRoomsQuery,
-  useDeleteRoomMutation
+  useDeleteRoomMutation,
+  useJoinRoomMutation,
 } from '@src/store/api/room';
 
 import styles from './index.module.scss';
@@ -21,6 +22,8 @@ const MainPage = () => {
   const [createRoom] = useCreateRoomMutation();
   const { data: rooms } = useGetRoomsQuery();
   const [deleteRoom] = useDeleteRoomMutation();
+  const [joinRoom] = useJoinRoomMutation();
+  const [inviteCode, setInviteCode] = useState('');
 
   const handleCreateRoom = async (title: string) => {
     if (title) {
@@ -40,6 +43,17 @@ const MainPage = () => {
     if (id) {
       await deleteRoom({ id }).unwrap();
     }
+  };
+
+  const handleJoinRoom = async () => {
+    const normalizedCode = inviteCode.trim().toUpperCase();
+
+    if (!normalizedCode) {
+      return;
+    }
+
+    await joinRoom({ inviteCode: normalizedCode }).unwrap();
+    setInviteCode('');
   };
 
   return (
@@ -73,14 +87,36 @@ const MainPage = () => {
               <h2 className={styles.sectionTitle}>Rooms</h2>
             </div>
 
-            <button
-              type='button'
-              className={styles.createRoomButton}
-              onClick={() => setShowCreate(true)}
-            >
-              <span className={styles.createRoomIcon}>+</span>
-              Create Room
-            </button>
+            <div className={styles.headerActions}>
+              <label className={styles.joinRoomField}>
+                <span className={styles.joinRoomLabel}>Join by code</span>
+                <div className={styles.joinRoomControls}>
+                  <input
+                    value={inviteCode}
+                    onChange={(e) => setInviteCode(e.target.value)}
+                    className={styles.joinRoomInput}
+                    placeholder='Enter invite code'
+                  />
+                  <button
+                    type='button'
+                    className={styles.joinRoomButton}
+                    onClick={handleJoinRoom}
+                    disabled={!inviteCode.trim()}
+                  >
+                    Join
+                  </button>
+                </div>
+              </label>
+
+              <button
+                type='button'
+                className={styles.createRoomButton}
+                onClick={() => setShowCreate(true)}
+              >
+                <span className={styles.createRoomIcon}>+</span>
+                Create Room
+              </button>
+            </div>
           </div>
 
           <div className={styles.roomsList}>
@@ -90,15 +126,16 @@ const MainPage = () => {
                   <RoomCard
                     title={room.title}
                     id={room.id}
+                    inviteCode={room.inviteCode}
                     handleDeleteRoom={handleDeleteRoom}
                   />
                 </div>
               ))
             ) : (
               <div className={styles.emptyRooms}>
-                <div className={styles.emptyTitle}>Пока нет комнат</div>
+                <div className={styles.emptyTitle}>No rooms available</div>
                 <p className={styles.emptyText}>
-                  Создай первую комнату, и она появится здесь.
+                  Create your first room, and it will appear here.
                 </p>
               </div>
             )}

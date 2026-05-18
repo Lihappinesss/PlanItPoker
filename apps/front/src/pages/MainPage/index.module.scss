@@ -95,6 +95,12 @@
   margin-bottom: 24px;
 }
 
+.headerActions {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+}
+
 .sectionLabel {
   margin-bottom: 8px;
 
@@ -122,6 +128,59 @@
   box-shadow:
     0 14px 28px rgb(234 99 50 / 24%),
     inset 0 1px 0 rgb(255 255 255 / 22%);
+}
+
+.joinRoomField {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.joinRoomLabel {
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: $text-muted;
+}
+
+.joinRoomControls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.joinRoomInput {
+  width: 210px;
+  height: 48px;
+  padding: 0 16px;
+  border: 1px solid $line-soft;
+  border-radius: $radius-pill;
+  background: rgb(255 255 255 / 84%);
+  color: #241f1c;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  &::placeholder {
+    letter-spacing: normal;
+    text-transform: none;
+    color: $text-muted;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: rgb(234 99 50 / 42%);
+    box-shadow: 0 0 0 4px rgb(234 99 50 / 10%);
+  }
+}
+
+.joinRoomButton {
+  @include secondary-button(48px, 0 20px, $radius-pill);
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .createRoomButton:hover {
@@ -259,6 +318,17 @@
     font-size: 24px;
   }
 
+  .headerActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .joinRoomControls {
+    width: 100%;
+  }
+
+  .joinRoomInput,
+  .joinRoomButton,
   .createRoomButton {
     width: 100%;
   }
