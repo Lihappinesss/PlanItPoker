@@ -36,12 +36,12 @@ function TaskVotingBoard(props: ITaskVotingBoard) {
       </div>
 
       <div className={styles.votes}>
-        {VOTES.map((vote, i) => (
+        {VOTES.map((vote) => (
           <button
             key={vote}
             type='button'
             className={styles.vote}
-            onClick={() => handleVote(i + 1)}
+            onClick={() => handleVote(vote)}
             aria-label={`Vote ${vote}`}
           >
             {vote}
