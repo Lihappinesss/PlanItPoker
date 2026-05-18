@@ -28,8 +28,12 @@
   min-width: 0;
 
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 14px;
+}
+
+.titleBlock {
+  min-width: 0;
 }
 
 .title {
@@ -47,6 +51,14 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .tasksBadge {
@@ -68,6 +80,25 @@
   line-height: 1;
 
   white-space: nowrap;
+}
+
+.inviteCode {
+  min-height: 28px;
+  padding: 0 12px;
+  border: 1px dashed rgb(36 31 28 / 16%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 46%);
+  color: #5b5149;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
+
+  &:hover {
+    border-color: rgb(234 99 50 / 35%);
+    color: #a84a27;
+    background: rgb(255 247 243 / 84%);
+  }
 }
 
 .actions {

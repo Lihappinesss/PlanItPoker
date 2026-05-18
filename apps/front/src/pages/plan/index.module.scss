@@ -46,6 +46,68 @@
   padding-top: 24px;
 }
 
+.statusCard {
+  grid-column: 1 / -1;
+  max-width: 620px;
+  margin: 0 auto;
+
+  display: grid;
+  gap: 16px;
+
+  padding: 40px;
+
+  border: 1px solid $line-base;
+  border-radius: $radius-xl;
+  background: $surface-glass-92;
+
+  box-shadow: 0 24px 50px rgb(65 43 19 / 10%);
+}
+
+.statusTitle {
+  margin: 0;
+
+  font-size: 32px;
+  line-height: 1.05;
+  color: $text-primary;
+}
+
+.statusText {
+  margin: 0;
+
+  font-size: 18px;
+  line-height: 1.55;
+  color: $text-muted;
+}
+
+.statusAction {
+  justify-self: start;
+
+  min-width: 180px;
+  min-height: 52px;
+  padding: 0 24px;
+
+  border: 0;
+  border-radius: $radius-md;
+  background: $accent;
+  color: #fff;
+
+  font-size: 18px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    background 0.16s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    background: $accent-hover;
+    box-shadow: 0 14px 26px rgb(234 99 50 / 24%);
+  }
+}
+
 .overlay {
   position: fixed;
   inset: 0;
@@ -166,6 +228,18 @@
   .showTasks {
     top: 110px;
     left: 16px;
+  }
+
+  .statusCard {
+    padding: 28px;
+  }
+
+  .statusTitle {
+    font-size: 28px;
+  }
+
+  .statusText {
+    font-size: 16px;
   }
 }
 

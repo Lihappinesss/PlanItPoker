@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import cx from 'classnames';
 
 import Shapka from '@src/components/Shapka';
@@ -21,9 +21,14 @@ import styles from './index.module.scss';
 
 
 const Plan = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
   const roomId = Number(id);
-  const { data: tasks, refetch: refetchTasks } = useGetAllTasksQuery({ roomId });
+  const {
+    data: tasks,
+    refetch: refetchTasks,
+    error: tasksError,
+  } = useGetAllTasksQuery({ roomId });
   const { data: userData } = useGetUserInfoQuery();
   const [isTaskListOpen, setIsTaskListOpen] = useState(false);
 
@@ -33,6 +38,7 @@ const Plan = () => {
   const socketRef = useRef<WebSocket | null>(null);
   const [usersVotes, updateUsersVotes] = useState<IUserVote[]>([]);
   const [currentSt, updateCurrentSt] = useState<number | null>(null);
+  const [roomAccessError, setRoomAccessError] = useState<string | null>(null);
   const currentTask = tasks?.find((task) => !task.storyPoint);
   const taskListRef = useRef<HTMLDivElement | null>(null);
   const userDataRef = useRef(userData);
@@ -92,6 +98,15 @@ const Plan = () => {
         return;
       }
 
+      if (data.command === 'error') {
+        if (data.message === 'Access to this room is forbidden') {
+          setRoomAccessError('You do not have access to this room. Join it with an invite code first.');
+          newSocket.close();
+        }
+
+        return;
+      }
+
       if (
         data.command === 'tasksAdded' ||
         data.command === 'proceedToNextTask' ||
@@ -140,7 +155,32 @@ const Plan = () => {
       socketRef.current = null;
       newSocket.close();
     };
-  }, []);
+  }, [roomId]);
+
+  useEffect(() => {
+    const errorStatus = (
+      tasksError &&
+      typeof tasksError === 'object' &&
+      'status' in tasksError
+    ) ? tasksError.status : undefined;
+
+    if (errorStatus === 403) {
+      setRoomAccessError('You do not have access to this room. Join it with an invite code first.');
+      return;
+    }
+
+    if (errorStatus === 404) {
+      setRoomAccessError('This room does not exist or is no longer available.');
+      return;
+    }
+
+    if (errorStatus === 400) {
+      setRoomAccessError('Invalid room link. Return to the main page and open the room again.');
+      return;
+    }
+
+    setRoomAccessError(null);
+  }, [tasksError]);
 
   useEffect(() => {
     if (showUnratedTasks) {
@@ -210,6 +250,29 @@ const Plan = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isTaskListOpen]);
+
+  if (roomAccessError) {
+    return (
+      <div className={styles.plan}>
+        <Shapka />
+
+        <main className={styles.main}>
+          <section className={styles.statusCard}>
+            <h1 className={styles.statusTitle}>Room unavailable</h1>
+            <p className={styles.statusText}>{roomAccessError}</p>
+
+            <button
+              type='button'
+              className={styles.statusAction}
+              onClick={() => navigate('/')}
+            >
+              Back to rooms
+            </button>
+          </section>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.plan}>

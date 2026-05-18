@@ -5,6 +5,7 @@ import session from 'express-session';
 import type { IncomingMessage } from 'http';
 import Task from './models/task';
 import User from './models/user';
+import { hasRoomAccess } from './utils/roomAccess';
 
 import {
   AddTasksPayload,
@@ -289,6 +290,16 @@ function startWs(
         }
 
         roomId = Number(parsedRequest.payload.roomId);
+        const accessAllowed = await hasRoomAccess(roomId, user.id);
+
+        if (!accessAllowed) {
+          sendJson(ws, {
+            command: 'error',
+            message: 'Access to this room is forbidden',
+          });
+          return;
+        }
+
         login = user.username;
         role = user.role;
 
