@@ -1,6 +1,6 @@
 # PlanIt Poker
 
-PlanIt Poker is an application for team task estimation using the planning poker approach.
+PlanIt Poker is an application for team task estimation using the planning poker approach.  https://planitpoker.up.railway.app/
 
 <img width="800"  alt="Снимок экрана 2026-05-18 в 17 37 19" src="https://github.com/user-attachments/assets/8af44681-3184-41c7-bf55-b86288e66146" />
 <img width="800"  alt="Снимок экрана 2026-05-18 в 17 36 26" src="https://github.com/user-attachments/assets/e668ba98-18e2-4fe5-ad7b-53fe452d7196" />
