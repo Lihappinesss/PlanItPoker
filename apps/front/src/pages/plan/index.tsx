@@ -9,6 +9,7 @@ import TaskVotingBoard from '@components/TaskVotingBoard';
 
 import {
   useGetAllTasksQuery,
+  useCreateTaskMutation,
 } from '@src/store/api/task';
 import { useGetUserInfoQuery } from '@src/store/api/auth';
 
@@ -29,6 +30,7 @@ const Plan = () => {
     refetch: refetchTasks,
     error: tasksError,
   } = useGetAllTasksQuery({ roomId });
+  const [createTask] = useCreateTaskMutation();
   const { data: userData } = useGetUserInfoQuery();
   const [isTaskListOpen, setIsTaskListOpen] = useState(false);
 
@@ -63,10 +65,11 @@ const Plan = () => {
 
     if (socket && socket.readyState === WebSocket.OPEN) {
       socket.send(JSON.stringify({ command, payload }));
-      return;
+      return true;
     }
 
     console.error('WebSocket connection not open.');
+    return false;
   };
 
   useEffect(() => {
@@ -190,11 +193,30 @@ const Plan = () => {
     }
   }, [showUnratedTasks, tasks]);
 
-  const handleCreateTask = (links: string[]) => {
-    sendSocketCommand('addTasksRequest', {
+  const handleCreateTask = async (links: string[]) => {
+    if (!links.length) {
+      return;
+    }
+
+    const sentViaSocket = sendSocketCommand('addTasksRequest', {
       tasks: links,
       login: userData?.user?.username,
     });
+
+    if (sentViaSocket) {
+      return;
+    }
+
+    try {
+      await createTask({
+        roomId,
+        links,
+      }).unwrap();
+
+      refetchTasksRef.current();
+    } catch (error) {
+      console.error('Failed to create tasks via HTTP fallback:', error);
+    }
   };
 
   const handleVote = (vote: number) => {
