@@ -89,7 +89,12 @@ export const getAllTasksInRoom = async (req: Request, res: Response) => {
 
     res.status(200).send(tasks);
   } catch (error) {
-    console.error(error);
+    console.error('Failed to fetch tasks in room:', {
+      error,
+      roomId: req.params.roomId,
+      route: req.originalUrl,
+      method: req.method,
+    });
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
