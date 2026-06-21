@@ -41,7 +41,12 @@ Task.init(
   }
 );
 
-Task.belongsTo(Room);
-Room.hasMany(Task, { onDelete: 'CASCADE' });
+Task.belongsTo(Room, {
+  foreignKey: 'roomId',
+});
+Room.hasMany(Task, {
+  foreignKey: 'roomId',
+  onDelete: 'CASCADE',
+});
 
 export default Task;
