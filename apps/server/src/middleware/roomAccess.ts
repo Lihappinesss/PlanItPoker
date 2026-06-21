@@ -34,34 +34,45 @@ export const requireRoomAccess = async (
   res: Response,
   next: NextFunction
 ) => {
-  const userId = req.session.user?.id;
+  try {
+    const userId = req.session.user?.id;
 
-  if (!userId) {
-    res.status(401).json({
-      message: 'Unauthorized',
+    if (!userId) {
+      res.status(401).json({
+        message: 'Unauthorized',
+      });
+      return;
+    }
+
+    const roomId = await parseRoomId(req);
+
+    if (!roomId) {
+      res.status(400).json({
+        message: 'Room id is required',
+      });
+      return;
+    }
+
+    const accessAllowed = await hasRoomAccess(roomId, userId);
+
+    if (!accessAllowed) {
+      res.status(403).json({
+        message: 'Access to this room is forbidden',
+      });
+      return;
+    }
+
+    next();
+  } catch (error) {
+    console.error('Failed to validate room access:', {
+      error,
+      roomId: req.params.roomId ?? req.body?.roomId ?? req.params.id,
+      userId: req.session.user?.id,
     });
-    return;
-  }
-
-  const roomId = await parseRoomId(req);
-
-  if (!roomId) {
-    res.status(400).json({
-      message: 'Room id is required',
+    res.status(500).json({
+      message: 'Failed to validate room access',
     });
-    return;
   }
-
-  const accessAllowed = await hasRoomAccess(roomId, userId);
-
-  if (!accessAllowed) {
-    res.status(403).json({
-      message: 'Access to this room is forbidden',
-    });
-    return;
-  }
-
-  next();
 };
 
 export const requireRoomOwner = async (
@@ -69,41 +80,52 @@ export const requireRoomOwner = async (
   res: Response,
   next: NextFunction
 ) => {
-  const userId = req.session.user?.id;
+  try {
+    const userId = req.session.user?.id;
 
-  if (!userId) {
-    res.status(401).json({
-      message: 'Unauthorized',
+    if (!userId) {
+      res.status(401).json({
+        message: 'Unauthorized',
+      });
+      return;
+    }
+
+    const roomId = Number.isFinite(Number(req.params.id))
+      ? Number(req.params.id)
+      : await parseRoomId(req);
+
+    if (!roomId) {
+      res.status(400).json({
+        message: 'Room id is required',
+      });
+      return;
+    }
+
+    const room = await Room.findByPk(roomId);
+
+    if (!room) {
+      res.status(404).json({
+        message: 'Room not found',
+      });
+      return;
+    }
+
+    if (room.ownerId !== userId) {
+      res.status(403).json({
+        message: 'Only the room owner can perform this action',
+      });
+      return;
+    }
+
+    next();
+  } catch (error) {
+    console.error('Failed to validate room ownership:', {
+      error,
+      roomId: req.params.roomId ?? req.body?.roomId ?? req.params.id,
+      userId: req.session.user?.id,
     });
-    return;
-  }
-
-  const roomId = Number.isFinite(Number(req.params.id))
-    ? Number(req.params.id)
-    : await parseRoomId(req);
-
-  if (!roomId) {
-    res.status(400).json({
-      message: 'Room id is required',
+    res.status(500).json({
+      message: 'Failed to validate room ownership',
     });
-    return;
   }
-
-  const room = await Room.findByPk(roomId);
-
-  if (!room) {
-    res.status(404).json({
-      message: 'Room not found',
-    });
-    return;
-  }
-
-  if (room.ownerId !== userId) {
-    res.status(403).json({
-      message: 'Only the room owner can perform this action',
-    });
-    return;
-  }
-
-  next();
 };
